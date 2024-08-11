@@ -17,11 +17,11 @@ import {
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
-const _nav = [
+const CounselorNavigation = [
   {
     component: CNavItem,
     name: 'Dashboard',
-    to: '/admin-dashboard',
+    to: '/counselor-dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
@@ -31,13 +31,13 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Add Visitor',
-    to: '/admin-add-visitor',
+    to: '/counselor-add-visitor',
     icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
     name: 'View Visitors',
-    to: '/admin-view-visitors',
+    to: '/counselor-view-visitors',
     icon: <CIcon icon={cilMagnifyingGlass} customClassName="nav-icon" />,
   },
   {
@@ -47,31 +47,31 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Add Student',
-    to: '/admin-add-student',
+    to: '/counselor-add-student',
     icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
     name: 'View Students',
-    to: '/admin-view-students',
+    to: '/counselor-view-students',
     icon: <CIcon icon={cilMagnifyingGlass} customClassName="nav-icon" />,
   },
-  {
-    component: CNavTitle,
-    name: 'Employee',
-  },
-  {
-    component: CNavItem,
-    name: 'Add Employee',
-    to: '/admin-add-employee',
-    icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'View Employees',
-    to: '/admin-view-employees',
-    icon: <CIcon icon={cilMagnifyingGlass} customClassName="nav-icon" />,
-  },
+//   {
+//     component: CNavTitle,
+//     name: 'Employee',
+//   },
+//   {
+//     component: CNavItem,
+//     name: 'Add Employee',
+//     to: '/admin-add-employee',
+//     icon: <CIcon icon={cilPlus} customClassName="nav-icon" />,
+//   },
+//   {
+//     component: CNavItem,
+//     name: 'View Employees',
+//     to: '/admin-view-employees',
+//     icon: <CIcon icon={cilMagnifyingGlass} customClassName="nav-icon" />,
+//   },
   {
     component: CNavTitle,
     name: 'Theme',
@@ -353,4 +353,4 @@ const _nav = [
   },
 ]
 
-export default _nav
+export default CounselorNavigation

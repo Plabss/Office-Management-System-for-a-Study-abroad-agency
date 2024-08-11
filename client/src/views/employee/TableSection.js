@@ -1,6 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/prop-types */
-/* eslint-disable prettier/prettier */
 import React from 'react';
 import {
   CTable,
@@ -13,7 +10,7 @@ import {
   CProgress,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilPeople } from '@coreui/icons';
+import { cilInfo, cilPeople } from '@coreui/icons';
 import { Link } from 'react-router-dom';
 
 const TableSection = ({ data }) => (
@@ -63,7 +60,7 @@ const TableSection = ({ data }) => (
             <div className="fw-semibold text-nowrap">{item.activity}</div>
           </CTableDataCell>
           <CTableDataCell>
-            <div className="fw-semibold text-nowrap"><Link to={"/view-student"}>Go</Link></div>
+            <div className="fw-semibold text-nowrap"><Link to={"/view-student"}><CIcon icon={cilInfo} size="lg" /></Link></div>
           </CTableDataCell>
         </CTableRow>
       ))}

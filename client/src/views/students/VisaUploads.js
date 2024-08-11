@@ -1,23 +1,51 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/prop-types */
-/* eslint-disable prettier/prettier */
 // VisaUploads.js
-import React, { useState } from 'react';
-import { CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CButton, CBadge, CFormInput, CForm } from '@coreui/react';
+import React from 'react';
+import { CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CButton, CBadge, CFormInput } from '@coreui/react';
+import axios from 'axios';
 
-const VisaUploads = ({ visa }) => {
-  const [visaUploads, setVisaUploads] = useState(visa);
-
+const VisaUploads = ({ visaUploads, onUpdateVisa }) => {
   const handleFileUpload = (index, event) => {
     const newVisaUploads = [...visaUploads];
     newVisaUploads[index].document = event.target.files[0].name;
-    newVisaUploads[index].status = 'Accepted'; // Change status to 'Accepted' after selecting a file
-    setVisaUploads(newVisaUploads);
+    newVisaUploads[index].file = event.target.files[0]; // Storing the actual file object
+    newVisaUploads[index].status = 'Accepted'; 
+    onUpdateVisa(newVisaUploads);
   };
 
-  const handleUploadClick = (index) => {
-    // You can add custom logic here for when the upload button is clicked
-    console.log(`Uploading file for index ${index}`);
+  const handleUploadClick = async (index) => {
+    const uploadData = visaUploads[index];
+    if (!uploadData.file) {
+      console.log("No file selected for upload");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadData.file);
+    formData.append('country', uploadData.country);
+    formData.append('course', uploadData.course);
+
+    try {
+      const response = await axios.post('/api/visa-upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('File uploaded successfully:', response.data);
+
+      // Update status to reflect success or failure
+      const updatedVisaUploads = [...visaUploads];
+      updatedVisaUploads[index].status = 'Uploaded';
+      onUpdateVisa(updatedVisaUploads);
+
+    } catch (error) {
+      console.error('Error uploading file:', error);
+
+      // Update status to reflect the failure
+      const updatedVisaUploads = [...visaUploads];
+      updatedVisaUploads[index].status = 'Failed';
+      onUpdateVisa(updatedVisaUploads);
+    }
   };
 
   return (
@@ -36,7 +64,7 @@ const VisaUploads = ({ visa }) => {
             <CTableDataCell>{upload.country}</CTableDataCell>
             <CTableDataCell>{upload.course}</CTableDataCell>
             <CTableDataCell>
-              <CBadge color={upload.status === 'Accepted' ? 'success' : upload.status === 'Rejected' ? 'danger' : 'warning'}>
+              <CBadge color={upload.status === 'Uploaded' ? 'success' : upload.status === 'Failed' ? 'danger' : 'warning'}>
                 {upload.status}
               </CBadge>
             </CTableDataCell>

@@ -1,6 +1,6 @@
-/* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
   CButton,
   CCard,
@@ -19,7 +19,6 @@ import {
 const AddStudent = () => {
   const [counselors, setCounselors] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [newStudentId, setNewStudentId] = useState('');
   const [formData, setFormData] = useState({
     studentId: '',
     fullName: '',
@@ -28,20 +27,24 @@ const AddStudent = () => {
     parentPhone: '',
     dob: '',
     address: '',
-    counselor: '', // New field for counselor
+    counselor: '',
   });
   const navigate = useNavigate();
 
-  // Simulate fetching counselors from an API
   useEffect(() => {
-    // Fake API call to fetch counselors
     const fetchCounselors = async () => {
-      const fakeCounselors = [
-        { id: 'c1', name: 'Dr. John Doe' },
-        { id: 'c2', name: 'Ms. Jane Smith' },
-        { id: 'c3', name: 'Mr. Alan Brown' },
-      ];
-      setCounselors(fakeCounselors);
+      try {
+        const response = await axios.get('/api/counselors');
+        // Ensure that response.data is an array
+        if (Array.isArray(response.data)) {
+          setCounselors(response.data);
+        } else {
+          console.error('Unexpected data format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching counselors:', error);
+        // Handle error
+      }
     };
 
     fetchCounselors();
@@ -55,16 +58,21 @@ const AddStudent = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Replace with your API endpoint to submit form data
-
-    alert('Done')
-
-    // After submission, you can reset the form or navigate away
-    setLoading(false);
+    try {
+      const response = await axios.post('/api/students', formData);
+      alert("Done")
+      console.log('Student data submitted:', response.data);
+      navigate('/students'); // Redirect to students list or another page
+    } catch (error) {
+      console.error('Error submitting student data:', error);
+      // Handle error
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -84,8 +92,9 @@ const AddStudent = () => {
                       type="text"
                       id="studentId"
                       name="studentId"
-                      value={formData.studentId || newStudentId}
+                      value={formData.studentId}
                       onChange={handleInputChange}
+                      required
                     />
                   </CCol>
                   <CCol md={6}>
@@ -96,6 +105,7 @@ const AddStudent = () => {
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
+                      required
                     />
                   </CCol>
                 </CRow>
@@ -108,6 +118,7 @@ const AddStudent = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
+                      required
                     />
                   </CCol>
                   <CCol md={6}>
@@ -118,6 +129,7 @@ const AddStudent = () => {
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
+                      required
                     />
                   </CCol>
                 </CRow>
@@ -130,6 +142,7 @@ const AddStudent = () => {
                       name="parentPhone"
                       value={formData.parentPhone}
                       onChange={handleInputChange}
+                      required
                     />
                   </CCol>
                   <CCol md={6}>
@@ -140,6 +153,7 @@ const AddStudent = () => {
                       name="dob"
                       value={formData.dob}
                       onChange={handleInputChange}
+                      required
                     />
                   </CCol>
                 </CRow>
@@ -152,6 +166,7 @@ const AddStudent = () => {
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
+                      required
                     />
                   </CCol>
                 </CRow>
@@ -165,9 +180,10 @@ const AddStudent = () => {
                       name="counselor"
                       value={formData.counselor}
                       onChange={handleInputChange}
+                      // required
                     >
                       <option value="" disabled>Select a Counselor</option>
-                      {counselors.map((counselor) => (
+                      {Array.isArray(counselors) && counselors.map((counselor) => (
                         <option key={counselor.id} value={counselor.name}>
                           {counselor.name}
                         </option>

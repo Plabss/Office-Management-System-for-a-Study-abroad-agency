@@ -3,16 +3,28 @@ import { legacy_createStore as createStore } from 'redux'
 const initialState = {
   sidebarShow: true,
   theme: 'light',
+  role: ''
 }
 
-const changeState = (state = initialState, { type, ...rest }) => {
+const changeState = (state = initialState, { type, key, value, ...rest }) => {
   switch (type) {
     case 'set':
-      return { ...state, ...rest }
+      return { ...state, ...rest };
+    case 'addElement':
+      return { ...state, [key]: value };
+    case 'deleteElement':
+      const newState = { ...state };
+      delete newState[key];
+      return newState;
+    case 'updateElement':
+      if (state[key] !== undefined) {
+        return { ...state, [key]: value };
+      }
+      return state; // Optionally handle cases where the key does not exist
     default:
-      return state
+      return state;
   }
-}
+};
 
 const store = createStore(changeState)
 export default store

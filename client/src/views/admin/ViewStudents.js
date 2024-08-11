@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 // ViewStudents.js
 import React, { useState } from 'react';
 import {

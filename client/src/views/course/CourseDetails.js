@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
 import {
   CCard,
@@ -13,6 +12,7 @@ import {
   CBadge,
   CFormSelect, // Import the CFormSelect component
 } from '@coreui/react';
+import axios from 'axios'; // Import axios for making API calls
 
 const CourseDetails = () => {
   // Fake course data
@@ -38,7 +38,7 @@ const CourseDetails = () => {
   const handleFileUpload = (index, event) => {
     const newDocuments = [...documents];
     newDocuments[index].file = event.target.files[0];
-    newDocuments[index].uploaded = true;
+    newDocuments[index].uploaded = false; // Set uploaded to false until the file is actually uploaded
     setDocuments(newDocuments);
   };
 
@@ -49,6 +49,38 @@ const CourseDetails = () => {
       // Here you could also send this data to your backend or perform other actions
     } else {
       alert('Please select an applicant before assigning.');
+    }
+  };
+
+  // Function to handle file upload to the server
+  const handleUploadClick = async (index) => {
+    const file = documents[index].file;
+
+    if (!file) {
+      alert('No file selected for upload.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      // Replace with your API endpoint
+      const response = await axios.post('/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Update document status and handle response as needed
+      const newDocuments = [...documents];
+      newDocuments[index].uploaded = true;
+      setDocuments(newDocuments);
+
+      alert(`File uploaded successfully: ${response.data.message}`);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('Error uploading file.');
     }
   };
 
@@ -113,18 +145,27 @@ const CourseDetails = () => {
                     ) : (
                       <CBadge color="warning">Not Uploaded</CBadge>
                     )}
-                    {doc.uploaded ? (
-                      <div className="mt-2">
-                        <strong>File:</strong> {doc.file.name}
-                      </div>
-                    ) : (
-                      <div className="mt-2">
-                        <input
-                          type="file"
-                          onChange={(e) => handleFileUpload(index, e)}
-                        />
-                      </div>
-                    )}
+                    <div className="mt-2">
+                      {doc.uploaded ? (
+                        <div>
+                          <strong>File:</strong> {doc.file.name}
+                        </div>
+                      ) : (
+                        <div>
+                          <input
+                            type="file"
+                            onChange={(e) => handleFileUpload(index, e)}
+                          />
+                          <CButton
+                            color="primary"
+                            onClick={() => handleUploadClick(index)}
+                            className="ms-2"
+                          >
+                            Upload
+                          </CButton>
+                        </div>
+                      )}
+                    </div>
                   </CListGroupItem>
                 ))}
               </CListGroup>

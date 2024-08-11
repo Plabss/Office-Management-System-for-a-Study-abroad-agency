@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/no-unescaped-entities */
 import React from 'react'
 
 import {
@@ -31,6 +29,7 @@ import {
   cifIn,
   cifPl,
   cifUs,
+  cilInfo,
   cilPeople,
 } from '@coreui/icons'
 
@@ -193,7 +192,7 @@ const ViewEmployees = () => {
                         <div className="fw-semibold text-nowrap">{item.activity}</div>
                       </CTableDataCell>
                       <CTableDataCell>
-                        <div className="fw-semibold text-nowrap"><Link to={"/view-employee"}>More</Link></div>
+                        <div className="fw-semibold text-nowrap"><Link to={"/view-employee"}><CIcon icon={cilInfo} size="lg" /></Link></div>
                       </CTableDataCell>
                     </CTableRow>
                   ))}

@@ -1,6 +1,4 @@
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-
 import {
   CCloseButton,
   CSidebar,
@@ -17,12 +15,20 @@ import { logo } from 'src/assets/brand/logo'
 import { sygnet } from 'src/assets/brand/sygnet'
 
 // sidebar nav config
-import navigation from '../_nav'
+import navigation from '../navigations/_nav'
+import CounselorNavigation from '../navigations/_counselorNav'
+import ReceptionistNavigation from '../navigations/_receptionistNav'
+import ApplicantNavigation from '../navigations/_applicantNav'
+import VisaAdminNavigation from '../navigations/_visaAdminNav'
+import { useDispatch, useSelector } from 'react-redux'
+
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  // const role = 'counselor';
+  const role = localStorage.getItem('role');
 
   return (
     <CSidebar
@@ -46,12 +52,20 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
-      <AppSidebarNav items={navigation} />
-      <CSidebarFooter className="border-top d-none d-lg-flex">
+      
+      {
+        role === 'super-admin' ? <AppSidebarNav items={navigation} /> :
+        role === 'counselor' ? <AppSidebarNav items={CounselorNavigation} /> :
+        role === 'applicant' ? <AppSidebarNav items={ApplicantNavigation} /> :
+        role === 'visa-admin' ? <AppSidebarNav items={VisaAdminNavigation} /> :
+        role === 'receptionist' ? <AppSidebarNav items={ReceptionistNavigation} /> : null
+      }
+      
+      {/* <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
         />
-      </CSidebarFooter>
+      </CSidebarFooter> */}
     </CSidebar>
   )
 }

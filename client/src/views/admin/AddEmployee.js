@@ -1,5 +1,5 @@
-/* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
   CButton,
   CCard,
@@ -11,7 +11,6 @@ import {
   CFormInput,
   CFormLabel,
   CFormSelect,
-  CFormTextarea,
   CRow,
   CSpinner,
 } from '@coreui/react';
@@ -29,7 +28,7 @@ const AddEmployee = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === 'cv') {
+    if (name === 'cv' || name === 'nid') {
       setEmployee((prevState) => ({
         ...prevState,
         [name]: files[0],
@@ -42,7 +41,7 @@ const AddEmployee = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -54,15 +53,22 @@ const AddEmployee = () => {
     formData.append('cv', employee.cv);
     formData.append('nid', employee.nid);
 
-    // Make an API call to save the data to the database
-    // Example: axios.post('/api/employees', formData)
-    console.log('Employee data submitted:', formData);
+    try {
+      // Replace with your API endpoint
+      const response = await axios.post('/api/employees', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+      console.log('Employee data submitted:', response.data);
       // handle success (e.g., navigate to another page or show a success message)
-    }, 2000);
+    } catch (error) {
+      console.error('Error submitting employee data:', error);
+      // handle error (e.g., show an error message)
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,8 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable prettier/prettier */
-/* eslint-disable react/prop-types */
-/* eslint-disable prettier/prettier */
 // StudentProgress.js
 import React from 'react';
 import './StudentProgress.css'
@@ -12,20 +7,6 @@ const StudentProgress = ({ progress, counselor, applicant, visaOfficer }) => (
   <CCard>
     <CCardBody>
       <CCardTitle>Student Progress</CCardTitle>
-
-      {/* Student Progress Info */}
-      <CListGroup flush>
-        <CListGroupItem><strong>Courses Completed:</strong> {progress.coursesCompleted}</CListGroupItem>
-        <CListGroupItem><strong>Current GPA:</strong> {progress.currentGPA}</CListGroupItem>
-        <CListGroupItem>
-          <strong>Upcoming Exams:</strong>
-          <ul>
-            {progress.upcomingExams.map((exam, index) => (
-              <li key={index}>{exam.course} - {exam.date}</li>
-            ))}
-          </ul>
-        </CListGroupItem>
-      </CListGroup>
 
       {/* Timeline */}
       <CRow className="mt-4">

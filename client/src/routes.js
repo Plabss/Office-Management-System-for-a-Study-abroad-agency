@@ -9,6 +9,7 @@ const ViewStudents = React.lazy(() => import('./views/admin/ViewStudents'))
 const ViewEmployees = React.lazy(() => import('./views/admin/ViewEmployees'))
 const ViewVisitors = React.lazy(() => import('./views/admin/ViewVisitors'))
 
+
 const ViewStudent = React.lazy(() => import('./views/students/ViewStudent'))
 const CourseDetails = React.lazy(() => import('./views/course/CourseDetails'))
 const ViewEmployee = React.lazy(() => import('./views/employee/ViewEmployee'))
@@ -67,14 +68,44 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   // { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/admin-dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/admin-add-visitor', name: 'Add-Visitor', element: AddVisitor },
-  { path: '/admin-view-visitors', name: 'Dashboard', element: ViewVisitors },
-  { path: '/admin-add-student', name: 'Add-Student', element: AddStudent },
-  { path: '/admin-view-students', name: 'View-Students', element: ViewStudents },
-  { path: '/admin-add-employee', name: 'Add-Employee', element: AddEmployee },
-  { path: '/admin-view-employees', name: 'Dashboard', element: ViewEmployees },
+  //super-admin
+  { path: '/super-admin-dashboard', name: 'Admin Dashboard', element: Dashboard },
+  { path: '/super-admin-add-visitor', name: 'Admin Add Visitor', element: AddVisitor },
+  { path: '/super-admin-view-visitors', name: 'Admin View Visitors', element: ViewVisitors },
+  { path: '/super-admin-add-student', name: 'Admin Add Student', element: AddStudent },
+  { path: '/super-admin-view-students', name: 'Admin View Students', element: ViewStudents },
+  { path: '/super-admin-add-employee', name: 'Admin Add Employee', element: AddEmployee },
+  { path: '/super-admin-view-employees', name: 'Admin View Employees', element: ViewEmployees },
+  
+  //counselor 
+  { path: '/counselor-dashboard', name: 'Counselor Dashboard', element: Dashboard },
+  { path: '/counselor-add-visitor', name: 'Counselor Add Visitor', element: AddVisitor },
+  { path: '/counselor-view-visitors', name: 'Counselor View Visitors', element: ViewVisitors },
+  { path: '/counselor-add-student', name: 'Counselor Add Student', element: AddStudent },
+  { path: '/counselor-view-students', name: 'Counselor View Students', element: ViewStudents },
 
+  //applicant
+  { path: '/applicant-dashboard', name: 'Applicant Dashboard', element: Dashboard },
+  { path: '/applicant-add-visitor', name: 'Applicant Add Visitor', element: AddVisitor },
+  { path: '/applicant-view-visitors', name: 'Applicant View Visitors', element: ViewVisitors },
+  { path: '/applicant-add-student', name: 'Applicant Add Student', element: AddStudent },
+  { path: '/applicant-view-students', name: 'Applicant View Students', element: ViewStudents },
+
+  //visa-admin
+  { path: '/visa-admin-dashboard', name: 'Visa Admin Dashboard', element: Dashboard },
+  { path: '/visa-admin-add-visitor', name: 'Visa Admin Add Visitor', element: AddVisitor },
+  { path: '/visa-admin-view-visitors', name: 'Visa Admin View Visitors', element: ViewVisitors },
+  { path: '/visa-admin-add-student', name: 'Visa Admin Add Student', element: AddStudent },
+  { path: '/visa-admin-view-students', name: 'Visa Admin View Students', element: ViewStudents },
+  
+  //receptionist
+  { path: '/receptionist-dashboard', name: 'Receptionist Dashboard', element: Dashboard },
+  { path: '/receptionist-add-visitor', name: 'Receptionist Add Visitor', element: AddVisitor },
+  { path: '/receptionist-view-visitors', name: 'Receptionist View Visitors', element: ViewVisitors },
+  { path: '/receptionist-add-student', name: 'Receptionist Add Student', element: AddStudent },
+  { path: '/receptionist-view-students', name: 'Receptionist View Students', element: ViewStudents },
+  
+  //common elements
   { path: '/view-student', name: 'View-Student', element: ViewStudent },
   { path: '/enrolled-course', name: 'Course-Details', element: CourseDetails },
   { path: '/view-employee', name: 'View-Employee', element: ViewEmployee },
