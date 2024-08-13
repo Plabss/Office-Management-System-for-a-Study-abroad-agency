@@ -1,5 +1,4 @@
-// ViewStudents.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CCard,
   CCardBody,
@@ -14,43 +13,52 @@ import {
   CTabContent,
   CTabPane,
 } from '@coreui/react';
-
-import avatar1 from 'src/assets/images/avatars/1.jpg';
-import avatar2 from 'src/assets/images/avatars/2.jpg';
-import avatar3 from 'src/assets/images/avatars/3.jpg';
-import avatar4 from 'src/assets/images/avatars/4.jpg';
-import avatar5 from 'src/assets/images/avatars/5.jpg';
-import avatar6 from 'src/assets/images/avatars/6.jpg';
-import { cifUs, cifBr, cifIn, cifFr, cifEs, cifPl, cilPeople } from '@coreui/icons';
+import axios from 'axios';
 import TableSection from '../students/TableSection';
-
-const tableData = [
-  {
-    avatar: { src: avatar1, status: 'success' },
-    user: { name: 'Yiorgos Avraamu', new: true, registered: 'Jan 1, 2023' },
-    country: { name: 'USA', flag: cifUs },
-    usage: { value: 50, period: 'Jun 11, 2023 - Jul 10, 2023', color: 'success' },
-    payment: { name: 'Mastercard', icon: cilPeople },
-    activity: '10 sec ago',
-  },
-  {
-    avatar: { src: avatar2, status: 'danger' },
-    user: { name: 'Avram Tarasios', new: false, registered: 'Jan 1, 2023' },
-    country: { name: 'Brazil', flag: cifBr },
-    usage: { value: 22, period: 'Jun 11, 2023 - Jul 10, 2023', color: 'info' },
-    payment: { name: 'Visa', icon: cilPeople },
-    activity: '5 minutes ago',
-  },
-  // ... add more items as needed
-];
 
 const ViewStudents = () => {
   const [activeTab, setActiveTab] = useState('all-students');
+  const [students, setStudents] = useState([]);
+  const [employeeID, setEmployeeID] = useState(null);
+
+  useEffect(() => {
+    // Fetch employee ID from localStorage
+    const employee = JSON.parse(localStorage.getItem('employee'));
+    if (employee) {
+      console.log('Employee found:', employee); // Debugging log
+      setEmployeeID(employee._id);
+    } else {
+      console.log('No employee found in localStorage'); // Debugging log
+    }
+  }, []); // Empty dependency array to run this effect only once on mount
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      if (!employeeID) {
+        console.log('employeeID is null or undefined, skipping fetch'); // Debugging log
+        return; // Don't make the API call if employeeID is null
+      }
+
+      try {
+        console.log('Fetching students with employeeID:', employeeID); // Debugging log
+        // Fetch students based on employee ID
+        const response = await axios.get(`http://localhost:5000/api/v1/students/get-all-students/${employeeID}`);
+        setStudents(response.data);
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    };
+
+    fetchStudents();
+  }, [employeeID]); // Dependency array to run this effect whenever employeeID changes
 
   return (
     <CContainer fluid className="mt-4">
       <CRow>
         <CCol>
+          {
+            console.log(students)
+          }
           <CCard>
             <CCardHeader>
               <h2>Students Overview</h2>
@@ -81,16 +89,16 @@ const ViewStudents = () => {
                 </CNav>
                 <CTabContent>
                   <CTabPane visible={activeTab === 'all-students'}>
-                    <TableSection data={tableData} />
+                    <TableSection data={students} />
                   </CTabPane>
                   <CTabPane visible={activeTab === 'counseling-students'}>
-                    <TableSection data={tableData} />
+                    <TableSection data={students.filter(student => student.employees?.asCounselor?.includes(employeeID))} />
                   </CTabPane>
                   <CTabPane visible={activeTab === 'university-application'}>
-                    <TableSection data={tableData} />
+                    <TableSection data={students.filter(student => student.employees?.asApplicant?.includes(employeeID))} />
                   </CTabPane>
                   <CTabPane visible={activeTab === 'visa-application'}>
-                    <TableSection data={tableData} />
+                    <TableSection data={students.filter(student => student.employees?.asVisaAdmin?.includes(employeeID))} />
                   </CTabPane>
                 </CTabContent>
               </CTabs>

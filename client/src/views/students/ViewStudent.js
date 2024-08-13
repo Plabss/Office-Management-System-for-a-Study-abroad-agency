@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import {
   CCard,
   CCardBody,
@@ -12,104 +12,73 @@ import {
   CNavLink,
   CTabContent,
   CTabPane,
-} from '@coreui/react'
-import StudentInfo from './StudentInfo'
-import StudentProgress from './StudentProgress'
-import StudentDocuments from './StudentDocuments'
-import StudentCourses from './StudentCourses'
-import VisaUploads from './VisaUploads'
+} from '@coreui/react';
+import StudentInfo from './StudentInfo';
+import StudentProgress from './StudentProgress';
+import StudentDocuments from './StudentDocuments';
+import StudentCourses from './StudentCourses';
+import VisaUploads from './VisaUploads';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 const ViewStudent = () => {
-  const [activeTab, setActiveTab] = useState('basic-info')
-
+  const [activeTab, setActiveTab] = useState('basic-info');
+  const [student, setStudent] = useState(null);
+  const [error, setError] = useState(null);
+  
+  // Declare separate states for each section
+  const [basicInfo, setBasicInfo] = useState({});
+  const [progress, setProgress] = useState({});
+  const [documents, setDocuments] = useState({ cv: null, nid: null });
+  const [courses, setCourses] = useState([]);
+  const [visa, setVisa] = useState({});
+  
+  const studentId = useSelector(state => state.studentId);
   const role = localStorage.getItem('role');
 
-  // Fake student data
-  const student = {
-    studentId: 'STU00123',
-    fullName: 'John Doe',
-    email: 'johndoe@example.com',
-    phoneNumber: '+1234567890',
-    parentPhone: '+0987654321',
-    dob: '2000-01-01',
-    street: '1234 Elm Street',
-    city: 'Metropolis',
-    postalCode: '123456',
-    country: 'USA',
-    howKnow: 'Internet Search',
+  useEffect(() => {
+    const fetchStudentDetails = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/v1/students/get-a-student/${studentId}`);
+        const studentData = response.data;
+        setStudent(studentData);
+        // Set initial states for each section
+        setBasicInfo({
+          fullName: studentData.fullName,
+          email: studentData.email,
+          phoneNumber: studentData.phoneNumber,
+          parentPhone: studentData.parentPhone,
+          dob: studentData.dob,
+          address: studentData.address,
+        });
+        setProgress({
+          progress: studentData.progress,
+          counselor: studentData.employees.asCounselor,
+          applicant: studentData.employees.asApplicant,
+          visaOfficer: studentData.employees.asVisaAdmin,
+        });
+        setDocuments(studentData.documents || { cv: null, nid: null }); // Ensure default structure
+        setCourses(studentData.courses);
+        setVisa(studentData.visaUploads || {}); // Ensure default structure
+      } catch (error) {
+        setError('Failed to fetch student details.');
+      }
+    };
+
+    fetchStudentDetails();
+  }, [studentId]);
+
+  const handleDocumentUpload = (updatedDocuments) => {
+    setDocuments(updatedDocuments);
+  };
+
+  if (error) {
+    return <div>{error}</div>;
   }
 
-  // Fake progress data
-  const progress = {
-    coursesCompleted: 8,
-    currentGPA: 3.8,
-    upcomingExams: [
-      { course: 'Math 101', date: '2024-08-10' },
-      { course: 'Physics 201', date: '2024-08-15' },
-    ],
+  if (!student) {
+    return <div>Loading...</div>;
   }
-
-  const counselor = 'Dr. John Doe'
-  const applicant = 'Jane Smith'
-  const visaOfficer = 'Mr. Alan Brown'
-
-  // State for documents
-  const [documents, setDocuments] = useState([
-    { name: 'Transcript', status: 'Verified', file: new File([''], 'transcript.pdf') },
-    { name: 'ID Card', status: 'Pending', file: null },
-    { name: 'Passport', status: 'Pending', file: null },
-    { name: 'Recommendation Letter', status: 'Pending', file: null },
-    { name: 'Personal Statement', status: 'Pending', file: null },
-  ])
-
-  const handleDocumentUpload = (index, updatedDocument) => {
-    const newDocuments = [...documents]
-    newDocuments[index] = updatedDocument
-    setDocuments(newDocuments)
-  }
-
-  // State for courses
-  const [courses, setCourses] = useState([
-    {
-      name: 'Math 101',
-      level: 'BSc',
-      university: 'Harvard University',
-      country: 'USA',
-      applied: 'Yes',
-      documents: 'Math101_Doc.pdf',
-    },
-    {
-      name: 'Physics 201',
-      level: 'MSc',
-      university: 'Stanford University',
-      country: 'USA',
-      applied: 'No',
-      documents: 'Physics201_Doc.pdf',
-    },
-    {
-      name: 'Chemistry 301',
-      level: 'PhD',
-      university: 'MIT',
-      country: 'USA',
-      applied: 'Yes',
-      documents: 'Chemistry301_Doc.pdf',
-    },
-  ])
-
-  const handleAddCourse = (newCourse) => {
-    setCourses([...courses, newCourse])
-  }
-
-  // Fake visa upload data
-  const [visaUploads, setVisaUploads] = useState([
-    { country: 'USA', course: 'Math 101', status: 'Pending', document: '' },
-    { country: 'USA', course: 'Physics 201', status: 'Accepted', document: 'Physics201_View.pdf' },
-    { country: 'USA', course: 'Chemistry 301', status: 'Pending', document: '' },
-    { country: 'USA', course: 'Biology 401', status: 'Accepted', document: 'Biology401_View.pdf' },
-    { country: 'USA', course: 'History 501', status: 'Rejected', document: 'History501_View.pdf' },
-  ])
-
-  // const role = 'counselor'
 
   return (
     <CContainer fluid className="mt-4">
@@ -169,30 +138,22 @@ const ViewStudent = () => {
                 </CNav>
                 <CTabContent>
                   <CTabPane visible={activeTab === 'basic-info'}>
-                    <StudentInfo student={student} />
+                    <StudentInfo student={basicInfo} setStudent={setBasicInfo} />
                   </CTabPane>
                   <CTabPane visible={activeTab === 'progress'}>
-                    <StudentProgress
-                      progress={progress}
-                      counselor={counselor}
-                      applicant={applicant}
-                      visaOfficer={visaOfficer}
-                    />
+                    <StudentProgress progress={progress} setProgress={setProgress} />
                   </CTabPane>
                   {role !== 'receptionist' ? (
                     <>
                       <CTabPane visible={activeTab === 'documents'}>
-                        <StudentDocuments
-                          documents={documents}
-                          onDocumentUpload={handleDocumentUpload}
-                        />
+                        <StudentDocuments documents={documents} onDocumentUpload={handleDocumentUpload} />
                       </CTabPane>
                       <CTabPane visible={activeTab === 'courses'}>
-                        <StudentCourses courses={courses} onAddCourse={handleAddCourse} />
+                        <StudentCourses courses={courses} setCourses={setCourses} />
                       </CTabPane>
-                      <CTabPane visible={activeTab === 'visa'}>
-                        <VisaUploads visaUploads={visaUploads} onUpdateVisa={setVisaUploads} />
-                      </CTabPane>
+                      {/* <CTabPane visible={activeTab === 'visa'}>
+                        <VisaUploads visa={visa} setVisa={setVisa} />
+                      </CTabPane> */}
                     </>
                   ) : null}
                 </CTabContent>
@@ -202,7 +163,7 @@ const ViewStudent = () => {
         </CCol>
       </CRow>
     </CContainer>
-  )
-}
+  );
+};
 
-export default ViewStudent
+export default ViewStudent;

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import {
   CButton,
   CCard,
@@ -14,13 +14,12 @@ import {
   CRow,
   CSpinner,
   CFormSelect,
-} from '@coreui/react';
+} from '@coreui/react'
 
 const AddStudent = () => {
-  const [counselors, setCounselors] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [counselors, setCounselors] = useState([])
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    studentId: '',
     fullName: '',
     email: '',
     phoneNumber: '',
@@ -28,52 +27,56 @@ const AddStudent = () => {
     dob: '',
     address: '',
     counselor: '',
-  });
-  const navigate = useNavigate();
+  })
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchCounselors = async () => {
       try {
-        const response = await axios.get('/api/counselors');
+        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees')
         // Ensure that response.data is an array
         if (Array.isArray(response.data)) {
-          setCounselors(response.data);
+          setCounselors(response.data)
         } else {
-          console.error('Unexpected data format:', response.data);
+          console.error('Unexpected data format:', response.data)
         }
       } catch (error) {
-        console.error('Error fetching counselors:', error);
+        console.error('Error fetching counselors:', error)
         // Handle error
       }
-    };
+    }
 
-    fetchCounselors();
-  }, []);
+    fetchCounselors()
+  }, [])
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData({
       ...formData,
       [name]: value,
-    });
-  };
+    })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
-      const response = await axios.post('/api/students', formData);
-      alert("Done")
-      console.log('Student data submitted:', response.data);
-      navigate('/students'); // Redirect to students list or another page
+      const response = await axios.post('http://localhost:5000/api/v1/students/add-student', {
+        ...formData,
+        employees: {
+          asCounselor: formData.counselor,
+        },
+      })
+      console.log('Student data submitted:', response.data)
+      navigate('/students') // Redirect to students list or another page
     } catch (error) {
-      console.error('Error submitting student data:', error);
+      console.error('Error submitting student data:', error)
       // Handle error
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <CContainer className="mt-4">
@@ -86,18 +89,7 @@ const AddStudent = () => {
             <CCardBody>
               <CForm onSubmit={handleSubmit}>
                 <CRow className="mb-3">
-                  <CCol md={6}>
-                    <CFormLabel htmlFor="studentId">Student ID</CFormLabel>
-                    <CFormInput
-                      type="text"
-                      id="studentId"
-                      name="studentId"
-                      value={formData.studentId}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </CCol>
-                  <CCol md={6}>
+                  <CCol md={12}>
                     <CFormLabel htmlFor="fullName">Full Name</CFormLabel>
                     <CFormInput
                       type="text"
@@ -182,12 +174,15 @@ const AddStudent = () => {
                       onChange={handleInputChange}
                       // required
                     >
-                      <option value="" disabled>Select a Counselor</option>
-                      {Array.isArray(counselors) && counselors.map((counselor) => (
-                        <option key={counselor.id} value={counselor.name}>
-                          {counselor.name}
-                        </option>
-                      ))}
+                      <option value="" disabled>
+                        Select a Counselor
+                      </option>
+                      {Array.isArray(counselors) &&
+                        counselors.map((counselor) => (
+                          <option key={counselor._id} value={counselor._id}>
+                            {counselor.name}
+                          </option>
+                        ))}
                     </CFormSelect>
                   </CCol>
                 </CRow>
@@ -201,7 +196,7 @@ const AddStudent = () => {
         </CCol>
       </CRow>
     </CContainer>
-  );
-};
+  )
+}
 
-export default AddStudent;
+export default AddStudent

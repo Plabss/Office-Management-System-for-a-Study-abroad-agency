@@ -1,0 +1,30 @@
+const mongoose = require("mongoose");
+
+const studentSchema = new mongoose.Schema(
+  {
+    fullName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    phoneNumber: { type: String, required: true },
+    parentPhone: { type: String, required: true },
+    dob: { type: Date, required: true },
+    address: { type: String, required: true },
+    employees: {
+      asCounselor: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
+      asApplicant: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
+      asVisaAdmin: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
+    },
+    documents: {
+      cv: { type: String, default: null },
+      nid: { type: String, default: null },
+    },
+    courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
+    progress: { type: String, default: "enrolled" },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Student = mongoose.model("Student", studentSchema);
+
+module.exports = Student;

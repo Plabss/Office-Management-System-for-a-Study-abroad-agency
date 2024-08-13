@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   CButton,
   CCard,
@@ -16,16 +16,30 @@ import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    // Simulate a successful login and store the role in localStorage
-    const role = 'applicant';
-    localStorage.setItem('role', role);
-    toast.success('Login Successful!');
-    navigate(`/${role}-dashboard`); // Redirect to the dashboard or desired page
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/auth/login', { email, password });
+      const { employee } = response.data;
+      
+      // Store employee data or roles as needed
+      localStorage.setItem('role', employee.role.join(',')); // Store roles as comma-separated string
+      localStorage.setItem('employee', JSON.stringify(employee));
+
+      toast.success('Login Successful!');
+
+      // Redirect to the dashboard based on the first role
+      const firstRole = employee.role[0]; // Use the first role for redirection
+      navigate(`/${firstRole}-dashboard`);
+    } catch (error) {
+      toast.error('Login Failed! Invalid credentials.');
+    }
   };
 
   return (
@@ -43,7 +57,12 @@ const Login = () => {
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
                       </CInputGroupText>
-                      <CFormInput placeholder="Username" autoComplete="username" />
+                      <CFormInput
+                        placeholder="Email"
+                        autoComplete="username"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupText>
@@ -53,6 +72,8 @@ const Login = () => {
                         type="password"
                         placeholder="Password"
                         autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                       />
                     </CInputGroup>
                     <CRow>

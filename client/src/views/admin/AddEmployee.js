@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react'
+import axios from 'axios'
 import {
   CButton,
   CCard,
@@ -13,63 +13,69 @@ import {
   CFormSelect,
   CRow,
   CSpinner,
-} from '@coreui/react';
+} from '@coreui/react'
 
 const AddEmployee = () => {
   const [employee, setEmployee] = useState({
     name: '',
     email: '',
+    password: '',
     phone: '',
     role: '',
     cv: null,
     nid: null,
-  });
-  const [loading, setLoading] = useState(false);
+  })
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value, files } = e.target
     if (name === 'cv' || name === 'nid') {
       setEmployee((prevState) => ({
         ...prevState,
         [name]: files[0],
-      }));
+      }))
     } else {
       setEmployee((prevState) => ({
         ...prevState,
         [name]: value,
-      }));
+      }))
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
-    const formData = new FormData();
-    formData.append('name', employee.name);
-    formData.append('email', employee.email);
-    formData.append('phone', employee.phone);
-    formData.append('role', employee.role);
-    formData.append('cv', employee.cv);
-    formData.append('nid', employee.nid);
+    const formData = new FormData()
+    formData.append('name', employee.name)
+    formData.append('email', employee.email)
+    formData.append('password', employee.password)
+    formData.append('phone', employee.phone)
+    formData.append('role', employee.role)
+    formData.append('cv', employee.cv)
+    formData.append('nid', employee.nid)
 
     try {
       // Replace with your API endpoint
-      const response = await axios.post('/api/employees', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      const response = await axios.post(
+        'http://localhost:5000/api/v1/employees/add-employee',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         },
-      });
+      )
 
-      console.log('Employee data submitted:', response.data);
+      console.log('Employee data submitted:', response.data)
       // handle success (e.g., navigate to another page or show a success message)
     } catch (error) {
-      console.error('Error submitting employee data:', error);
+      console.error('Error submitting employee data:', error)
       // handle error (e.g., show an error message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <CContainer className="mt-4">
@@ -102,6 +108,20 @@ const AddEmployee = () => {
                       name="email"
                       placeholder="Enter email"
                       value={employee.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </CCol>
+                </CRow>
+                <CRow className="mb-3">
+                  <CCol md={12}>
+                    <CFormLabel htmlFor="password">Password</CFormLabel>
+                    <CFormInput
+                      type="text"
+                      id="password"
+                      name="password"
+                      placeholder="Enter password"
+                      value={employee.password}
                       onChange={handleChange}
                       required
                     />
@@ -141,23 +161,11 @@ const AddEmployee = () => {
                 <CRow className="mb-3">
                   <CCol md={6}>
                     <CFormLabel htmlFor="cv">CV/Resume</CFormLabel>
-                    <CFormInput
-                      type="file"
-                      id="cv"
-                      name="cv"
-                      onChange={handleChange}
-                      required
-                    />
+                    <CFormInput type="file" id="cv" name="cv" onChange={handleChange} required />
                   </CCol>
                   <CCol md={6}>
                     <CFormLabel htmlFor="nid">NID</CFormLabel>
-                    <CFormInput
-                      type="file"
-                      id="nid"
-                      name="nid"
-                      onChange={handleChange}
-                      required
-                    />
+                    <CFormInput type="file" id="nid" name="nid" onChange={handleChange} required />
                   </CCol>
                 </CRow>
                 <CButton type="submit" color="primary" disabled={loading}>
@@ -169,7 +177,7 @@ const AddEmployee = () => {
         </CCol>
       </CRow>
     </CContainer>
-  );
-};
+  )
+}
 
-export default AddEmployee;
+export default AddEmployee
