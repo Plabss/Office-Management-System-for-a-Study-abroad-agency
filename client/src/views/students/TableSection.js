@@ -16,11 +16,10 @@ import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 const TableSection = ({ data }) => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const navigate =useNavigate();
   const handleDetailsClick = (studentId) => {
-    dispatch({ type: 'addElement', key: 'studentId', value: studentId })
-    navigate('/view-student')
+    localStorage.setItem('studentId', studentId);
+    navigate("/view-student")
   }
 
   return (

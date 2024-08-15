@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { CListGroup, CListGroupItem, CButton, CRow, CCol, CFormInput, CSpinner } from '@coreui/react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const StudentDocuments = ({ documents, onDocumentUpload }) => {
-  const [uploading, setUploading] = useState({ cv: false, nid: false });
-  const dispatch = useDispatch();
+  const [uploading, setUploading] = useState({ file1: false, file2: false, file3: false });
 
-  const studentId = localStorage.getItem('studentId');
+  const courseId = useSelector(state => state.courseId);
 
   const handleFileChange = (docType, event) => {
     const updatedDocument = { ...documents, [docType]: event.target.files[0] };
@@ -25,15 +24,14 @@ const StudentDocuments = ({ documents, onDocumentUpload }) => {
     try {
       setUploading({ ...uploading, [docType]: true });
       // Replace with your actual API endpoint
-      const res = await axios.post(`http://localhost:5000/api/v1/students/upload-document/${studentId}`, formData, {
+      await axios.post(`http://localhost:5000/api/v1/courses/upload-document/${courseId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
       // Update document status to 'Uploaded'
-      onDocumentUpload({ ...documents, [docType]: res?.data?.data?.docType });
-      dispatch({ type: 'toggleElement', key: 'upload' });
+      onDocumentUpload({ ...documents, [docType]: 'Uploaded' });
     } catch (error) {
       console.error('Error uploading file:', error);
     } finally {
@@ -54,9 +52,9 @@ const StudentDocuments = ({ documents, onDocumentUpload }) => {
     <CListGroup flush>
 
       {
-        console.log(studentId, 'Student')
+        console.log(courseId, 'Course')
       }
-      {['cv', 'nid'].map((docType) => (
+      {['file1', 'file2', 'file3'].map((docType) => (
         <CListGroupItem key={docType}>
           <strong>{docType.toUpperCase()}:</strong>
           <CRow className="mt-2 align-items-center">

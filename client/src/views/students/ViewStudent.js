@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   CCard,
   CCardBody,
@@ -12,72 +12,98 @@ import {
   CNavLink,
   CTabContent,
   CTabPane,
-} from '@coreui/react';
-import StudentInfo from './StudentInfo';
-import StudentProgress from './StudentProgress';
-import StudentDocuments from './StudentDocuments';
-import StudentCourses from './StudentCourses';
-import VisaUploads from './VisaUploads';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
+} from '@coreui/react'
+import StudentInfo from './StudentInfo'
+import StudentProgress from './StudentProgress'
+import StudentDocuments from './StudentDocuments'
+import StudentCourses from './StudentCourses'
+import VisaUploads from './VisaUploads'
+import axios from 'axios'
+import { useDispatch, useSelector } from 'react-redux'
 
 const ViewStudent = () => {
-  const [activeTab, setActiveTab] = useState('basic-info');
-  const [student, setStudent] = useState(null);
-  const [error, setError] = useState(null);
-  
+  const [activeTab, setActiveTab] = useState('basic-info')
+  const [student, setStudent] = useState(null)
+  const [error, setError] = useState(null)
+
+  const dispatch = useDispatch()
+
   // Declare separate states for each section
-  const [basicInfo, setBasicInfo] = useState({});
-  const [progress, setProgress] = useState({});
-  const [documents, setDocuments] = useState({ cv: null, nid: null });
-  const [courses, setCourses] = useState([]);
-  const [visa, setVisa] = useState({});
-  
-  const studentId = useSelector(state => state.studentId);
-  const role = localStorage.getItem('role');
+  const [basicInfo, setBasicInfo] = useState({})
+  const [progress, setProgress] = useState()
+  const [documents, setDocuments] = useState({ cv: null, nid: null })
+  const [courses, setCourses] = useState([])
+  const [visa, setVisa] = useState({})
+
+
+  // const addCourse = useSelector(state => state.addCourse);
+  const studentId = localStorage.getItem('studentId')
+  const role = localStorage.getItem('role')
+  const upload = useSelector((state) => state.upload);
 
   useEffect(() => {
     const fetchStudentDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/v1/students/get-a-student/${studentId}`);
-        const studentData = response.data;
-        setStudent(studentData);
+        const response = await axios.get(
+          `http://localhost:5000/api/v1/students/get-a-student/${studentId}`,
+        )
+        const studentData = response.data
+        setStudent(studentData)
+
+        console.log('xxxxxxxxxxxxxxxx', studentData)
+
         // Set initial states for each section
         setBasicInfo({
+          studentId: studentData._id,
           fullName: studentData.fullName,
           email: studentData.email,
           phoneNumber: studentData.phoneNumber,
           parentPhone: studentData.parentPhone,
           dob: studentData.dob,
           address: studentData.address,
-        });
+        })
         setProgress({
           progress: studentData.progress,
-          counselor: studentData.employees.asCounselor,
-          applicant: studentData.employees.asApplicant,
-          visaOfficer: studentData.employees.asVisaAdmin,
-        });
-        setDocuments(studentData.documents || { cv: null, nid: null }); // Ensure default structure
-        setCourses(studentData.courses);
-        setVisa(studentData.visaUploads || {}); // Ensure default structure
+          counselor: studentData.employees.asCounselor[0],
+          applicant: studentData.employees.asApplicant[0],
+          visaOfficer: studentData.employees.asVisaAdmin[0],
+        })
+        setDocuments(studentData.documents || { cv: null, nid: null })
+        setCourses(studentData.courses) // This now contains detailed course objects
+        setVisa(studentData.visaUploads || {})
       } catch (error) {
-        setError('Failed to fetch student details.');
+        setError('Failed to fetch student details.')
       }
-    };
+    }
 
-    fetchStudentDetails();
-  }, [studentId]);
+    fetchStudentDetails()
+  }, [studentId,upload])
+
+  const handleAddCourse = async (newCourse) => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/v1/courses/add-course`, {
+        ...newCourse,
+        studentId, // Assuming the course needs to be associated with the student
+      })
+      dispatch({ type: 'addElement', key: 'addCourse', value: 1 })
+      const addedCourse = response.data
+      setCourses((prevCourses) => [...prevCourses, addedCourse])
+    } catch (error) {
+      console.error('Failed to add course:', error)
+      setError('Failed to add course.')
+    }
+  }
 
   const handleDocumentUpload = (updatedDocuments) => {
-    setDocuments(updatedDocuments);
-  };
+    setDocuments(updatedDocuments)
+  }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div>{error}</div>
   }
 
   if (!student) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   return (
@@ -146,10 +172,13 @@ const ViewStudent = () => {
                   {role !== 'receptionist' ? (
                     <>
                       <CTabPane visible={activeTab === 'documents'}>
-                        <StudentDocuments documents={documents} onDocumentUpload={handleDocumentUpload} />
+                        <StudentDocuments
+                          documents={documents}
+                          onDocumentUpload={handleDocumentUpload}
+                        />
                       </CTabPane>
                       <CTabPane visible={activeTab === 'courses'}>
-                        <StudentCourses courses={courses} setCourses={setCourses} />
+                        <StudentCourses courses={courses} onAddCourse={handleAddCourse} />
                       </CTabPane>
                       {/* <CTabPane visible={activeTab === 'visa'}>
                         <VisaUploads visa={visa} setVisa={setVisa} />
@@ -163,7 +192,7 @@ const ViewStudent = () => {
         </CCol>
       </CRow>
     </CContainer>
-  );
-};
+  )
+}
 
-export default ViewStudent;
+export default ViewStudent
