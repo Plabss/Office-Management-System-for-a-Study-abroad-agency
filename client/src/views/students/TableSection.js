@@ -16,10 +16,9 @@ import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 const TableSection = ({ data }) => {
-  const dispatch = useDispatch()
   const navigate =useNavigate();
   const handleDetailsClick = (studentId) => {
-    dispatch({ type: 'addElement', key: 'studentId', value: studentId });
+    localStorage.setItem('studentId', studentId);
     navigate("/view-student")
   }
 
@@ -40,9 +39,9 @@ const TableSection = ({ data }) => {
             <CTableDataCell>{student.email}</CTableDataCell>
             <CTableDataCell>{student.phoneNumber}</CTableDataCell>
             <CTableDataCell>
-              <CButton color="info" onClick={() => handleDetailsClick(student._id)}>
+              <div color="info" onClick={() => handleDetailsClick(student._id)}>
                 <CIcon icon={cilInfo} size="lg" />
-              </CButton>
+              </div>
             </CTableDataCell>
           </CTableRow>
         ))}

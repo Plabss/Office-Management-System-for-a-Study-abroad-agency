@@ -1,39 +1,70 @@
-import React, { useState } from 'react';
-import { CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CForm, CFormInput, CFormLabel, CButton } from '@coreui/react';
-import { Link } from 'react-router-dom';
-import CIcon from '@coreui/icons-react';
-import { cilInfo } from '@coreui/icons';
+import React, { useState } from 'react'
+import {
+  CTable,
+  CTableBody,
+  CTableDataCell,
+  CTableHead,
+  CTableHeaderCell,
+  CTableRow,
+  CForm,
+  CFormInput,
+  CFormLabel,
+  CButton,
+  CSpinner,
+} from '@coreui/react'
+import { Link, useNavigate } from 'react-router-dom'
+import CIcon from '@coreui/icons-react'
+import { cilInfo } from '@coreui/icons'
+import { useDispatch } from 'react-redux'
 
 const StudentCourses = ({ courses, onAddCourse }) => {
+
+
+  const dispatch=useDispatch();
+  const navigate = useNavigate();
   const [newCourse, setNewCourse] = useState({
     name: '',
     level: '',
     university: '',
     country: '',
     applied: '',
-    details: ''
-  });
+    details: '',
+  })
+
+  const [addingCourse, setAddingCourse] = useState(false)
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setNewCourse({
       ...newCourse,
-      [name]: value
-    });
-  };
+      [name]: value,
+    })
+  }
 
-  const handleAddCourse = (e) => {
-    e.preventDefault();
-    onAddCourse(newCourse);
-    setNewCourse({
-      name: '',
-      level: '',
-      university: '',
-      country: '',
-      applied: '',
-      details: ''
-    });
-  };
+  const handleAddCourse = async (e) => {
+    e.preventDefault()
+    setAddingCourse(true)
+    try {
+      await onAddCourse(newCourse)
+      setNewCourse({
+        name: '',
+        level: '',
+        university: '',
+        country: '',
+        applied: '',
+        details: '',
+      })
+    } catch (error) {
+      console.error('Failed to add course:', error)
+    } finally {
+      setAddingCourse(false)
+    }
+  }
+
+  const handleDetailsClick = (courseId) => {
+    localStorage.setItem('courseId', courseId)
+    navigate("/enrolled-course")
+  }
 
   return (
     <>
@@ -56,7 +87,14 @@ const StudentCourses = ({ courses, onAddCourse }) => {
               <CTableDataCell>{course.university}</CTableDataCell>
               <CTableDataCell>{course.country}</CTableDataCell>
               <CTableDataCell>{course.applied}</CTableDataCell>
-              <CTableDataCell><Link to="/enrolled-course"><CIcon icon={cilInfo} size="sm" /></Link></CTableDataCell>
+              <CTableDataCell>
+                {/* <Link to="/enrolled-course">
+                  <CIcon icon={cilInfo} size="sm" />
+                </Link> */}
+                <CButton color="info" onClick={() => handleDetailsClick(course._id)}>
+                  <CIcon icon={cilInfo} size="lg" />
+                </CButton>
+              </CTableDataCell>
             </CTableRow>
           ))}
         </CTableBody>
@@ -103,12 +141,20 @@ const StudentCourses = ({ courses, onAddCourse }) => {
           value={newCourse.applied}
           onChange={handleInputChange}
         />
-        <CButton type="submit" color="primary" className="mt-3">
-          Add Course
+        <CFormLabel htmlFor="details">Details</CFormLabel>
+        <CFormInput
+          type="text"
+          id="details"
+          name="details"
+          value={newCourse.details}
+          onChange={handleInputChange}
+        />
+        <CButton type="submit" color="primary" className="mt-2" disabled={addingCourse}>
+          {addingCourse ? <CSpinner size="sm" /> : 'Add Course'}
         </CButton>
       </CForm>
     </>
-  );
-};
+  )
+}
 
-export default StudentCourses;
+export default StudentCourses

@@ -21,6 +21,7 @@ exports.createStudent = async (studentData) => {
 
     await session.commitTransaction();
     session.endSession();
+    console.log(newStudent)
     return newStudent;
   } catch (error) {
     await session.abortTransaction();
@@ -61,16 +62,28 @@ exports.getAllStudentsByEmployeeID = async (employeeID) => {
     throw error;
   }
 };
-exports.getAStudent = async (studentID) => {
+exports.getAStudent = async(studentId) =>{
   try {
-    const student = await Student.findById(studentID);
+    const student = await Student.findById(studentId)
+      .populate({
+        path: 'employees.asCounselor employees.asApplicant employees.asVisaAdmin',
+        select: 'name _id' // Only populates `name` and `_id` from Employee
+      })
+      .populate({
+        path: 'courses',
+        populate: {
+          path: 'studentId', // Nested populate, if needed
+           // Example of selecting specific fields from the nested Student document
+        }
+      })
+      .exec();
+
     return student;
   } catch (error) {
-    console.error("Error in getStudentsByID service:", error);
+    console.error("Error fetching student:", error);
     throw error;
   }
-};
-
+}
 exports.uploadDocument = async (studentId, documentName, file) => {
   try {
     console.log(file);

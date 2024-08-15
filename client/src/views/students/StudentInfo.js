@@ -13,8 +13,7 @@ const StudentInfo = ({ student }) => (
     <CListGroupItem><strong>Phone Number:</strong> {student.phoneNumber}</CListGroupItem>
     <CListGroupItem><strong>Parent Phone:</strong> {student.parentPhone}</CListGroupItem>
     <CListGroupItem><strong>Date of Birth:</strong> {student.dob}</CListGroupItem>
-    <CListGroupItem><strong>Address:</strong> {student.street}, {student.city}, {student.postalCode}, {student.country}</CListGroupItem>
-    <CListGroupItem><strong>How did you know about us?</strong> {student.howKnow}</CListGroupItem>
+    <CListGroupItem><strong>Address:</strong> {student.address}</CListGroupItem>
   </CListGroup>
 );
 

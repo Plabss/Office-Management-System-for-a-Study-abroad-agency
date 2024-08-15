@@ -9,15 +9,15 @@ const studentSchema = new mongoose.Schema(
     dob: { type: Date, required: true },
     address: { type: String, required: true },
     employees: {
-      asCounselor: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
-      asApplicant: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
-      asVisaAdmin: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee" }],
+      asCounselor: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true}],
+      asApplicant: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true}],
+      asVisaAdmin: [{ type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true}],
     },
     documents: {
       cv: { type: String, default: null },
       nid: { type: String, default: null },
     },
-    courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
+    courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course",required: true}],
     progress: { type: String, default: "enrolled" },
   },
   {

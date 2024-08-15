@@ -3,10 +3,14 @@ import React from 'react';
 import './StudentProgress.css'
 import { CListGroup, CListGroupItem, CRow, CCol, CCard, CCardBody, CCardTitle } from '@coreui/react';
 
-const StudentProgress = ({ progress, counselor, applicant, visaOfficer }) => (
+const StudentProgress = ({ progress }) => (
   <CCard>
     <CCardBody>
       <CCardTitle>Student Progress</CCardTitle>
+
+      {
+        console.log(progress)
+      }
 
       {/* Timeline */}
       <CRow className="mt-4">
@@ -38,9 +42,9 @@ const StudentProgress = ({ progress, counselor, applicant, visaOfficer }) => (
 
       {/* Additional Information */}
       <CRow className="mt-4">
-        <CCol md={4}><strong>Counselor:</strong> {counselor}</CCol>
-        <CCol md={4}><strong>Applicant:</strong> {applicant}</CCol>
-        <CCol md={4}><strong>Visa Officer:</strong> {visaOfficer}</CCol>
+        <CCol md={4}><strong>Counselor:</strong> {progress.counselor?.name}</CCol>
+        <CCol md={4}><strong>Applicant:</strong> {progress.applicant?.name}</CCol>
+        <CCol md={4}><strong>Visa Officer:</strong> {progress.visaOfficer?.name}</CCol>
       </CRow>
     </CCardBody>
   </CCard>
