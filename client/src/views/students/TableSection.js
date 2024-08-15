@@ -17,10 +17,10 @@ import { useNavigate } from 'react-router-dom'
 
 const TableSection = ({ data }) => {
   const dispatch = useDispatch()
-  const navigate =useNavigate();
+  const navigate = useNavigate()
   const handleDetailsClick = (studentId) => {
-    dispatch({ type: 'addElement', key: 'studentId', value: studentId });
-    navigate("/view-student")
+    dispatch({ type: 'addElement', key: 'studentId', value: studentId })
+    navigate('/view-student')
   }
 
   return (
@@ -40,9 +40,7 @@ const TableSection = ({ data }) => {
             <CTableDataCell>{student.email}</CTableDataCell>
             <CTableDataCell>{student.phoneNumber}</CTableDataCell>
             <CTableDataCell>
-              <CButton color="info" onClick={() => handleDetailsClick(student._id)}>
-                <CIcon icon={cilInfo} size="lg" />
-              </CButton>
+              <CIcon icon={cilInfo} size="lg" onClick={() => handleDetailsClick(student._id)} />
             </CTableDataCell>
           </CTableRow>
         ))}

@@ -13,7 +13,8 @@ import {
   cilSpeedometer,
   cilStar,
   cilPlus,
-  cilMagnifyingGlass,
+  cilUser,
+  cilPeople,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -38,7 +39,7 @@ const _nav = [
     component: CNavItem,
     name: 'View Visitors',
     to: '/super-admin-view-visitors',
-    icon: <CIcon icon={cilMagnifyingGlass} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
@@ -54,7 +55,7 @@ const _nav = [
     component: CNavItem,
     name: 'View Students',
     to: '/super-admin-view-students',
-    icon: <CIcon icon={cilMagnifyingGlass} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
@@ -70,7 +71,7 @@ const _nav = [
     component: CNavItem,
     name: 'View Employees',
     to: '/super-admin-view-employees',
-    icon: <CIcon icon={cilMagnifyingGlass} customClassName="nav-icon" />,
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
