@@ -12,16 +12,13 @@ import {
   CButton,
   CSpinner,
 } from '@coreui/react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import CIcon from '@coreui/icons-react'
 import { cilInfo } from '@coreui/icons'
-import { useDispatch } from 'react-redux'
 
 const StudentCourses = ({ courses, onAddCourse }) => {
-
-
-  const dispatch=useDispatch();
-  const navigate = useNavigate();
+  
+  const navigate = useNavigate()
   const [newCourse, setNewCourse] = useState({
     name: '',
     level: '',
@@ -63,7 +60,7 @@ const StudentCourses = ({ courses, onAddCourse }) => {
 
   const handleDetailsClick = (courseId) => {
     localStorage.setItem('courseId', courseId)
-    navigate("/enrolled-course")
+    navigate('/enrolled-course')
   }
 
   return (
@@ -88,12 +85,7 @@ const StudentCourses = ({ courses, onAddCourse }) => {
               <CTableDataCell>{course.country}</CTableDataCell>
               <CTableDataCell>{course.applied}</CTableDataCell>
               <CTableDataCell>
-                {/* <Link to="/enrolled-course">
-                  <CIcon icon={cilInfo} size="sm" />
-                </Link> */}
-                <CButton color="info" onClick={() => handleDetailsClick(course._id)}>
-                  <CIcon icon={cilInfo} size="lg" />
-                </CButton>
+                <CIcon icon={cilInfo} size="lg" onClick={() => handleDetailsClick(course._id)} />
               </CTableDataCell>
             </CTableRow>
           ))}

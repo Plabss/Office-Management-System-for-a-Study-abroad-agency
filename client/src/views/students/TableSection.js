@@ -3,19 +3,18 @@ import React from 'react'
 import {
   CTable,
   CTableBody,
-  CTableCaption,
   CTableDataCell,
   CTableHead,
   CTableHeaderCell,
   CTableRow,
-  CButton,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilInfo } from '@coreui/icons'
-import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 const TableSection = ({ data }) => {
+
+  console.log("ddddddddddddddddddd",data)
   const navigate =useNavigate();
   const handleDetailsClick = (studentId) => {
     localStorage.setItem('studentId', studentId);

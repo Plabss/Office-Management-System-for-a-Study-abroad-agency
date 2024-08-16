@@ -35,11 +35,15 @@ const ViewStudent = () => {
   const [courses, setCourses] = useState([])
   const [visa, setVisa] = useState({})
 
-
-  // const addCourse = useSelector(state => state.addCourse);
   const studentId = localStorage.getItem('studentId')
+  const employee = JSON.parse(localStorage.getItem('employee'))
+  const assignedBy = {
+    name: employee.name,
+    _id: employee._id,
+  }
   const role = localStorage.getItem('role')
-  const upload = useSelector((state) => state.upload);
+  const upload = useSelector((state) => state.upload)
+  const addCourse = useSelector((state) => state.addCourse)
 
   useEffect(() => {
     const fetchStudentDetails = async () => {
@@ -51,6 +55,7 @@ const ViewStudent = () => {
         setStudent(studentData)
 
         console.log('xxxxxxxxxxxxxxxx', studentData)
+        console.log('yyyyyyy', assignedBy)
 
         // Set initial states for each section
         setBasicInfo({
@@ -77,17 +82,24 @@ const ViewStudent = () => {
     }
 
     fetchStudentDetails()
-  }, [studentId,upload])
+  }, [studentId, upload, addCourse])
 
   const handleAddCourse = async (newCourse) => {
     try {
       const response = await axios.post(`http://localhost:5000/api/v1/courses/add-course`, {
         ...newCourse,
-        studentId, // Assuming the course needs to be associated with the student
+        studentId: studentId, // Assuming the course needs to be associated with the student
+        assignedBy: assignedBy, // Assuming the course to be associated by the employee
       })
-      dispatch({ type: 'addElement', key: 'addCourse', value: 1 })
-      const addedCourse = response.data
-      setCourses((prevCourses) => [...prevCourses, addedCourse])
+      if (response.status  === 201) {
+        console.log("status: ",response.status)
+        dispatch({ type: 'toggleElement', key: 'addCourse' })
+        const addedCourse = response.data;
+        setCourses((prevCourses) => [...prevCourses, addedCourse.savedCourse])
+      }else{
+        console.error('Failed to add course:', response.data)
+        setError('Failed to add course.')
+      }
     } catch (error) {
       console.error('Failed to add course:', error)
       setError('Failed to add course.')
@@ -108,6 +120,9 @@ const ViewStudent = () => {
 
   return (
     <CContainer fluid className="mt-4">
+      {
+        console.log("courses",courses)
+      }
       <CRow>
         <CCol>
           <CCard>

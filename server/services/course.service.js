@@ -10,4 +10,17 @@ exports.getACourse = async (courseID) => {
   }
 };
 
+exports.uploadCourseDocument = async (courseId, documentName, file) => {
+  try {
+    console.log(file);
+    const course = await Course.findOneAndUpdate({"_id":courseId}, {
+      [`documents.${documentName}`]: file,
+    })
+    return course;
+  } catch (error) {
+    console.error("Error in uploadCourseDocument service:", error);
+    throw error;
+  }
+};
+
 

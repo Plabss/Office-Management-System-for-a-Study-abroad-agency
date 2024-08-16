@@ -5,6 +5,9 @@ const initialState = {
   theme: 'light',
   role: '',
   upload: false,
+  addCourse: false,
+  assignApplicant:false,
+  courseDocUpload:false
 }
 
 const changeState = (state = initialState, { type, key, value, ...rest }) => {

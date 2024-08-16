@@ -1,13 +1,28 @@
 const Course = require("../model/Course.model");
+const cloudinary = require("../config/cloudinary");
 const Student = require("../model/Student.model");
-const { getACourse } = require("../services/course.service");
+const {
+  getACourse,
+  uploadCourseDocument,
+} = require("../services/course.service");
 
 exports.addCourseController = async (req, res) => {
   try {
     console.log("Adding course and updating student");
 
     // Destructure course data from the request body
-    const { name, level, university, country, applied, details, studentId } = req.body;
+    const {
+      name,
+      level,
+      university,
+      country,
+      applied,
+      details,
+      studentId,
+      assignedBy,
+    } = req.body;
+
+    console.log(req.body);
 
     // Create a new course instance
     const newCourse = new Course({
@@ -17,7 +32,8 @@ exports.addCourseController = async (req, res) => {
       country,
       applied,
       details,
-      student: studentId, // Reference to the student
+      studentId: studentId, // Reference to the student
+      assignedBy: assignedBy,
     });
 
     // Save the new course to the database
@@ -29,23 +45,53 @@ exports.addCourseController = async (req, res) => {
     });
 
     // Optionally, you can fetch the updated student data if needed
-    const updatedStudent = await Student.findById(studentId).populate('courses');
+    const updatedStudent = await Student.findById(studentId).populate(
+      "courses"
+    );
 
     // Respond with the saved course and updated student data
     res.status(201).json({ savedCourse, updatedStudent });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to add course', error });
+    res.status(500).json({ message: "Failed to add course", error });
   }
 };
 exports.getACourseController = async (req, res) => {
-    const { courseID } = req.params;
-    console.log("bbbbbbbbbbbbbbbbbbbbbb",courseID);
-    try {
-      const course = await getACourse(courseID);
-      console.log("course", course)
-      res.status(200).json(course);
-    } catch (error) {
-      console.error('Error fetching course:', error);
-      res.status(500).json({ error: 'Failed to fetch student' });
-    }
+  const { courseId } = req.params;
+  console.log("bbbbbbbbbbbbbbbbbbbbbb", courseId);
+  try {
+    const course = await getACourse(courseId);
+    console.log("course", course);
+    res.status(200).json(course);
+  } catch (error) {
+    console.error("Error fetching course:", error);
+    res.status(500).json({ error: "Failed to fetch student" });
+  }
+};
+exports.uploadADocumentController = async (req, res) => {
+  try {
+    console.log("bbbbbbbbbbbbbbbbbbbbbb", req.file);
+    console.log("hittttttttttttttttttt");
+    const { courseId } = req.params;
+    const { documentName } = req.body;
+    console.log("xxxxxxxxxxxxxxxx", courseId, documentName, req.file);
+
+    const fileUpload = await cloudinary.uploader.upload(req.file.path, {
+      folder: `course/${documentName}`,
+    });
+
+    const uploadedDocument = await uploadCourseDocument(
+      courseId,
+      documentName,
+      fileUpload.secure_url
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "Document upload completed successfully",
+      data: uploadedDocument,
+    });
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };

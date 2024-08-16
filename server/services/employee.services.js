@@ -15,20 +15,23 @@ exports.getAllEmployees = async () => {
     throw new Error('Error fetching employees: ' + error.message);
   }
 };
-exports.assignApplicant = async (courseId,studentId,applicantId) => {
+exports.assignApplicant = async (courseId,studentId,applicantId,applicantName) => {
   try {
     const course = await Course.findByIdAndUpdate(courseId,{
-      applicantId: applicantId
+      ['applicant.name']: applicantName,
+      ['applicant._id']: applicantId,
     });
 
 
     const student = await Student.findByIdAndUpdate(studentId,
-      { $push: { "employees.asApplicant": applicantId } }
+      { $addToSet: { "employees.asApplicant": applicantId} }
     );
 
-    
+    const employee = await Employee.findByIdAndUpdate(applicantId,
+      { $addToSet: { "students.asApplicant":  studentId} }
+    );
 
-    return {course:course, student:student}
+    return {course:course, student:student, employee:employee}
   } catch (error) {
     throw new Error('Error fetching employees: ' + error.message);
   }

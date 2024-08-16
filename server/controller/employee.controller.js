@@ -45,8 +45,9 @@ exports.assignApplicantController = async (req, res) => {
   try {
     console.log("httttttttttttttttt")
     const { courseId,studentId } = req.params;
-    console.log(req.body) 
-    const assigned = await assignApplicant(courseId,studentId, req.body.applicantId);
+    const { applicantId,applicantName } = req.body;
+    console.log("aaaaaaaaaaaaa",req.body) 
+    const assigned = await assignApplicant(courseId,studentId,applicantId,applicantName);
     res.status(200).json(assigned);
   } catch (error) {
     res.status(400).json({ error: error.message });

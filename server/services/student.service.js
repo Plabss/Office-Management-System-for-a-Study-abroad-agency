@@ -14,7 +14,7 @@ exports.createStudent = async (studentData) => {
     if (studentData.employees.asCounselor) {
       await Employee.findByIdAndUpdate(
         studentData.employees.asCounselor,
-        { $push: { "students.asCounselor": newStudent._id } },
+        { $addToSet: { "students.asCounselor": newStudent._id } },
         { session }
       );
     }
@@ -89,10 +89,10 @@ exports.uploadDocument = async (studentId, documentName, file) => {
     console.log(file);
     const student = await Student.findOneAndUpdate({"_id":studentId}, {
       [`documents.${documentName}`]: file,
-    }).catch((error) => {
-      // Handle error
-      console.error("Error in uploadDocument service:", error);
-      throw error;
-    });
-  } catch (error) {}
+    })
+    return student;
+  } catch (error) {
+    console.error("Error in uploadDocument service:", error);
+    throw error;
+  }
 };

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { CListGroup, CListGroupItem, CButton, CRow, CCol, CFormInput, CSpinner } from '@coreui/react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-const StudentDocuments = ({ documents, onDocumentUpload }) => {
+const StudentDocuments = ({ documents, onDocumentUpload, courseId }) => {
   const [uploading, setUploading] = useState({ file1: false, file2: false, file3: false });
 
-  const courseId = useSelector(state => state.courseId);
-
+  // const courseId = useSelector(state => state.courseId);
+  const dispatch = useDispatch();
+  
   const handleFileChange = (docType, event) => {
     const updatedDocument = { ...documents, [docType]: event.target.files[0] };
     onDocumentUpload(updatedDocument);
@@ -23,15 +24,14 @@ const StudentDocuments = ({ documents, onDocumentUpload }) => {
 
     try {
       setUploading({ ...uploading, [docType]: true });
-      // Replace with your actual API endpoint
-      await axios.post(`http://localhost:5000/api/v1/courses/upload-document/${courseId}`, formData, {
+      const res = await axios.post(`http://localhost:5000/api/v1/courses/upload-document/${courseId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      // Update document status to 'Uploaded'
-      onDocumentUpload({ ...documents, [docType]: 'Uploaded' });
+      onDocumentUpload({ ...documents, [docType]: res?.data?.data?.docType });
+      dispatch({ type: 'toggleElement', key: 'courseDocUpload' });
     } catch (error) {
       console.error('Error uploading file:', error);
     } finally {
