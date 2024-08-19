@@ -17,7 +17,8 @@ import StudentInfo from './StudentInfo'
 import StudentProgress from './StudentProgress'
 import StudentDocuments from './StudentDocuments'
 import StudentCourses from './StudentCourses'
-import VisaUploads from './VisaUploads'
+import StudentVisas from './StudentVisas'
+
 import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -33,7 +34,7 @@ const ViewStudent = () => {
   const [progress, setProgress] = useState()
   const [documents, setDocuments] = useState({ cv: null, nid: null })
   const [courses, setCourses] = useState([])
-  const [visa, setVisa] = useState({})
+  const [visas, setVisas] = useState()
 
   const studentId = localStorage.getItem('studentId')
   const employee = JSON.parse(localStorage.getItem('employee'))
@@ -44,6 +45,7 @@ const ViewStudent = () => {
   const role = localStorage.getItem('role')
   const upload = useSelector((state) => state.upload)
   const addCourse = useSelector((state) => state.addCourse)
+  const addVisa = useSelector((state) => state.addVisa)
 
   useEffect(() => {
     const fetchStudentDetails = async () => {
@@ -73,16 +75,17 @@ const ViewStudent = () => {
           applicant: studentData.employees.asApplicant[0],
           visaOfficer: studentData.employees.asVisaAdmin[0],
         })
+
         setDocuments(studentData.documents || { cv: null, nid: null })
         setCourses(studentData.courses) // This now contains detailed course objects
-        setVisa(studentData.visaUploads || {})
+        setVisas(studentData.visas)
       } catch (error) {
         setError('Failed to fetch student details.')
       }
     }
 
     fetchStudentDetails()
-  }, [studentId, upload, addCourse])
+  }, [studentId, upload, addCourse,addVisa])
 
   const handleAddCourse = async (newCourse) => {
     try {
@@ -103,6 +106,27 @@ const ViewStudent = () => {
     } catch (error) {
       console.error('Failed to add course:', error)
       setError('Failed to add course.')
+    }
+  }
+  const handleAddVisa = async (newVisa) => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/v1/visas/add-visa`, {
+        ...newVisa,
+        studentId: studentId, // Assuming the visa needs to be associated with the student
+        assignedBy: assignedBy, // Assuming the visa to be associated by the employee
+      })
+      if (response.status  === 201) {
+        console.log("status: ",response.status)
+        dispatch({ type: 'toggleElement', key: 'addVisa' })
+        const addedVisa = response.data;
+        setVisas((prevVisas) => [...prevVisas, addedVisa.savedVisa])
+      }else{
+        console.error('Failed to add visa:', response.data)
+        setError('Failed to add visa.')
+      }
+    } catch (error) {
+      console.error('Failed to add visa:', error)
+      setError('Failed to add visa.')
     }
   }
 
@@ -195,9 +219,9 @@ const ViewStudent = () => {
                       <CTabPane visible={activeTab === 'courses'}>
                         <StudentCourses courses={courses} onAddCourse={handleAddCourse} />
                       </CTabPane>
-                      {/* <CTabPane visible={activeTab === 'visa'}>
-                        <VisaUploads visa={visa} setVisa={setVisa} />
-                      </CTabPane> */}
+                      <CTabPane visible={activeTab === 'visa'}>
+                        <StudentVisas visas={visas} onAddVisa={handleAddVisa} />
+                      </CTabPane>
                     </>
                   ) : null}
                 </CTabContent>

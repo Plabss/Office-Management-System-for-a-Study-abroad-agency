@@ -69,7 +69,10 @@ const AddStudent = () => {
         },
       })
       console.log('Student data submitted:', response.data)
-      navigate('/students') // Redirect to students list or another page
+      const employee = localStorage.getItem('employee')
+      console.log('aaaaaaaaa',employee)
+      const firstRole = JSON.parse(employee).role[0]; // Use the first role for redirection
+      navigate(`/${firstRole}-view-students`);
     } catch (error) {
       console.error('Error submitting student data:', error)
       // Handle error

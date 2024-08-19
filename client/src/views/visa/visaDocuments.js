@@ -33,7 +33,7 @@ const VisaDocuments = ({ documents, onDocumentUpload, visaId}) => {
     try {
       setUploading({ ...uploading, [docType]: true })
       const res = await axios.post(
-        `http://localhost:5000/api/v1/visas/upload-document/${courseId}`,
+        `http://localhost:5000/api/v1/visas/upload-document/${visaId}`,
         formData,
         {
           headers: {

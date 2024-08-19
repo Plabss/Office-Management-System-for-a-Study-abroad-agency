@@ -12,6 +12,7 @@ const ViewVisitors = React.lazy(() => import('./views/admin/ViewVisitors'))
 
 const ViewStudent = React.lazy(() => import('./views/students/ViewStudent'))
 const CourseDetails = React.lazy(() => import('./views/course/CourseDetails'))
+const VisaDetails = React.lazy(() => import('./views/visa/VisaDetails'))
 const ViewEmployee = React.lazy(() => import('./views/employee/ViewEmployee'))
 
 // const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
@@ -108,6 +109,7 @@ const routes = [
   //common elements
   { path: '/view-student', name: 'View-Student', element: ViewStudent },
   { path: '/enrolled-course', name: 'Course-Details', element: CourseDetails },
+  { path: '/applied-visa', name: 'Visa-Details', element: VisaDetails },
   { path: '/view-employee', name: 'View-Employee', element: ViewEmployee },
 
   //

@@ -1,27 +1,26 @@
-// models/Course.js
 const mongoose = require("mongoose");
 
 const visaSchema = new mongoose.Schema(
   {
     country: {
       type: String,
-      required: true,
+      required: false,
     },
     course: {
-      courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
-      courseName: { type: String, required: true },
-      courseUniversity: { type: String, required: true}
-    },
-    applied: {
-      type: String,
-      required: true,
+      courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: false},
+      courseName: { type: String, required: false },
+      courseUniversity: { type: String, required: false}
     },
     student: {
-      studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
-      studentName: { type: String, required: true },
+      name: { type: String, required: false },
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+        required: false,
+      },
     },
     visaAdmin: {
-      name: { type: String, default: null },
+      name: { type: String, required: false },
       _id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Employee",
@@ -29,11 +28,11 @@ const visaSchema = new mongoose.Schema(
       },
     },
     assignedBy: {
-      name: { type: String, required: true },
+      name: { type: String, required: false },
       _id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Employee",
-        required: true,
+        required: false,
       },
     },
     documents: {

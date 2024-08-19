@@ -5,10 +5,11 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
 
-const employeeRoute = require('./Routes/v1/employee.route');
-const authRoute = require('./Routes/v1/auth.route');
-const studentRoute = require('./Routes/v1/student.route');
-const courseRoute = require('./Routes/v1/course.route');
+const employeeRoute = require('./routes/v1/employee.route');
+const authRoute = require('./routes/v1/auth.route');
+const studentRoute = require('./routes/v1/student.route');
+const courseRoute = require('./routes/v1/course.route');
+const visaRoute = require('./routes/v1/visa.route');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/v1/employees', employeeRoute);
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/students', studentRoute);
 app.use('/api/v1/courses', courseRoute);
+app.use('/api/v1/visas', visaRoute);
 
 
 app.get('/', (req, res) => {

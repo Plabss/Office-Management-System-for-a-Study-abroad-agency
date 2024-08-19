@@ -14,13 +14,11 @@ import {
 } from '@coreui/react'
 import axios from 'axios'
 
-import CourseDocuments from './CourseDocuments'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
 import VisaDocuments from './visaDocuments'
 
 const VisaDetails = () => {
-  const courseId = localStorage.getItem('courseId')
   const studentId = localStorage.getItem('studentId')
   const visaId = localStorage.getItem('visaId')
 
@@ -50,31 +48,31 @@ const VisaDetails = () => {
       }
     }
 
-    const fetchCourseDetails = async () => {
+    const fetchVisaDetails = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/v1/courses/get-a-course/${courseId}`,
+          `http://localhost:5000/api/v1/visas/get-a-visa/${visaId}`,
         )
-        const courseData = response.data
-        console.log('courseData', courseData)
-        setCourse(courseData)
+        const visaData = response.data
+        console.log('visaData', visaData)
+        setVisa(visaData)
         // Initialize document state based on courseData
-        setDocuments(courseData.documents || { file1: null, file2: null, file3: null })
+        setDocuments(visaData.documents || { file1: null, file2: null, file3: null })
       } catch (error) {
         console.error('Error fetching course details:', error)
       }
     }
 
     fetchVisaAdmins()
-    fetchCourseDetails()
-  }, [assignVisaAdmin,visaDocUpload,assignVisaAdmin])
+    fetchVisaDetails()
+  }, [assignVisaAdmin,visaDocUpload])
 
   const handleAssignVisaAdmin = async () => {
     if (selectedVisaAdmin) {
       console.log('selectedVisaAdmin', selectedVisaAdmin)
       try {
         const res = await axios.post(
-          `http://localhost:5000/api/v1/employees/assign-visa-admin/${courseId}/${studentId}`,
+          `http://localhost:5000/api/v1/employees/assign-visa-admin/${studentId}/${visaId}`,
           {
             visaAdminId: selectedVisaAdmin?._id,
             visaAdminName: selectedVisaAdmin?.name,
@@ -85,7 +83,7 @@ const VisaDetails = () => {
           dispatch({ type: 'toggleElement', key: 'assignVisaAdmin' })
         }
       } catch (error) {
-        console.error('Error assigning applicant:', error)
+        console.error('Error assigning visa admin:', error)
         toast.error('Error assigning visa admin.')
       }
     } else {
@@ -96,7 +94,7 @@ const VisaDetails = () => {
   const handleVisaAdminChange = (e) => {
     const selectedId = e.target.value
     const selected = visaAdmins.find((visaAdmin) => visaAdmin._id === selectedId)
-    setSelectedApplicant(selected)
+    setSelectedVisaAdmin(selected)
   }
 
   const handleDocumentUpload = (updatedDocuments) => {
@@ -115,19 +113,21 @@ const VisaDetails = () => {
             <CCardBody>
               <CListGroup flush>
                 <CListGroupItem>
-                  <strong>Country:</strong> {visa.country}
+                  <strong>Country:</strong> {visa?.country}
                 </CListGroupItem>
                 <CListGroupItem>
-                  <strong>University:</strong> {visa.university}
+                  <strong>University:</strong> {visa?.course?.courseUniversity}
                 </CListGroupItem>
                 <CListGroupItem>
-                  <strong>Course:</strong> {visa.course}
+                  <strong>Course:</strong> {visa?.course?.courseName}
                 </CListGroupItem>
                 <CListGroupItem>
-                  <strong>Applied:</strong> {visa.applied}
+                  <strong>Applied:</strong> {visa?.status}
                 </CListGroupItem>
               </CListGroup>
-
+              {
+                console.log("iddddddddddd",visa?.visaAdmin)
+              }
               {/* Visa admin Selection */}
               {visa.visaAdmin?._id === null ? (
                 <div>
@@ -152,12 +152,13 @@ const VisaDetails = () => {
                 </div>
               ) : (
                 <>
-                  <h4>{visa?.visaAdmin?.name} is assigned as applicant</h4>
+                  <h4 style={{ color: 'blue', textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', textTransform: 'uppercase' }}> {visa?.visaAdmin?.name} is assigned as visa admin </h4>
+                  
                   {console.log(visa.visaAdmin)}
                   <VisaDocuments
                     documents={documents}
                     onDocumentUpload={handleDocumentUpload}
-                    courseId={courseId}
+                    visaId={visa._id}
                   />
                 </>
               )}

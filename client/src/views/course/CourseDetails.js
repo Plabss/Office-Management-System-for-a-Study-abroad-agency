@@ -122,10 +122,7 @@ const CourseDetails = () => {
                   <strong>Country:</strong> {course.country}
                 </CListGroupItem>
                 <CListGroupItem>
-                  <strong>Applied:</strong> {course.applied}
-                </CListGroupItem>
-                <CListGroupItem>
-                  <strong>Details:</strong> {course.details}
+                  <strong>Status:</strong> {course.status}
                 </CListGroupItem>
               </CListGroup>
   
@@ -155,7 +152,7 @@ const CourseDetails = () => {
                 </div>
               ) : (
                 <>
-                  <h4>{course?.applicant?.name} is assigned as applicant</h4>
+                  <h4 style={{ color: 'blue', textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', textTransform: 'uppercase' }}>{course?.applicant?.name} is assigned as applicant</h4>
                   {console.log(course.applicant)}
                   <CourseDocuments
                     documents={documents}

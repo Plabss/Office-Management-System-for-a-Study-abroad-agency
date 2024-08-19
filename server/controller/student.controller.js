@@ -3,6 +3,7 @@ const cloudinary = require('../config/cloudinary');
 
 exports.addStudentController = async (req, res) => {
   try {
+    console.log("stu",req.body)
     const student = await createStudent(req.body);
     res.status(201).json({
       status: 'success',
@@ -27,6 +28,7 @@ exports.getAStudentController = async (req, res) => {
   try {
     const student = await getAStudent(studentID);
     res.status(200).json(student);
+    console.log(studentID)
   } catch (error) {
     console.error('Error fetching student:', error);
     res.status(500).json({ error: 'Failed to fetch student' });

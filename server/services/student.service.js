@@ -71,13 +71,13 @@ exports.getAStudent = async(studentId) =>{
       })
       .populate({
         path: 'courses',
-        populate: {
-          path: 'studentId', // Nested populate, if needed
-           // Example of selecting specific fields from the nested Student document
-        }
+        
+      })
+      .populate({
+        path: 'visas',
       })
       .exec();
-
+      console.log("student",student);
     return student;
   } catch (error) {
     console.error("Error fetching student:", error);

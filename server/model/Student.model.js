@@ -18,6 +18,7 @@ const studentSchema = new mongoose.Schema(
       nid: { type: String, default: null },
     },
     courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course",required: true}],
+    visas: [{ type: mongoose.Schema.Types.ObjectId, ref: "Visa",required: true}],
     progress: { type: String, default: "enrolled" },
   },
   {

@@ -1,4 +1,3 @@
-// models/Course.js
 const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema(
@@ -19,18 +18,13 @@ const courseSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    applied: {
-      type: String,
-      required: true,
-    },
-    details: {
-      type: String,
-      required: true,
-    },
-    studentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
-      required: true, // Assuming each course is associated with a student
+    student: {
+      name: { type: String, required: false },
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+        required: true,
+      },
     },
     applicant: {
       name: { type: String, default: null },
@@ -52,6 +46,14 @@ const courseSchema = new mongoose.Schema(
       file1: { type: String, default: null },
       file2: { type: String, default: null },
       file3: { type: String, default: null },
+    },
+    visaAdmin:{
+      name: { type: String, required: false },
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Employee",
+        required: false,
+      },
     },
     notes: {
       type: String,

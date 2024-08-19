@@ -6,8 +6,11 @@ const initialState = {
   role: '',
   upload: false,
   addCourse: false,
+  addVisa: false,
   assignApplicant:false,
-  courseDocUpload:false
+  assignVisaAdmin:false,
+  courseDocUpload:false,
+  visaDocUpload:false,
 }
 
 const changeState = (state = initialState, { type, key, value, ...rest }) => {

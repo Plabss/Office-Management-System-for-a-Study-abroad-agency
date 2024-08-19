@@ -11,16 +11,8 @@ exports.addCourseController = async (req, res) => {
     console.log("Adding course and updating student");
 
     // Destructure course data from the request body
-    const {
-      name,
-      level,
-      university,
-      country,
-      applied,
-      details,
-      studentId,
-      assignedBy,
-    } = req.body;
+    const { name, level, university, country, studentId, assignedBy } =
+      req.body;
 
     console.log(req.body);
 
@@ -30,10 +22,15 @@ exports.addCourseController = async (req, res) => {
       level,
       university,
       country,
-      applied,
-      details,
-      studentId: studentId, // Reference to the student
-      assignedBy: assignedBy,
+      student: {
+        _id: studentId, // Correctly reference the student ID
+        // If you also have the student's name, you should include it here.
+        // name: studentName
+      },
+      assignedBy: {
+        name: assignedBy.name, // Correctly reference the assignedBy name
+        _id: assignedBy._id, // Correctly reference the assignedBy ID
+      },
     });
 
     // Save the new course to the database
@@ -91,7 +88,7 @@ exports.uploadADocumentController = async (req, res) => {
       data: uploadedDocument,
     });
   } catch (error) {
-    console.error('Error uploading document:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error uploading document:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

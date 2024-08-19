@@ -1,5 +1,5 @@
 const cloudinary = require('../config/cloudinary');
-const { addEmployee,getAllEmployees,assignApplicant } = require('../services/employee.services');
+const { addEmployee,getAllEmployees,assignApplicant,assignVisaAdmin } = require('../services/employee.services');
 
 exports.addEmployeeController = async (req, res) => {
   try {
@@ -48,6 +48,18 @@ exports.assignApplicantController = async (req, res) => {
     const { applicantId,applicantName } = req.body;
     console.log("aaaaaaaaaaaaa",req.body) 
     const assigned = await assignApplicant(courseId,studentId,applicantId,applicantName);
+    res.status(200).json(assigned);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+exports.assignVisaAdminController = async (req, res) => {
+  try {
+    console.log("httttttttttttttttt")
+    const { studentId,visaId } = req.params;
+    const { visaAdminId,visaAdminName } = req.body;
+    console.log("aaaaaaaaaaaaa",req.body) 
+    const assigned = await assignVisaAdmin(studentId,visaId,visaAdminId,visaAdminName);
     res.status(200).json(assigned);
   } catch (error) {
     res.status(400).json({ error: error.message });
