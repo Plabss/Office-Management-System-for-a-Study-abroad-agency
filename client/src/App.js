@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
+import './tailwind.css';
 import { ToastContainer } from 'react-toastify'
 
 // Containers

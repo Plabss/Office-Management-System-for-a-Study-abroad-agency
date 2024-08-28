@@ -18,10 +18,13 @@ exports.createStudent = async (studentData) => {
         { session }
       );
     }
+    console.log("Sssssssssssssss",newStudent)
+    
 
     await session.commitTransaction();
     session.endSession();
     console.log(newStudent)
+
     return newStudent;
   } catch (error) {
     await session.abortTransaction();
@@ -59,6 +62,16 @@ exports.getAllStudentsByEmployeeID = async (employeeID) => {
     return allStudents;
   } catch (error) {
     console.error("Error in getStudentsByEmployee service:", error);
+    throw error;
+  }
+};
+exports.getAllStudents = async () => {
+  try {
+    // Find the employee and populate students based on roles
+    const students = await Student.find({})
+    return students;
+  } catch (error) {
+    console.error("Error in getStudents service:", error);
     throw error;
   }
 };

@@ -19,16 +19,27 @@ import CIcon from '@coreui/icons-react'
 import { useNavigate } from 'react-router-dom'
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
+import { useDispatch } from 'react-redux'
 
 const AppHeaderDropdown = () => {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  
   const handleLogout = () => {
     // Remove the role from localStorage
     localStorage.removeItem('role');
 
     // Redirect to the login page
     navigate('/');
+  }
+  const handleViewProfile = () => {
+    // Remove the role from localStorage
+    // localStorage.setItem('employeeId', null);
+    const employee = JSON.parse(localStorage.getItem('employee'))
+    // Redirect to the login page
+    localStorage.setItem('employeeId',employee._id)
+    navigate('/view-employee');
+    dispatch({ type: 'toggleElement', key: 'viewMyProfile' })
   }
 
   return (
@@ -53,7 +64,7 @@ const AppHeaderDropdown = () => {
           </CBadge>
         </CDropdownItem>
         <CDropdownHeader className="bg-body-secondary fw-semibold my-2">Settings</CDropdownHeader>
-        <CDropdownItem href="#" style={{ cursor: 'pointer' }}>
+        <CDropdownItem onClick={handleViewProfile} style={{ cursor: 'pointer' }}>
           <CIcon icon={cilUser} className="me-2" />
           Profile
         </CDropdownItem>

@@ -11,6 +11,8 @@ const initialState = {
   assignVisaAdmin:false,
   courseDocUpload:false,
   visaDocUpload:false,
+  viewMyProfile:false,
+  notificationClick:false,
 }
 
 const changeState = (state = initialState, { type, key, value, ...rest }) => {

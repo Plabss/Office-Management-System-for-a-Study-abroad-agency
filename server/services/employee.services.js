@@ -16,6 +16,14 @@ exports.getAllEmployees = async () => {
     throw new Error('Error fetching employees: ' + error.message);
   }
 };
+exports.getEmployeeById = async (id) => {
+  try {
+    const employee = await Employee.findById(id).populate('students.asCounselor students.asApplicant students.asVisaAdmin');
+    return employee;
+  } catch (error) {
+    
+  }
+};
 exports.assignApplicant = async (courseId,studentId,applicantId,applicantName) => {
   try {
     const course = await Course.findByIdAndUpdate(courseId,{

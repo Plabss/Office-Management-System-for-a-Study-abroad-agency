@@ -31,6 +31,7 @@ const Login = () => {
       // Store employee data or roles as needed
       localStorage.setItem('role', employee.role.join(',')); // Store roles as comma-separated string
       localStorage.setItem('employee', JSON.stringify(employee));
+      localStorage.setItem('employeeId', JSON.stringify(employee._id));
 
       toast.success('Login Successful!');
 

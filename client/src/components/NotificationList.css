@@ -1,0 +1,21 @@
+.fancy-mark-read-btn {
+    background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .fancy-mark-read-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .fancy-mark-read-btn:focus {
+    outline: none;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .fancy-mark-read-btn .c-icon {
+    color: white;
+  }
+  

@@ -1,5 +1,4 @@
 import React from 'react'
-// import CourseDetails from './views/course/CourseDetails'
 
 const Dashboard = React.lazy(() => import('./views/admin/Dashboard'))
 const AddEmployee = React.lazy(() => import('./views/admin/AddEmployee'))
@@ -14,6 +13,7 @@ const ViewStudent = React.lazy(() => import('./views/students/ViewStudent'))
 const CourseDetails = React.lazy(() => import('./views/course/CourseDetails'))
 const VisaDetails = React.lazy(() => import('./views/visa/VisaDetails'))
 const ViewEmployee = React.lazy(() => import('./views/employee/ViewEmployee'))
+
 
 // const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))

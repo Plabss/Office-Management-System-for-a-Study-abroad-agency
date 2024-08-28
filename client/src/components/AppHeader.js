@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
-import { NavLink } from 'react-router-dom'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import io from 'socket.io-client'
 import {
   CContainer,
   CDropdown,
@@ -12,25 +12,30 @@ import {
   CHeaderToggler,
   CNavLink,
   CNavItem,
+  CBadge,
   useColorModes,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
   cilBell,
   cilContrast,
-  cilEnvelopeOpen,
-  cilList,
   cilMenu,
   cilMoon,
   cilSun,
 } from '@coreui/icons'
 
-import { AppBreadcrumb } from './index'
-import { AppHeaderDropdown } from './header/index'
+import NotificationList from './NotificationList'
+import AppHeaderDropdown from './header/AppHeaderDropdown'
+
+const socket = io(`http://localhost:5000`, {
+  transports: ['websocket', 'polling'],
+})
 
 const AppHeader = () => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
+  const [notifications, setNotifications] = useState([])
+  const [showNotifications, setShowNotifications] = useState(false)
 
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
@@ -40,7 +45,44 @@ const AppHeader = () => {
       headerRef.current &&
         headerRef.current.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0)
     })
+
+    const fetchNotifications = async () => {
+      const res = await fetch(`http://localhost:5000/notifications/${JSON.parse(localStorage.getItem('employee'))._id}`)
+      const data = await res.json()
+      setNotifications(data.data)
+    }
+    fetchNotifications()
   }, [])
+
+  useEffect(() => {
+    socket.on('notification', (data) => {
+      if((JSON.parse(localStorage.getItem('employee'))._id) === data.employeeId){
+        setNotifications((prevNotifications) => [data, ...prevNotifications])
+      }
+    })
+    return () => {
+      socket.off('notification')
+    }
+  }, [])
+
+  const handleIconClick = () => {
+    setShowNotifications(!showNotifications)
+  }
+
+  const markAsRead = async (id) => {
+    await fetch(`http://localhost:5000/notifications/${id}/read`, {
+      method: 'PUT',
+    })
+
+    setNotifications(
+      notifications.map((notification) => {
+        if (notification._id === id) {
+          return { ...notification, isRead: true }
+        }
+        return notification
+      }),
+    )
+  }
 
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
@@ -51,41 +93,23 @@ const AppHeader = () => {
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
-        {/* <CHeaderNav className="d-none d-md-flex">
-          <CNavItem>
-            <CNavLink to="/dashboard" as={NavLink}>
-              Dashboard
-            </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">Users</CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink href="#">Settings</CNavLink>
-          </CNavItem>
-        </CHeaderNav> */}
+
         <CHeaderNav className="ms-auto">
-          <CNavItem>
-            <CNavLink href="#">
+          <CDropdown variant="nav-item">
+            <CDropdownToggle caret={false}>
               <CIcon icon={cilBell} size="lg" />
-            </CNavLink>
-          </CNavItem>
-          {/* <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilList} size="lg" />
-            </CNavLink>
-          </CNavItem> */}
-          <CNavItem>
-            <CNavLink href="#">
-              <CIcon icon={cilEnvelopeOpen} size="lg" />
-            </CNavLink>
-          </CNavItem>
-        </CHeaderNav>
-        <CHeaderNav>
-          <li className="nav-item py-1">
-            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
-          </li>
-          <CDropdown variant="nav-item" placement="bottom-end">
+              {notifications.filter(notification => !notification.isRead).length > 0 && (
+                <CBadge color="danger" shape="rounded-pill" className="position-absolute top-0 end-0">
+                  {notifications.filter(notification => !notification.isRead).length}
+                </CBadge>
+              )}
+            </CDropdownToggle>
+            <CDropdownMenu className="pt-0" placement="bottom-end">
+              <NotificationList notifications={notifications} markAsRead={markAsRead} />
+            </CDropdownMenu>
+          </CDropdown>
+
+          <CDropdown variant="nav-item">
             <CDropdownToggle caret={false}>
               {colorMode === 'dark' ? (
                 <CIcon icon={cilMoon} size="lg" />
@@ -96,44 +120,21 @@ const AppHeader = () => {
               )}
             </CDropdownToggle>
             <CDropdownMenu>
-              <CDropdownItem
-                active={colorMode === 'light'}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode('light')}
-              >
+              <CDropdownItem onClick={() => setColorMode('light')}>
                 <CIcon className="me-2" icon={cilSun} size="lg" /> Light
               </CDropdownItem>
-              <CDropdownItem
-                active={colorMode === 'dark'}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode('dark')}
-              >
+              <CDropdownItem onClick={() => setColorMode('dark')}>
                 <CIcon className="me-2" icon={cilMoon} size="lg" /> Dark
               </CDropdownItem>
-              <CDropdownItem
-                active={colorMode === 'auto'}
-                className="d-flex align-items-center"
-                as="button"
-                type="button"
-                onClick={() => setColorMode('auto')}
-              >
+              <CDropdownItem onClick={() => setColorMode('auto')}>
                 <CIcon className="me-2" icon={cilContrast} size="lg" /> Auto
               </CDropdownItem>
             </CDropdownMenu>
           </CDropdown>
-          <li className="nav-item py-1">
-            <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
-          </li>
           <AppHeaderDropdown />
         </CHeaderNav>
+
       </CContainer>
-      {/* <CContainer className="px-4" fluid>
-        <AppBreadcrumb />
-      </CContainer> */}
     </CHeader>
   )
 }

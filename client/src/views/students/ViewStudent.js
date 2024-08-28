@@ -46,6 +46,7 @@ const ViewStudent = () => {
   const upload = useSelector((state) => state.upload)
   const addCourse = useSelector((state) => state.addCourse)
   const addVisa = useSelector((state) => state.addVisa)
+  const notificationClick = useSelector((state) => state.notificationClick)
 
   useEffect(() => {
     const fetchStudentDetails = async () => {
@@ -85,7 +86,7 @@ const ViewStudent = () => {
     }
 
     fetchStudentDetails()
-  }, [studentId, upload, addCourse,addVisa])
+  }, [studentId, upload, addCourse,addVisa,notificationClick])
 
   const handleAddCourse = async (newCourse) => {
     try {
