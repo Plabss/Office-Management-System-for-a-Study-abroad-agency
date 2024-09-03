@@ -73,7 +73,7 @@ const ViewStudent = () => {
         setProgress({
           progress: studentData.progress,
           counselor: studentData.employees.asCounselor[0],
-          applicant: studentData.employees.asApplicant[0],
+          applicant: studentData.employees.asApplicant,
           visaOfficer: studentData.employees.asVisaAdmin[0],
         })
 

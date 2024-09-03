@@ -1,5 +1,6 @@
 const cloudinary = require('../config/cloudinary');
 const Notification = require('../model/Notification.model');
+const Student = require('../model/Student.model');
 const { addEmployee,getAllEmployees,assignApplicant,assignVisaAdmin, getEmployeeById } = require('../services/employee.services');
 
 exports.addEmployeeController = async (req, res) => {
@@ -63,9 +64,11 @@ exports.assignApplicantController = async (req, res) => {
     const { applicantId,applicantName } = req.body;
     console.log("aaaaaaaaaaaaa",req.body) 
     const assigned = await assignApplicant(courseId,studentId,applicantId,applicantName);
+    const student = await Student.findById(studentId);
+    console.log("sssssssssssssss",student)
     if (assigned) {
       const notification = new Notification({
-        message: `A new student has been assigned to you: ${studentId}`,
+        message: `A new student has been assigned to you for application: ${student.fullName}`,
         employeeId: applicantId,
         studentId: studentId,
         for: "application",

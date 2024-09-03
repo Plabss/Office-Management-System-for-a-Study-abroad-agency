@@ -19,7 +19,7 @@ exports.addStudentController = async (req, res) => {
     );
     if (student) {
       const notification = new Notification({
-        message: `A new student has been assigned to you: ${student.fullName}`,
+        message: `A new student has been assigned to you for counseling: ${student.fullName}`,
         employeeId: student?.employees?.asCounselor[0],
         studentId: student._id,
         for: "counseling",
