@@ -39,8 +39,9 @@ exports.addStudentController = async (req, res) => {
 };
 exports.getAllStudentsByEmployeeIdController = async (req, res) => {
   const { employeeID } = req.params;
+  const { name, startDate, endDate } = req.query;
   try {
-    const students = await getAllStudentsByEmployeeID(employeeID);
+    const students = await getAllStudentsByEmployeeID({employeeID, name, startDate, endDate});
     res.status(200).json(students);
   } catch (error) {
     console.error("Error fetching students:", error);
@@ -49,7 +50,8 @@ exports.getAllStudentsByEmployeeIdController = async (req, res) => {
 };
 exports.getAllStudentsController = async (req, res) => {
   try {
-    const students = await getAllStudents();
+    const { name, startDate, endDate } = req.query;
+    const students = await getAllStudents({ name, startDate, endDate });
     res.status(200).json(students);
   } catch (error) {
     console.error("Error fetching students:", error);

@@ -34,9 +34,8 @@ exports.createStudent = async (studentData) => {
     );
   }
 };
-exports.getAllStudentsByEmployeeID = async (employeeID) => {
+exports.getAllStudentsByEmployeeID = async ({ employeeID, name, startDate, endDate }) => {
   try {
-    // Find the employee and populate students based on roles
     const employee = await Employee.findById(employeeID)
       .populate({
         path: "students.asCounselor students.asApplicant students.asVisaAdmin",
@@ -54,21 +53,63 @@ exports.getAllStudentsByEmployeeID = async (employeeID) => {
       ...employee.students.asVisaAdmin,
     ];
 
-    // Remove duplicates if any
-    const uniqueStudents = Array.from(
-      new Set(allStudents.map((s) => s._id))
-    ).map((id) => allStudents.find((s) => s._id.equals(id)));
+    console.log('All Students:', allStudents);
 
-    return allStudents;
+    // Apply filters to the aggregated students
+    let filteredStudents = allStudents;
+
+    // Filter by name if provided
+    if (name) {
+      const nameRegex = new RegExp(name, 'i'); // Case-insensitive search
+      filteredStudents = filteredStudents.filter((student) => nameRegex.test(student.fullName));
+    }
+
+    // Filter by date range if provided
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      filteredStudents = filteredStudents.filter(
+        (student) => new Date(student.dob) >= start && new Date(student.dob) <= end
+      );
+    } else if (startDate) {
+      const start = new Date(startDate);
+      filteredStudents = filteredStudents.filter((student) => new Date(student.dob) >= start);
+    } else if (endDate) {
+      const end = new Date(endDate);
+      filteredStudents = filteredStudents.filter((student) => new Date(student.dob) <= end);
+    }
+
+    // Remove duplicates if any (in case a student appears in multiple roles)
+    const uniqueStudents = Array.from(
+      new Set(filteredStudents.map((s) => s._id.toString()))
+    ).map((id) => filteredStudents.find((s) => s._id.toString() === id));
+
+    return filteredStudents;
   } catch (error) {
-    console.error("Error in getStudentsByEmployee service:", error);
+    console.error('Error in getStudentsByEmployee service:', error);
     throw error;
   }
 };
-exports.getAllStudents = async () => {
+
+exports.getAllStudents = async ({ name, startDate, endDate }) => {
   try {
+    const filter = {};
+
+    // Filter by name if provided
+    if (name) {
+      filter.fullName = new RegExp(name, 'i'); // Case-insensitive search
+    }
+
+    // Filter by date range if provided
+    if (startDate && endDate) {
+      filter.dob = { $gte: new Date(startDate), $lte: new Date(endDate) };
+    } else if (startDate) {
+      filter.dob = { $gte: new Date(startDate) };
+    } else if (endDate) {
+      filter.dob = { $lte: new Date(endDate) };
+    }
     // Find the employee and populate students based on roles
-    const students = await Student.find({})
+    const students = await Student.find(filter)
     return students;
   } catch (error) {
     console.error("Error in getStudents service:", error);
@@ -90,7 +131,7 @@ exports.getAStudent = async(studentId) =>{
         path: 'visas',
       })
       .exec();
-      console.log("student",student);
+      console.log("studentttttttt",student);
     return student;
   } catch (error) {
     console.error("Error fetching student:", error);
