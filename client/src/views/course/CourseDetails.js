@@ -158,6 +158,7 @@ const CourseDetails = () => {
                     documents={documents}
                     onDocumentUpload={handleDocumentUpload}
                     courseId={courseId}
+                    courseName={course.name}
                   />
                 </>
               )}

@@ -72,9 +72,9 @@ const ViewStudent = () => {
         })
         setProgress({
           progress: studentData.progress,
-          counselor: studentData.employees.asCounselor[0],
+          counselor: studentData.employees.asCounselor,
           applicant: studentData.employees.asApplicant,
-          visaOfficer: studentData.employees.asVisaAdmin[0],
+          visaOfficer: studentData.employees.asVisaAdmin,
         })
 
         setDocuments(studentData.documents || { cv: null, nid: null })
@@ -215,6 +215,7 @@ const ViewStudent = () => {
                         <StudentDocuments
                           documents={documents}
                           onDocumentUpload={handleDocumentUpload}
+                          studentName={basicInfo.fullName}
                         />
                       </CTabPane>
                       <CTabPane visible={activeTab === 'courses'}>

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { CListGroup, CListGroupItem, CButton, CRow, CCol, CFormInput, CSpinner } from '@coreui/react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver'; // file-saver is used to save the zip file on the client side
+import { CIcon } from '@coreui/icons-react'; // Make sure you have this installed or replace with your icon library
+import { cilCloudDownload } from '@coreui/icons';
 
-const StudentDocuments = ({ documents, onDocumentUpload }) => {
+const StudentDocuments = ({ documents, onDocumentUpload, studentName}) => {
   const [uploading, setUploading] = useState({ cv: false, nid: false });
   const dispatch = useDispatch();
-
   const studentId = localStorage.getItem('studentId');
 
   const handleFileChange = (docType, event) => {
@@ -50,48 +53,78 @@ const StudentDocuments = ({ documents, onDocumentUpload }) => {
     }
   };
 
-  return (
-    <CListGroup flush>
+  const handleDownloadAll = async () => {
+    const zip = new JSZip();
 
-      {
-        console.log(studentId, 'Student')
-      }
-      {['cv', 'nid'].map((docType) => (
-        <CListGroupItem key={docType}>
-          <strong>{docType.toUpperCase()}:</strong>
-          <CRow className="mt-2 align-items-center">
-            <CCol md={8} className="d-flex align-items-center">
-              {documents[docType] && typeof documents[docType] === 'string' ? (
-                <CButton
-                  color="info"
-                  size="sm"
-                  onClick={() => handleViewDocument(documents[docType])}
-                >
-                  View Document
-                </CButton>
-              ) : (
-                <>
-                  <CFormInput
-                    type="file"
-                    onChange={(e) => handleFileChange(docType, e)}
-                    disabled={uploading[docType]}
-                    style={{ flex: 1 }}
-                  />
+    const downloadPromises = Object.entries(documents)
+      .filter(([key, value]) => value) // Only process documents that have a value
+      .map(async ([docType, file]) => {
+        if (typeof file === 'string') {
+          // If file is a URL, fetch it as a blob
+          const response = await fetch(file);
+          const blob = await response.blob();
+          zip.file(`${docType}.pdf`, blob);
+        } else if (file instanceof File) {
+          // If file is already a File object, add directly to zip
+          zip.file(file.name, file);
+        }
+      });
+
+    await Promise.all(downloadPromises);
+
+    zip.generateAsync({ type: 'blob' }).then((content) => {
+      saveAs(content, `${studentName}'s-documents.zip`);
+    });
+  };
+
+  return (
+    <div>
+      <CButton
+        color="secondary"
+        className="float-end"
+        onClick={handleDownloadAll}
+      >
+        <CIcon icon={cilCloudDownload} /> Download All
+      </CButton>
+
+      <CListGroup flush>
+        {['cv', 'nid'].map((docType) => (
+          <CListGroupItem key={docType}>
+            <strong>{docType.toUpperCase()}:</strong>
+            <CRow className="mt-2 align-items-center">
+              <CCol md={8} className="d-flex align-items-center">
+                {documents[docType] && typeof documents[docType] === 'string' ? (
                   <CButton
-                    color="primary"
-                    onClick={() => handleUpload(docType)}
-                    disabled={uploading[docType]}
-                    className="mx-4"
+                    color="info"
+                    size="sm"
+                    onClick={() => handleViewDocument(documents[docType])}
                   >
-                    {uploading[docType] ? <CSpinner size="sm" /> : 'Upload'}
+                    View Document
                   </CButton>
-                </>
-              )}
-            </CCol>
-          </CRow>
-        </CListGroupItem>
-      ))}
-    </CListGroup>
+                ) : (
+                  <>
+                    <CFormInput
+                      type="file"
+                      onChange={(e) => handleFileChange(docType, e)}
+                      disabled={uploading[docType]}
+                      style={{ flex: 1 }}
+                    />
+                    <CButton
+                      color="primary"
+                      onClick={() => handleUpload(docType)}
+                      disabled={uploading[docType]}
+                      className="mx-4"
+                    >
+                      {uploading[docType] ? <CSpinner size="sm" /> : 'Upload'}
+                    </CButton>
+                  </>
+                )}
+              </CCol>
+            </CRow>
+          </CListGroupItem>
+        ))}
+      </CListGroup>
+    </div>
   );
 };
 

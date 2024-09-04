@@ -12,47 +12,73 @@ import {
   CNavLink,
   CTabContent,
   CTabPane,
+  CButton,
+  CInputGroupText,
+  CInputGroup,
 } from '@coreui/react'
 import axios from 'axios'
 import TableSection from '../students/TableSection'
+import CIcon from '@coreui/icons-react'
+import { cilFilter, cilSync, cilUser } from '@coreui/icons'
+import Autosuggest from 'react-autosuggest'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { useSelector } from 'react-redux'
 
 const ViewStudents = () => {
   const [activeTab, setActiveTab] = useState('all-students')
   const [students, setStudents] = useState([])
   const [employeeId, setEmployeeId] = useState(null)
   const [employeeRole, setEmployeeRole] = useState('')
+  const [name, setName] = useState('')
+
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  const storedTheme = useSelector((state) => state.theme)
+  const [suggestions, setSuggestions] = useState([])
+
+  const [startDate, setStartDate] = useState(null)
+  const [endDate, setEndDate] = useState(null)
 
   useEffect(() => {
+
+    setIsDarkMode(storedTheme === 'dark')
+
     // Fetch employee data from localStorage
     const employee = JSON.parse(localStorage.getItem('employee'))
     if (employee) {
       setEmployeeId(employee._id)
       setEmployeeRole(employee.role[0]) // Assuming role is an array and we are interested in the first role
     }
-  }, [])
+  }, [storedTheme])
+
+
+  const fetchStudents = async () => {
+    const params = {
+      name,
+      startDate: startDate ? startDate.toISOString() : undefined,
+      endDate: endDate ? endDate.toISOString() : undefined
+    }
+    try {
+      let response
+      if (employeeRole === 'receptionist' || employeeRole === 'super-admin') {
+        console.log('Fetching all students') // Debugging log
+        response = await axios.get(`http://localhost:5000/api/v1/students/get-all-students`,{params})
+      } else if (employeeId) {
+        console.log('Fetching students with employeeID:', employeeId) // Debugging log
+        response = await axios.get(
+          `http://localhost:5000/api/v1/students/get-all-students/${employeeId}`,{params},
+        )
+      } else {
+        console.log('No valid employee ID or role to fetch students') // Debugging log
+        return
+      }
+      setStudents(response.data)
+    } catch (error) {
+      console.error('Error fetching students:', error)
+    }
+  }
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        let response
-        if (employeeRole === 'receptionist' || employeeRole === 'super-admin') {
-          console.log('Fetching all students') // Debugging log
-          response = await axios.get(`http://localhost:5000/api/v1/students/get-all-students`)
-        } else if (employeeId) {
-          console.log('Fetching students with employeeID:', employeeId) // Debugging log
-          response = await axios.get(
-            `http://localhost:5000/api/v1/students/get-all-students/${employeeId}`,
-          )
-        } else {
-          console.log('No valid employee ID or role to fetch students') // Debugging log
-          return
-        }
-        setStudents(response.data)
-      } catch (error) {
-        console.error('Error fetching students:', error)
-      }
-    }
-
     fetchStudents()
   }, [employeeId, employeeRole]) // Run this effect whenever employeeId or employeeRole changes
 
@@ -67,91 +93,214 @@ const ViewStudents = () => {
     return Array.from(studentMap.values())
   }
 
+
+  const getSuggestions = async (value) => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/v1/students/get-all-students', {
+        params: { name: value },
+      })
+      return response.data.map((student) => student.fullName)
+    } catch (error) {
+      console.error('Error fetching student suggestions:', error)
+      return []
+    }
+  }
+
+
+  const onSuggestionsFetchRequested = async ({ value }) => {
+    const suggestions = await getSuggestions(value)
+    setSuggestions(suggestions)
+  }
+
+
+  const onSuggestionsClearRequested = () => {
+    setSuggestions([])
+  }
+
+  const onSuggestionSelected = (event, { suggestionValue }) => {
+    setName(suggestionValue)
+  }
+
+  const onChange = (event, { newValue }) => {
+    setName(newValue)
+  }
+
+  const inputProps = {
+    placeholder: 'Search by name',
+    value: name,
+    onChange,
+    className: 'form-control rounded-pill',
+  }
+
+
+  const handleFilterClick = () => {
+    fetchStudents() // Fetch students based on the current filter criteria
+  }
+
   return (
     <CContainer fluid className="mt-4">
       <CRow>
         <CCol>
-          <CCard>
-            <CCardHeader>
-              <h2>Students List</h2>
+          <CCard className="shadow-sm">
+            <CCardHeader
+              className={`${
+                isDarkMode ? 'bg-gradient-dark text-white' : 'bg-gradient-primary text-black'
+              } rounded-top`}
+            >
+              <h2 className="h5 mb-0 d-flex align-items-center">
+                <CIcon icon={cilUser} className="mx-2" />
+                Students List
+              </h2>
+              <CInputGroup className="mb-3 mt-3 d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center">
+                  <CIcon icon={cilFilter} className="mx-2" />
+                  <Autosuggest
+                    suggestions={suggestions}
+                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                    onSuggestionsClearRequested={onSuggestionsClearRequested}
+                    onSuggestionSelected={onSuggestionSelected}
+                    getSuggestionValue={(suggestion) => suggestion}
+                    renderSuggestion={(suggestion) => (
+                      <div className="p-2">{suggestion}</div>
+                    )}
+                    inputProps={inputProps}
+                    theme={{
+                      input: 'form-control rounded-pill',
+                      suggestionsContainer: 'shadow rounded mt-2',
+                      suggestion: 'p-2 suggestion-item',
+                      suggestionHighlighted: 'suggestion-item--highlighted',
+                    }}
+                  />
+                </div>
+                <div className="d-flex align-items-center">
+                  <CInputGroupText className="rounded-pill">From</CInputGroupText>
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                    isClearable
+                    placeholderText="Start Date"
+                    className={`form-control rounded-pill ${
+                      isDarkMode ? 'bg-dark text-light' : ''
+                    }`}
+                  />
+                  <CInputGroupText className="rounded-pill">To</CInputGroupText>
+                  <DatePicker
+                    selected={endDate}
+                    onChange={(date) => setEndDate(date)}
+                    isClearable
+                    placeholderText="End Date"
+                    className={`form-control rounded-pill ${
+                      isDarkMode ? 'bg-dark text-light' : ''
+                    }`}
+                  />
+                </div>
+                <CButton
+                  color="info"
+                  variant={isDarkMode ? 'outline-light' : 'outline'}
+                  className="rounded-pill ml-3"
+                  onClick={handleFilterClick}
+                >
+                  <CIcon icon={cilFilter} className="mr-2" />
+                  Apply Filters
+                </CButton>
+                <CButton
+                  color="info"
+                  variant={isDarkMode ? 'outline-light' : 'outline'}
+                  className="rounded-pill ml-3"
+                  onClick={() => {
+                    setName('')
+                    setStartDate(null)
+                    setEndDate(null)
+                    fetchStudents() // Reset filters and fetch all students
+                  }}
+                >
+                  <CIcon icon={cilSync} className="mr-2" />
+                  Reset Filters
+                </CButton>
+              </CInputGroup>
             </CCardHeader>
-            <CCardBody>
-              <CTabs activeItemKey={activeTab}>
-                <CNav variant="tabs">
-                  <CNavItem>
-                    <CNavLink
-                      active={activeTab === 'all-students'}
-                      onClick={() => setActiveTab('all-students')}
-                    >
-                      All Students
-                    </CNavLink>
-                  </CNavItem>
-                  {employeeRole !== 'receptionist' && employeeRole !== 'super-admin' ? (
-                    <>
-                      <CNavItem>
-                        <CNavLink
-                          active={activeTab === 'counseling-students'}
-                          onClick={() => setActiveTab('counseling-students')}
-                        >
-                          Counseling Students
-                        </CNavLink>
-                      </CNavItem>
-                      <CNavItem>
-                        <CNavLink
-                          active={activeTab === 'university-application'}
-                          onClick={() => setActiveTab('university-application')}
-                        >
-                          University Application Students
-                        </CNavLink>
-                      </CNavItem>
-                      <CNavItem>
-                        <CNavLink
-                          active={activeTab === 'visa-application'}
-                          onClick={() => setActiveTab('visa-application')}
-                        >
-                          Visa Application Students
-                        </CNavLink>
-                      </CNavItem>
-                    </>
-                  ) : null}
-                </CNav>
-                <CTabContent>
-                  <CTabPane visible={activeTab === 'all-students'}>
-                    <TableSection data={getUniqueStudents(students)} />
-                  </CTabPane>
-                  {employeeRole !== 'receptionist' && employeeRole !== 'super-admin' ? (
-                    <>
-                      <CTabPane visible={activeTab === 'counseling-students'}>
-                        <TableSection
-                          data={getUniqueStudents(
-                            students.filter((student) =>
-                              student.employees?.asCounselor?.includes(employeeId),
-                            ),
-                          )}
-                        />
-                      </CTabPane>
-                      <CTabPane visible={activeTab === 'university-application'}>
-                        <TableSection
-                          data={getUniqueStudents(
-                            students.filter((student) =>
-                              student.employees?.asApplicant?.includes(employeeId),
-                            ),
-                          )}
-                        />
-                      </CTabPane>
-                      <CTabPane visible={activeTab === 'visa-application'}>
-                        <TableSection
-                          data={getUniqueStudents(
-                            students.filter((student) =>
-                              student.employees?.asVisaAdmin?.includes(employeeId),
-                            ),
-                          )}
-                        />
-                      </CTabPane>
-                    </>
-                  ) : null}
-                </CTabContent>
-              </CTabs>
+            <CCardBody className={isDarkMode ? 'bg-dark text-light' : ''}>
+              <CNav
+                variant="tabs"
+                className={`rounded ${isDarkMode ? 'bg-secondary' : 'bg-light'}`}
+              >
+                <CNavItem>
+                  <CNavLink
+                    active={activeTab === 'all-students'}
+                    onClick={() => setActiveTab('all-students')}
+                    className={isDarkMode ? 'text-light' : ''}
+                  >
+                    All Students
+                  </CNavLink>
+                </CNavItem>
+                {employeeRole !== 'receptionist' && employeeRole !== 'super-admin' ? (
+                  <>
+                    <CNavItem>
+                      <CNavLink
+                        active={activeTab === 'counseling-students'}
+                        onClick={() => setActiveTab('counseling-students')}
+                        className={isDarkMode ? 'text-light' : ''}
+                      >
+                        Counseling Students
+                      </CNavLink>
+                    </CNavItem>
+                    <CNavItem>
+                      <CNavLink
+                        active={activeTab === 'university-application'}
+                        onClick={() => setActiveTab('university-application')}
+                        className={isDarkMode ? 'text-light' : ''}
+                      >
+                        University Application
+                      </CNavLink>
+                    </CNavItem>
+                    <CNavItem>
+                      <CNavLink
+                        active={activeTab === 'visa-application'}
+                        onClick={() => setActiveTab('visa-application')}
+                        className={isDarkMode ? 'text-light' : ''}
+                      >
+                        Visa Application
+                      </CNavLink>
+                    </CNavItem>
+                  </>
+                ) : null}
+              </CNav>
+              <CTabContent className="mt-4">
+                <CTabPane visible={activeTab === 'all-students'}>
+                  <TableSection data={getUniqueStudents(students)} />
+                </CTabPane>
+                {employeeRole !== 'receptionist' && employeeRole !== 'super-admin' ? (
+                  <>
+                    <CTabPane visible={activeTab === 'counseling-students'}>
+                      <TableSection
+                        data={getUniqueStudents(
+                          students.filter((student) =>
+                            student.employees?.asCounselor?.includes(employeeId),
+                          ),
+                        )}
+                      />
+                    </CTabPane>
+                    <CTabPane visible={activeTab === 'university-application'}>
+                      <TableSection
+                        data={getUniqueStudents(
+                          students.filter((student) =>
+                            student.employees?.asApplicant?.includes(employeeId),
+                          ),
+                        )}
+                      />
+                    </CTabPane>
+                    <CTabPane visible={activeTab === 'visa-application'}>
+                      <TableSection
+                        data={getUniqueStudents(
+                          students.filter((student) =>
+                            student.employees?.asVisaAdmin?.includes(employeeId),
+                          ),
+                        )}
+                      />
+                    </CTabPane>
+                  </>
+                ) : null}
+              </CTabContent>
             </CCardBody>
           </CCard>
         </CCol>

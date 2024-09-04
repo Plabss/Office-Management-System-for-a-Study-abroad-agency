@@ -1,53 +1,55 @@
-// StudentProgress.js
-import React from 'react';
+/* eslint-disable react/react-in-jsx-scope */
+import { CCard, CCardBody, CCardTitle, CCol, CRow } from "@coreui/react";
 import './StudentProgress.css'
-import { CListGroup, CListGroupItem, CRow, CCol, CCard, CCardBody, CCardTitle } from '@coreui/react';
 
-const StudentProgress = ({ progress }) => (
-  <CCard>
-    <CCardBody>
-      <CCardTitle>Student Progress</CCardTitle>
+const StudentProgress = ({ progress }) => {
+  // Define the steps of the progress bar
+  const steps = [
+    { key: "follow up", label: "Follow Up", description: "Initial consultation and follow-up discussions." },
+    { key: "enrolled", label: "Enrolled", description: "Student has enrolled in the program." },
+    { key: "application processing", label: "Application Processing", description: "Student's application is under review." },
+    { key: "visa processing", label: "Visa Processing", description: "Visa application is being processed." },
+    { key: "accepted/rejected", label: "Accepted/Rejected", description: "Final decision on the student's application." }
+  ];
 
-      {
-        console.log(progress)
-      }
+  return (
+    <CCard>
+      <CCardBody>
+        <CCardTitle>Student Progress</CCardTitle>
 
-      {/* Timeline */}
-      <CRow className="mt-4">
-        <CCol>
-          <ul className="timeline">
-            <li className="timeline-item">
-              <h6>Follow Up</h6>
-              <p>Initial consultation and follow-up discussions.</p>
-            </li>
-            <li className="timeline-item">
-              <h6>Enrolled</h6>
-              <p>Student has enrolled in the program.</p>
-            </li>
-            <li className="timeline-item">
-              <h6>Application Processing</h6>
-              <p>Student's application is under review.</p>
-            </li>
-            <li className="timeline-item">
-              <h6>Visa Processing</h6>
-              <p>Visa application is being processed.</p>
-            </li>
-            <li className="timeline-item">
-              <h6>Accepted/Rejected</h6>
-              <p>Final decision on the student's application.</p>
-            </li>
-          </ul>
-        </CCol>
-      </CRow>
+        {/* Timeline */}
+        <CRow className="mt-4">
+          <CCol>
+            <ul className="timeline">
+              {steps.map((step) => (
+                <li
+                  key={step.key}
+                  className={`timeline-item ${progress.progress === step.key ? "active" : ""}`}
+                >
+                  <h6>{step.label}</h6>
+                  <p>{step.description}</p>
+                </li>
+              ))}
+            </ul>
+          </CCol>
+        </CRow>
 
-      {/* Additional Information */}
-      <CRow className="mt-4">
-        <CCol md={4}><strong>Counselor:</strong> {progress.counselor?.name}</CCol>
-        <CCol md={4}><strong>Applicant:</strong> {progress.applicant?.name}</CCol>
-        <CCol md={4}><strong>Visa Officer:</strong> {progress.visaOfficer?.name}</CCol>
-      </CRow>
-    </CCardBody>
-  </CCard>
-);
+        {/* Additional Information */}
+        <CRow className="mt-4">
+          <CCol md={4}>
+            <strong>Counselor:</strong> {progress.counselor?.map((c) => c.name).join(", ")}
+          </CCol>
+          <CCol md={4}>
+            <strong>Applicant:</strong> {progress.applicant?.map((c) => c.name).join(", ")}
+          </CCol>
+          <CCol md={4}>
+            <strong>Visa Officer:</strong> {progress.visaOfficer?.map((c) => c.name).join(", ")}
+          </CCol>
+        </CRow>
+      </CCardBody>
+    </CCard>
+  );
+};
 
-export default StudentProgress;
+
+export default StudentProgress

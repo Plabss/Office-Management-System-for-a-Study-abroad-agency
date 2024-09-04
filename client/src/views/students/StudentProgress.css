@@ -40,4 +40,11 @@
   .timeline-item p {
     margin: 0;
   }
+
+
+  .timeline-item.active {
+    background-color: #e0f7fa; /* Example: light cyan background */
+    font-weight: bold; /* Example: bold text */
+    border-left: 4px solid #007bff; /* Example: blue left border */
+  }
   
