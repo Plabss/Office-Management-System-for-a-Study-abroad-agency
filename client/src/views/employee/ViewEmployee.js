@@ -21,6 +21,7 @@ const ViewEmployee = () => {
   const [employee, setEmployee] = useState(null);  // Default to null instead of an empty array
   const employeeId = localStorage.getItem('employeeId');
   const viewMyProfile = useSelector((state) => state.viewMyProfile)
+  const updateRole = useSelector((state) => state.updateRole)
   useEffect(() => {
       // Directly get the employeeId as a string
     const fetchEmployeeDetails = async () => {
@@ -41,7 +42,7 @@ const ViewEmployee = () => {
       }
     };
     fetchEmployeeDetails();
-  }, [employeeId,viewMyProfile]);
+  }, [employeeId,viewMyProfile,updateRole]);
 
   return (
     <CContainer fluid className="mt-4">

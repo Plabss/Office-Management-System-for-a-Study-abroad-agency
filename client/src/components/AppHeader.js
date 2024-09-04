@@ -28,6 +28,8 @@ import NotificationList from './NotificationList'
 import AppHeaderDropdown from './header/AppHeaderDropdown'
 
 const socket = io(`http://localhost:5000`, {
+  reconnectionAttempts: 5, // Try to reconnect up to 5 times
+  reconnectionDelay: 1000, // Wait 1 second before trying to reconnect
   transports: ['websocket', 'polling'],
 })
 

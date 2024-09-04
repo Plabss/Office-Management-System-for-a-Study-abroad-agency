@@ -19,11 +19,12 @@ import {
 import axios from 'axios'
 import TableSection from '../students/TableSection'
 import CIcon from '@coreui/icons-react'
-import { cilFilter, cilSync, cilUser } from '@coreui/icons'
+import { cilFilter, cilPeople, cilSync, cilUser } from '@coreui/icons'
 import Autosuggest from 'react-autosuggest'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { useSelector } from 'react-redux'
+import './ViewStudents.css'
 
 const ViewStudents = () => {
   const [activeTab, setActiveTab] = useState('all-students')
@@ -40,7 +41,6 @@ const ViewStudents = () => {
   const [endDate, setEndDate] = useState(null)
 
   useEffect(() => {
-
     setIsDarkMode(storedTheme === 'dark')
 
     // Fetch employee data from localStorage
@@ -51,22 +51,24 @@ const ViewStudents = () => {
     }
   }, [storedTheme])
 
-
   const fetchStudents = async () => {
     const params = {
       name,
       startDate: startDate ? startDate.toISOString() : undefined,
-      endDate: endDate ? endDate.toISOString() : undefined
+      endDate: endDate ? endDate.toISOString() : undefined,
     }
     try {
       let response
       if (employeeRole === 'receptionist' || employeeRole === 'super-admin') {
         console.log('Fetching all students') // Debugging log
-        response = await axios.get(`http://localhost:5000/api/v1/students/get-all-students`,{params})
+        response = await axios.get(`http://localhost:5000/api/v1/students/get-all-students`, {
+          params,
+        })
       } else if (employeeId) {
         console.log('Fetching students with employeeID:', employeeId) // Debugging log
         response = await axios.get(
-          `http://localhost:5000/api/v1/students/get-all-students/${employeeId}`,{params},
+          `http://localhost:5000/api/v1/students/get-all-students/${employeeId}`,
+          { params },
         )
       } else {
         console.log('No valid employee ID or role to fetch students') // Debugging log
@@ -93,7 +95,6 @@ const ViewStudents = () => {
     return Array.from(studentMap.values())
   }
 
-
   const getSuggestions = async (value) => {
     try {
       const response = await axios.get('http://localhost:5000/api/v1/students/get-all-students', {
@@ -106,12 +107,10 @@ const ViewStudents = () => {
     }
   }
 
-
   const onSuggestionsFetchRequested = async ({ value }) => {
     const suggestions = await getSuggestions(value)
     setSuggestions(suggestions)
   }
-
 
   const onSuggestionsClearRequested = () => {
     setSuggestions([])
@@ -132,7 +131,6 @@ const ViewStudents = () => {
     className: 'form-control rounded-pill',
   }
 
-
   const handleFilterClick = () => {
     fetchStudents() // Fetch students based on the current filter criteria
   }
@@ -148,30 +146,33 @@ const ViewStudents = () => {
               } rounded-top`}
             >
               <h2 className="h5 mb-0 d-flex align-items-center">
-                <CIcon icon={cilUser} className="mx-2" />
+                <CIcon icon={cilPeople} className="mx-2" />
                 Students List
               </h2>
               <CInputGroup className="mb-3 mt-3 d-flex justify-content-between align-items-center">
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center position-relative" style={{ flex: 1 }}>
                   <CIcon icon={cilFilter} className="mx-2" />
-                  <Autosuggest
-                    suggestions={suggestions}
-                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
-                    onSuggestionsClearRequested={onSuggestionsClearRequested}
-                    onSuggestionSelected={onSuggestionSelected}
-                    getSuggestionValue={(suggestion) => suggestion}
-                    renderSuggestion={(suggestion) => (
-                      <div className="p-2">{suggestion}</div>
-                    )}
-                    inputProps={inputProps}
-                    theme={{
-                      input: 'form-control rounded-pill',
-                      suggestionsContainer: 'shadow rounded mt-2',
-                      suggestion: 'p-2 suggestion-item',
-                      suggestionHighlighted: 'suggestion-item--highlighted',
-                    }}
-                  />
+                  <div style={{ position: 'relative', width: '100%' }}>
+                    {' '}
+                    {/* Wrapper to control Autosuggest positioning */}
+                    <Autosuggest
+                      suggestions={suggestions}
+                      onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                      onSuggestionsClearRequested={onSuggestionsClearRequested}
+                      onSuggestionSelected={onSuggestionSelected}
+                      getSuggestionValue={(suggestion) => suggestion}
+                      renderSuggestion={(suggestion) => <div className="p-1">{suggestion}</div>}
+                      inputProps={inputProps}
+                      theme={{
+                        input: 'form-control rounded-pill',
+                        suggestionsContainer: 'suggestions-container shadow rounded mt-2',
+                        suggestion: 'p-2 suggestion-item',
+                        suggestionHighlighted: 'suggestion-item--highlighted',
+                      }}
+                    />
+                  </div>
                 </div>
+
                 <div className="d-flex align-items-center">
                   <CInputGroupText className="rounded-pill">From</CInputGroupText>
                   <DatePicker
@@ -179,9 +180,7 @@ const ViewStudents = () => {
                     onChange={(date) => setStartDate(date)}
                     isClearable
                     placeholderText="Start Date"
-                    className={`form-control rounded-pill ${
-                      isDarkMode ? 'bg-dark text-light' : ''
-                    }`}
+                    className={`form-control rounded-pill ${isDarkMode ? 'bg-dark text-light' : ''}`}
                   />
                   <CInputGroupText className="rounded-pill">To</CInputGroupText>
                   <DatePicker
@@ -189,11 +188,10 @@ const ViewStudents = () => {
                     onChange={(date) => setEndDate(date)}
                     isClearable
                     placeholderText="End Date"
-                    className={`form-control rounded-pill ${
-                      isDarkMode ? 'bg-dark text-light' : ''
-                    }`}
+                    className={`form-control rounded-pill ${isDarkMode ? 'bg-dark text-light' : ''}`}
                   />
                 </div>
+
                 <CButton
                   color="info"
                   variant={isDarkMode ? 'outline-light' : 'outline'}
@@ -203,6 +201,7 @@ const ViewStudents = () => {
                   <CIcon icon={cilFilter} className="mr-2" />
                   Apply Filters
                 </CButton>
+
                 <CButton
                   color="info"
                   variant={isDarkMode ? 'outline-light' : 'outline'}
