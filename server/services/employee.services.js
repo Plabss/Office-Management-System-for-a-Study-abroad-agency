@@ -66,3 +66,39 @@ exports.assignVisaAdmin = async (studentId,visaId,visaAdminId,visaAdminName) => 
     throw new Error('Error fetching employees: ' + error.message);
   }
 };
+exports.updateRole = async (employeeId, role, action) => {
+  try {
+    const employee = await Employee.findById(employeeId);
+    if (!employee) {
+      throw new Error('Employee not found');
+    }
+
+    if (action === 'add') {
+      // Add the role if it does not exist already
+      if (!employee.role.includes(role)) {
+        employee.role.push(role);
+      } else {
+        throw new Error('Role already exists');
+      }
+    } else if (action === 'remove') {
+      // Prevent removal if it's the only role
+      if (employee.role.length === 1) {
+        throw new Error('Cannot remove the only role');
+      }
+      
+      // Remove the role if it exists
+      if (employee.role.includes(role)) {
+        employee.role = employee.role.filter(r => r !== role);
+      } else {
+        throw new Error('Role does not exist');
+      }
+    } else {
+      throw new Error('Invalid action');
+    }
+
+    await employee.save();
+    return employee;
+  } catch (error) {
+    throw new Error('Error updating role: ' + error.message);
+  }
+};

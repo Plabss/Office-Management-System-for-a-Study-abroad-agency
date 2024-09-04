@@ -10,7 +10,9 @@ const io = socketIo(server, {
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"]
-  }
+  },
+  pingTimeout: 60000,  // 60 seconds timeout
+  pingInterval: 25000, // 25 seconds interval
 });
 
 app.use(cors({

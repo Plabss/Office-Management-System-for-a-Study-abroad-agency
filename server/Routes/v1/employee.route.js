@@ -1,5 +1,5 @@
 const express = require('express');
-const { addEmployeeController,getAllEmployeesController,getAEmployeeController,assignApplicantController,assignVisaAdminController } = require('../../controller/employee.controller');
+const { addEmployeeController,updateRoleController,getAllEmployeesController,getAEmployeeController,assignApplicantController,assignVisaAdminController } = require('../../controller/employee.controller');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // Temporary upload destination
 
@@ -10,5 +10,6 @@ router.get('/get-all-employees', getAllEmployeesController);
 router.get('/get-a-employee/:id', getAEmployeeController);
 router.post('/assign-applicant/:courseId/:studentId', assignApplicantController);
 router.post('/assign-visa-admin/:studentId/:visaId', assignVisaAdminController);
+router.put('/update-role/:id', updateRoleController);
 
 module.exports = router;
