@@ -21,6 +21,7 @@ import StudentVisas from './StudentVisas'
 
 import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
+import StudentDiscussions from './StudentDiscussions'
 
 const ViewStudent = () => {
   const [activeTab, setActiveTab] = useState('basic-info')
@@ -35,6 +36,7 @@ const ViewStudent = () => {
   const [documents, setDocuments] = useState({ cv: null, nid: null })
   const [courses, setCourses] = useState([])
   const [visas, setVisas] = useState()
+  const [discussions, setDiscussions] = useState([])
 
   const studentId = localStorage.getItem('studentId')
   const employee = JSON.parse(localStorage.getItem('employee'))
@@ -42,11 +44,12 @@ const ViewStudent = () => {
     name: employee.name,
     _id: employee._id,
   }
-  const role = localStorage.getItem('role')
+  const role = employee.role[0]
   const upload = useSelector((state) => state.upload)
   const addCourse = useSelector((state) => state.addCourse)
   const addVisa = useSelector((state) => state.addVisa)
   const notificationClick = useSelector((state) => state.notificationClick)
+  const addDiscussion = useSelector((state) => state.addDiscussion)
 
   useEffect(() => {
     const fetchStudentDetails = async () => {
@@ -80,13 +83,14 @@ const ViewStudent = () => {
         setDocuments(studentData.documents || { cv: null, nid: null })
         setCourses(studentData.courses) // This now contains detailed course objects
         setVisas(studentData.visas)
+        setDiscussions(studentData.discussions) // This now contains detailed discussion objects
       } catch (error) {
         setError('Failed to fetch student details.')
       }
     }
 
     fetchStudentDetails()
-  }, [studentId, upload, addCourse,addVisa,notificationClick])
+  }, [studentId, addDiscussion, upload, addCourse, addVisa, notificationClick])
 
   const handleAddCourse = async (newCourse) => {
     try {
@@ -95,12 +99,12 @@ const ViewStudent = () => {
         studentId: studentId, // Assuming the course needs to be associated with the student
         assignedBy: assignedBy, // Assuming the course to be associated by the employee
       })
-      if (response.status  === 201) {
-        console.log("status: ",response.status)
+      if (response.status === 201) {
+        console.log('status: ', response.status)
         dispatch({ type: 'toggleElement', key: 'addCourse' })
-        const addedCourse = response.data;
+        const addedCourse = response.data
         setCourses((prevCourses) => [...prevCourses, addedCourse.savedCourse])
-      }else{
+      } else {
         console.error('Failed to add course:', response.data)
         setError('Failed to add course.')
       }
@@ -116,18 +120,53 @@ const ViewStudent = () => {
         studentId: studentId, // Assuming the visa needs to be associated with the student
         assignedBy: assignedBy, // Assuming the visa to be associated by the employee
       })
-      if (response.status  === 201) {
-        console.log("status: ",response.status)
+      if (response.status === 201) {
+        console.log('status: ', response.status)
         dispatch({ type: 'toggleElement', key: 'addVisa' })
-        const addedVisa = response.data;
+        const addedVisa = response.data
         setVisas((prevVisas) => [...prevVisas, addedVisa.savedVisa])
-      }else{
+      } else {
         console.error('Failed to add visa:', response.data)
         setError('Failed to add visa.')
       }
     } catch (error) {
       console.error('Failed to add visa:', error)
       setError('Failed to add visa.')
+    }
+  }
+  const handleAddDiscussion = async (newDiscussion) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/v1/students/add-discussion/${studentId}`,
+        {
+          ...newDiscussion,
+          assignedBy: assignedBy, // Assuming the discussion to be associated by the employee
+        },
+      )
+      if (response.status === 201) {
+        console.log('status: ', response.status)
+        dispatch({ type: 'toggleElement', key: 'addDiscussion' })
+        const addedDiscussion = response.data
+        setDiscussions((prevDiscussions) => [...prevDiscussions, addedDiscussion.savedDiscussion])
+      } else {
+        console.error('Failed to add discussion:', response.data)
+        setError('Failed to add discussion.')
+      }
+    } catch (error) {
+      console.error('Failed to add discussion:', error)
+      setError('Failed to add discussion.')
+    }
+  }
+  const handleDeleteDiscussion = async (discussionId) => {
+    try {
+      console.log('ddddd', discussionId)
+      const response = await axios.delete(
+        `http://localhost:5000/api/v1/students/delete-discussion/${studentId}/${discussionId}`,
+      )
+      if (response.status === 200) dispatch({ type: 'toggleElement', key: 'addDiscussion' })
+    } catch (error) {
+      console.error('Failed to delete discussion:', error)
+      setError('Failed to delete discussion.')
     }
   }
 
@@ -145,9 +184,7 @@ const ViewStudent = () => {
 
   return (
     <CContainer fluid className="mt-4">
-      {
-        console.log("courses",courses)
-      }
+      {console.log('courses', courses)}
       <CRow>
         <CCol>
           <CCard>
@@ -199,6 +236,14 @@ const ViewStudent = () => {
                           Visa
                         </CNavLink>
                       </CNavItem>
+                      <CNavItem>
+                        <CNavLink
+                          active={activeTab === 'discussions'}
+                          onClick={() => setActiveTab('discussions')}
+                        >
+                          Discussions
+                        </CNavLink>
+                      </CNavItem>
                     </>
                   ) : null}
                 </CNav>
@@ -223,6 +268,13 @@ const ViewStudent = () => {
                       </CTabPane>
                       <CTabPane visible={activeTab === 'visa'}>
                         <StudentVisas visas={visas} onAddVisa={handleAddVisa} />
+                      </CTabPane>
+                      <CTabPane visible={activeTab === 'discussions'}>
+                        <StudentDiscussions
+                          discussions={discussions}
+                          onAddDiscussion={handleAddDiscussion}
+                          onDeleteDiscussion={handleDeleteDiscussion}
+                        ></StudentDiscussions>
                       </CTabPane>
                     </>
                   ) : null}

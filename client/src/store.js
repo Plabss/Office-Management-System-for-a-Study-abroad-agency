@@ -13,6 +13,8 @@ const initialState = {
   visaDocUpload:false,
   viewMyProfile:false,
   notificationClick:false,
+  addDiscussion:false,
+  updateRole:false,
 }
 
 const changeState = (state = initialState, { type, key, value, ...rest }) => {

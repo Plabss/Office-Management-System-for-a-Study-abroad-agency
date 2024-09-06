@@ -28,8 +28,7 @@ const AppSidebar = () => {
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
   // const role = 'counselor';
-  const role = localStorage.getItem('role');
-
+  const role = JSON.parse(localStorage.getItem('employee')).role[0];
   return (
     <CSidebar
       className="border-end"
@@ -52,6 +51,9 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
+      {
+        console.log("role",role)
+      }
       
       {
         role === 'super-admin' ? <AppSidebarNav items={navigation} /> :

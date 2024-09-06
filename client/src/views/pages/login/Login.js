@@ -28,8 +28,7 @@ const Login = () => {
       const response = await axios.post('http://localhost:5000/api/v1/auth/login', { email, password });
       const { employee } = response.data;
       
-      // Store employee data or roles as needed
-      localStorage.setItem('role', employee.role.join(',')); // Store roles as comma-separated string
+      
       localStorage.setItem('employee', JSON.stringify(employee));
       localStorage.setItem('employeeId', JSON.stringify(employee._id));
 

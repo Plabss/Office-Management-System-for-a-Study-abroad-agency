@@ -7,6 +7,7 @@ const {
 } = require("../services/student.service");
 const cloudinary = require("../config/cloudinary");
 const Notification = require("../model/Notification.model");
+const Student = require("../model/Student.model");
 
 exports.addStudentController = async (req, res) => {
   try {
@@ -35,6 +36,77 @@ exports.addStudentController = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+exports.addDiscussionController = async (req, res) => {
+  try {
+    console.log("disssssss", req.body);
+    const { studentId } = req.params; // Get the studentId from request parameters
+    const { message, assignedBy } = req.body; // Extract message and assignedBy from the request body
+
+    // Find the student by ID
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ status: 'fail', message: 'Student not found' });
+    }
+
+    // Create the new discussion object
+    const newDiscussion = {
+      employee_name: assignedBy.name,
+      message: message,
+    };
+
+    // Add the new discussion to the student's discussions array
+    student.discussions.push(newDiscussion);
+
+    // Save the updated student document
+    await student.save();
+    res.status(201).json({
+      status: "success",
+      data: newDiscussion,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+exports.deleteDiscussionController = async (req, res) => {
+  console.log("hitttt")
+  try {
+    const { studentId, discussionId } = req.params; // Get the studentId and discussionId from request parameters
+    // const { employeeId, employeeName } = req.body; // Get employee details from request body (ideally from auth middleware)
+
+    // Find the student by ID
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ status: 'fail', message: 'Student not found' });
+    }
+
+    // Find the discussion
+    const discussionIndex = student.discussions.findIndex(
+      (discussion) => discussion._id.toString() === discussionId
+    );
+
+    if (discussionIndex === -1) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'You can only delete your own discussions.',
+      });
+    }
+
+    // Remove the discussion from the array
+    student.discussions.splice(discussionIndex, 1);
+
+    // Save the updated student document
+    await student.save();
+
+    // Send a success response
+    res.status(200).json({
+      status: 'success',
+      message: 'Discussion deleted successfully',
+    });
+  } catch (error) {
+    // Send an error response
+    res.status(400).json({ status: 'fail', error: error.message });
   }
 };
 exports.getAllStudentsByEmployeeIdController = async (req, res) => {
