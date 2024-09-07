@@ -14,7 +14,7 @@ import {
   CAvatar,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilInfo, cilPeople } from '@coreui/icons';
+import { cilChevronBottom, cilPeople } from '@coreui/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -92,7 +92,7 @@ const ViewEmployees = () => {
                       <div className="font-weight-bold">{item.role.join(', ')}</div>
                     </CTableDataCell>
                     <CTableDataCell className="text-center align-middle">
-                      <CIcon icon={cilInfo} size="lg" onClick={() => {
+                      <CIcon icon={cilChevronBottom} size="lg" onClick={() => {
                         navigate('/view-employee');
                         localStorage.setItem('employeeId', item._id);
                       }} />

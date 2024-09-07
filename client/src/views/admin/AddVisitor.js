@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
 import {
   CButton,
@@ -13,48 +12,68 @@ import {
   CRow,
   CSpinner,
 } from '@coreui/react';
-
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AddVisitor = () => {
-  const [visitor, setVisitor] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     interestedCountries: '',
-    nidOrBirthCertificate: null,
     targetedIntake: '',
   });
-  const [loading, setLoading] = useState(false);
 
+  const [file, setFile] = useState(null); // Separate state for the file
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Handle input change for both text inputs and file inputs
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'nidOrBirthCertificate') {
-      setVisitor((prevState) => ({
-        ...prevState,
-        [name]: files[0],
-      }));
+      setFile(files[0]);
     } else {
-      setVisitor((prevState) => ({
+      setFormData((prevState) => ({
         ...prevState,
         [name]: value,
       }));
     }
   };
 
-
-  const handleSubmit = (e) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Replace with your API endpoint
-    const formData = new FormData();
-    formData.append('name', visitor.name);
-    formData.append('email', visitor.email);
-    formData.append('phone', visitor.phone);
-    formData.append('interestedCountries', visitor.interestedCountries);
-    formData.append('nidOrBirthCertificate', visitor.nidOrBirthCertificate);
-    formData.append('targetedIntake', visitor.targetedIntake);
+    const data = new FormData();
+    data.append('name', formData.name);
+    data.append('email', formData.email);
+    data.append('phone', formData.phone);
+    data.append('interestedCountries', formData.interestedCountries);
+    data.append('targetedIntake', formData.targetedIntake);
+    if (file) {
+      data.append('nidOrBirthCertificate', file);
+    }
 
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/visitors/add-visitor', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Visitor data submitted:', response.data);
+
+      const employee = localStorage.getItem('employee');
+      const firstRole = JSON.parse(employee).role[0]; // Use the first role for redirection
+      navigate(`/${firstRole}-view-visitors`);
+    } catch (error) {
+      console.error('Error submitting visitor data:', error);
+      // Handle error
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -74,8 +93,9 @@ const AddVisitor = () => {
                       type="text"
                       id="name"
                       name="name"
-                      value={visitor.name}
+                      value={formData.name}
                       onChange={handleChange}
+                      required
                     />
                   </CCol>
                   <CCol md={6}>
@@ -84,8 +104,9 @@ const AddVisitor = () => {
                       type="email"
                       id="email"
                       name="email"
-                      value={visitor.email}
+                      value={formData.email}
                       onChange={handleChange}
+                      required
                     />
                   </CCol>
                 </CRow>
@@ -96,18 +117,20 @@ const AddVisitor = () => {
                       type="tel"
                       id="phone"
                       name="phone"
-                      value={visitor.phone}
+                      value={formData.phone}
                       onChange={handleChange}
+                      required
                     />
                   </CCol>
                   <CCol md={6}>
                     <CFormLabel htmlFor="interestedCountries">Interested Countries</CFormLabel>
                     <CFormInput
                       type="text"
-                      id="countries"
-                      name="countries"
-                      value={visitor.countries}
+                      id="interestedCountries"
+                      name="interestedCountries"
+                      value={formData.interestedCountries}
                       onChange={handleChange}
+                      required
                     />
                   </CCol>
                 </CRow>
@@ -127,8 +150,9 @@ const AddVisitor = () => {
                       type="text"
                       id="targetedIntake"
                       name="targetedIntake"
-                      value={visitor.targetedIntake}
+                      value={formData.targetedIntake}
                       onChange={handleChange}
+                      required
                     />
                   </CCol>
                 </CRow>
