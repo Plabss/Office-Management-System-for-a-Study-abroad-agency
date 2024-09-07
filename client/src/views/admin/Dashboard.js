@@ -40,6 +40,8 @@ import avatar5 from 'src/assets/images/avatars/5.jpg'
 import avatar6 from 'src/assets/images/avatars/6.jpg'
 
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
+import ViewVisitors from './ViewVisitors'
+import ViewStudents from './ViewStudents'
 
 const Dashboard = () => {
   const tableExample = [
@@ -136,7 +138,7 @@ const Dashboard = () => {
   return (
     <>
       <WidgetsDropdown className="mb-4" />
-      <CRow>
+      {/* <CRow>
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>Visitors</CCardHeader>
@@ -197,7 +199,11 @@ const Dashboard = () => {
             </CCardBody>
           </CCard>
         </CCol>
-      </CRow>
+      </CRow> */}
+      <>
+        <ViewVisitors></ViewVisitors>
+        <ViewStudents></ViewStudents>
+      </>
     </>
   )
 }
