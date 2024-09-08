@@ -106,27 +106,77 @@ exports.deleteDiscussionController = async (req, res) => {
     res.status(400).json({ status: 'fail', error: error.message });
   }
 };
+// exports.getAllStudentsByEmployeeIdController = async (req, res) => {
+//   const { employeeID } = req.params;
+//   const { name, startDate, endDate } = req.query;
+//   try {
+//     const students = await getAllStudentsByEmployeeID({employeeID, name, startDate, endDate});
+//     res.status(200).json(students);
+//   } catch (error) {
+//     console.error("Error fetching students:", error);
+//     res.status(500).json({ error: "Failed to fetch students" });
+//   }
+// };
+// exports.getAllStudentsController = async (req, res) => {
+//   try {
+//     const { name, startDate, endDate } = req.query;
+//     const students = await getAllStudents({ name, startDate, endDate });
+//     res.status(200).json(students);
+//   } catch (error) {
+//     console.error("Error fetching students:", error);
+//     res.status(500).json({ error: "Failed to fetch students" });
+//   }
+// };
+
+// exports.getAllStudentsByEmployeeIdController = async (req, res) => {
+//   const { employeeID } = req.params;
+//   const { name, startDate, endDate, country } = req.query; // Extract country from query
+//   try {
+//     const students = await getAllStudentsByEmployeeID({ employeeID, name, startDate, endDate, country });
+//     res.status(200).json(students);
+//   } catch (error) {
+//     console.error("Error fetching students:", error);
+//     res.status(500).json({ error: "Failed to fetch students" });
+//   }
+// };
+
+// exports.getAllStudentsController = async (req, res) => {
+//   try {
+//     const { name, startDate, endDate, country } = req.query; // Extract country from query
+//     const students = await getAllStudents({ name, startDate, endDate, country });
+//     res.status(200).json(students);
+//   } catch (error) {
+//     console.error("Error fetching students:", error);
+//     res.status(500).json({ error: "Failed to fetch students" });
+//   }
+// };
+
+
 exports.getAllStudentsByEmployeeIdController = async (req, res) => {
   const { employeeID } = req.params;
-  const { name, startDate, endDate } = req.query;
+  const { name, startDate, endDate, country } = req.query; // Extract country from query
   try {
-    const students = await getAllStudentsByEmployeeID({employeeID, name, startDate, endDate});
+    const students = await getAllStudentsByEmployeeID({ employeeID, name, startDate, endDate, country });
     res.status(200).json(students);
   } catch (error) {
     console.error("Error fetching students:", error);
     res.status(500).json({ error: "Failed to fetch students" });
   }
 };
+
 exports.getAllStudentsController = async (req, res) => {
   try {
-    const { name, startDate, endDate } = req.query;
-    const students = await getAllStudents({ name, startDate, endDate });
+    const { name, startDate, endDate, country } = req.query; // Extract country from query
+    const students = await getAllStudents({ name, startDate, endDate, country });
     res.status(200).json(students);
   } catch (error) {
     console.error("Error fetching students:", error);
     res.status(500).json({ error: "Failed to fetch students" });
   }
 };
+
+
+
 exports.getAStudentController = async (req, res) => {
   const { studentID } = req.params;
   try {

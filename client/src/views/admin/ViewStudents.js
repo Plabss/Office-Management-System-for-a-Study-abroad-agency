@@ -6,7 +6,6 @@ import {
   CCol,
   CContainer,
   CRow,
-  CTabs,
   CNav,
   CNavItem,
   CNavLink,
@@ -15,11 +14,12 @@ import {
   CButton,
   CInputGroupText,
   CInputGroup,
+  CFormInput,
 } from '@coreui/react'
 import axios from 'axios'
 import TableSection from '../students/TableSection'
 import CIcon from '@coreui/icons-react'
-import { cilFilter, cilPeople, cilSync, cilUser } from '@coreui/icons'
+import { cilFilter, cilPeople, cilSync } from '@coreui/icons'
 import Autosuggest from 'react-autosuggest'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -32,6 +32,7 @@ const ViewStudents = () => {
   const [employeeId, setEmployeeId] = useState(null)
   const [employeeRole, setEmployeeRole] = useState('')
   const [name, setName] = useState('')
+  const [country, setCountry] = useState('') // Country filter state
 
   const [isDarkMode, setIsDarkMode] = useState(false)
   const storedTheme = useSelector((state) => state.theme)
@@ -56,6 +57,7 @@ const ViewStudents = () => {
       name,
       startDate: startDate ? startDate.toISOString() : undefined,
       endDate: endDate ? endDate.toISOString() : undefined,
+      country, // Include country in params
     }
     try {
       let response
@@ -83,17 +85,6 @@ const ViewStudents = () => {
   useEffect(() => {
     fetchStudents()
   }, [employeeId, employeeRole]) // Run this effect whenever employeeId or employeeRole changes
-
-  // Helper function to get unique students based on a given filter
-  const getUniqueStudents = (filteredStudents) => {
-    const studentMap = new Map()
-    filteredStudents.forEach((student) => {
-      if (!studentMap.has(student._id)) {
-        studentMap.set(student._id, student)
-      }
-    })
-    return Array.from(studentMap.values())
-  }
 
   const getSuggestions = async (value) => {
     try {
@@ -135,6 +126,16 @@ const ViewStudents = () => {
     fetchStudents() // Fetch students based on the current filter criteria
   }
 
+  const getUniqueStudents = (filteredStudents) => {
+    const studentMap = new Map()
+    filteredStudents.forEach((student) => {
+      if (!studentMap.has(student._id)) {
+        studentMap.set(student._id, student)
+      }
+    })
+    return Array.from(studentMap.values())
+  }
+
   return (
     <CContainer fluid className="mt-4">
       <CRow>
@@ -153,8 +154,6 @@ const ViewStudents = () => {
                 <div className="d-flex align-items-center position-relative" style={{ flex: 1 }}>
                   <CIcon icon={cilFilter} className="mx-2" />
                   <div style={{ position: 'relative', width: '100%' }}>
-                    {' '}
-                    {/* Wrapper to control Autosuggest positioning */}
                     <Autosuggest
                       suggestions={suggestions}
                       onSuggestionsFetchRequested={onSuggestionsFetchRequested}
@@ -192,6 +191,15 @@ const ViewStudents = () => {
                   />
                 </div>
 
+                {/* Country Filter Input */}
+                <CFormInput
+                  type="text"
+                  placeholder="Country"
+                  className="rounded-pill mx-2"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                />
+
                 <CButton
                   color="info"
                   variant={isDarkMode ? 'outline-light' : 'outline'}
@@ -210,6 +218,7 @@ const ViewStudents = () => {
                     setName('')
                     setStartDate(null)
                     setEndDate(null)
+                    setCountry('')
                     fetchStudents() // Reset filters and fetch all students
                   }}
                 >
@@ -297,7 +306,6 @@ const ViewStudents = () => {
                         )}
                       />
                     </CTabPane>
-                    
                   </>
                 ) : null}
               </CTabContent>
