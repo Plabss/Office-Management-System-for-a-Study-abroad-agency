@@ -90,6 +90,19 @@ exports.assignVisaAdminController = async (req, res) => {
     const { visaAdminId,visaAdminName } = req.body;
     console.log("aaaaaaaaaaaaa",req.body) 
     const assigned = await assignVisaAdmin(studentId,visaId,visaAdminId,visaAdminName);
+    const student = await Student.findById(studentId);
+    if (assigned) {
+      const notification = new Notification({
+        message: `A new student has been assigned to you for visa application: ${student.fullName}`,
+        employeeId: visaAdminId,
+        studentId: studentId,
+        for: "visa-application",
+      });
+      await notification.save();
+
+      const io = req.app.get("socketio");
+      io.emit("notification", notification);
+    }
     res.status(200).json(assigned);
   } catch (error) {
     res.status(400).json({ error: error.message });

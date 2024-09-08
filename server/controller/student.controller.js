@@ -72,10 +72,7 @@ exports.addDiscussionController = async (req, res) => {
 exports.deleteDiscussionController = async (req, res) => {
   console.log("hitttt")
   try {
-    const { studentId, discussionId } = req.params; // Get the studentId and discussionId from request parameters
-    // const { employeeId, employeeName } = req.body; // Get employee details from request body (ideally from auth middleware)
-
-    // Find the student by ID
+    const { studentId, discussionId } = req.params;
     const student = await Student.findById(studentId);
     if (!student) {
       return res.status(404).json({ status: 'fail', message: 'Student not found' });

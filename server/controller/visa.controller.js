@@ -2,10 +2,7 @@ const Visa = require('../model/Visa.model')
 const cloudinary = require("../config/cloudinary");
 const Student = require("../model/Student.model");
 const { getAVisa,uploadVisaDocument } = require('../services/visa.service');
-// const {
-//   getAVisa,
-//   ,
-// } = require("../services/visa.service");
+
 
 exports.addVisaController = async (req, res) => {
   try {
