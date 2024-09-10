@@ -9,6 +9,9 @@ const cloudinary = require("../config/cloudinary");
 const Notification = require("../model/Notification.model");
 const Student = require("../model/Student.model");
 
+const fs = require('fs');
+const path = require('path');
+
 exports.addStudentController = async (req, res) => {
   try {
     console.log("stu", req.body);
@@ -227,6 +230,95 @@ exports.uploadDocument = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// Delete a document for a student
+// exports.deleteDocumentController = async (req, res) => {
+//   try {
+//     const { studentId } = req.params;
+//     const { documentName } = req.body; // Expecting 'cv' or 'nid'
+
+//     // Find the student by ID
+//     const student = await Student.findById(studentId);
+//     if (!student) {
+//       return res.status(404).json({ message: "Student not found" });
+//     }
+
+//     // Get the document URL or path to delete
+//     const documentUrl = student.documents[documentName];
+//     if (!documentUrl) {
+//       return res.status(400).json({ message: "Document not found" });
+//     }
+
+//     // Remove the document file from the server (if stored locally)
+//     if (documentUrl.startsWith('/uploads/')) {
+//       const filePath = path.join(__dirname, '..', documentUrl);
+//       fs.unlink(filePath, (err) => {
+//         if (err) {
+//           console.error("Failed to delete file:", err);
+//         }
+//       });
+//     }
+
+//     // Update student document field to null
+//     student.documents[documentName] = null;
+//     await student.save();
+
+//     res.status(200).json({ message: "Document deleted successfully", student });
+//   } catch (error) {
+//     console.error("Error deleting document:", error);
+//     res.status(500).json({ message: "Failed to delete document", error });
+//   }
+// };
+
+exports.deleteDocumentController = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { documentName } = req.body; // Expecting 'cv' or 'nid'
+
+    // Find the student by ID
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Get the document URL from the student's documents
+    const documentUrl = student.documents[documentName];
+    if (!documentUrl) {
+      return res.status(400).json({ message: "Document not found or already deleted" });
+    }
+
+    // Extract the public_id from the document URL
+    const publicId = extractPublicIdFromUrl(documentUrl);
+    console.log("publicId: " + publicId);
+    // Delete the document from Cloudinary
+    await cloudinary.uploader.destroy(publicId, (error, result) => {
+      if (error) {
+        console.error("Failed to delete file from Cloudinary:", error);
+        return res.status(500).json({ message: "Failed to delete file from Cloudinary", error });
+      }
+    });
+
+    // Update student document field to null
+    student.documents[documentName] = null;
+    await student.save();
+
+    res.status(200).json({ message: "Document deleted successfully", student });
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    res.status(500).json({ message: "Failed to delete document", error });
+  }
+};
+
+// Helper function to extract the public_id from Cloudinary URL
+const extractPublicIdFromUrl = (url) => {
+  // Cloudinary URL format: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<public_id>.<format>
+  const urlParts = url.split('/');
+  const versionIndex = urlParts.findIndex((part) => part.startsWith('v'));
+  const publicIdWithExtension = urlParts.slice(versionIndex + 1).join('/'); // Join parts after version
+  const publicId = publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf('.')); // Remove the file extension
+  return publicId;
+};
+
 
 
 exports.updateStudentProgressController = async (req, res) => {

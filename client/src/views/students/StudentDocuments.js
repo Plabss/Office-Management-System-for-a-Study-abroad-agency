@@ -4,10 +4,10 @@ import { CListGroup, CListGroupItem, CButton, CRow, CCol, CFormInput, CSpinner }
 import { useDispatch } from 'react-redux';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver'; // file-saver is used to save the zip file on the client side
-import { CIcon } from '@coreui/icons-react'; // Make sure you have this installed or replace with your icon library
-import { cilCloudDownload } from '@coreui/icons';
+import CIcon from '@coreui/icons-react'; // Make sure you have this installed or replace with your icon library
+import { cilCloudDownload, cilTrash } from '@coreui/icons'; // Import the delete icon
 
-const StudentDocuments = ({ documents, onDocumentUpload, studentName}) => {
+const StudentDocuments = ({ documents, onDocumentUpload, studentName }) => {
   const [uploading, setUploading] = useState({ cv: false, nid: false });
   const dispatch = useDispatch();
   const studentId = localStorage.getItem('studentId');
@@ -41,6 +41,21 @@ const StudentDocuments = ({ documents, onDocumentUpload, studentName}) => {
       console.error('Error uploading file:', error);
     } finally {
       setUploading({ ...uploading, [docType]: false });
+    }
+  };
+
+  const handleDeleteDocument = async (docType) => {
+    try {
+      // Replace with your actual API endpoint
+      await axios.delete(`http://localhost:5000/api/v1/students/delete-document/${studentId}`, {
+        data: { documentName: docType },
+      });
+
+      // Remove document from state after successful deletion
+      onDocumentUpload({ ...documents, [docType]: null });
+      dispatch({ type: 'toggleElement', key: 'upload' });
+    } catch (error) {
+      console.error('Error deleting file:', error);
     }
   };
 
@@ -118,6 +133,16 @@ const StudentDocuments = ({ documents, onDocumentUpload, studentName}) => {
                       {uploading[docType] ? <CSpinner size="sm" /> : 'Upload'}
                     </CButton>
                   </>
+                )}
+                {documents[docType] && (
+                  <CButton
+                    color="danger"
+                    size="sm"
+                    className="mx-2"
+                    onClick={() => handleDeleteDocument(docType)}
+                  >
+                    <CIcon icon={cilTrash} /> Delete
+                  </CButton>
                 )}
               </CCol>
             </CRow>
