@@ -113,18 +113,72 @@ const ViewStudent = () => {
       setError('Failed to add course.')
     }
   }
-  const handleAddVisa = async (newVisa) => {
+  // const handleAddVisa = async (newVisa) => {
+  //   try {
+  //     const response = await axios.post(`http://localhost:5000/api/v1/visas/add-visa`, {
+  //       ...newVisa,
+  //       studentId: studentId, // Assuming the visa needs to be associated with the student
+  //       assignedBy: assignedBy, // Assuming the visa to be associated by the employee
+  //     })
+  //     if (response.status === 201) {
+  //       console.log('status: ', response.status)
+  //       dispatch({ type: 'toggleElement', key: 'addVisa' })
+  //       const addedVisa = response.data
+  //       setVisas((prevVisas) => [...prevVisas, addedVisa.savedVisa])
+  //     } else {
+  //       console.error('Failed to add visa:', response.data)
+  //       setError('Failed to add visa.')
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to add visa:', error)
+  //     setError('Failed to add visa.')
+  //   }
+  // }
+
+  const handleAddVisa = async (courseId) => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/v1/visas/add-visa`, {
-        ...newVisa,
-        studentId: studentId, // Assuming the visa needs to be associated with the student
-        assignedBy: assignedBy, // Assuming the visa to be associated by the employee
-      })
+      
+      
+      
+      const courseResponse = await axios.get(`http://localhost:5000/api/v1/courses/get-a-course/${courseId}`) // Replace with the actual endpoint for fetching course details
+  
+      if (courseResponse.status !== 200) {
+        console.error('Failed to fetch course details:', courseResponse.data)
+        setError('Failed to fetch course details.')
+        return
+      }
+  
+      const courseDetails = courseResponse.data // Assuming course details are returned in the response
+  
+      // Prepare the visa data with course details
+      const visaData = {
+        student: {
+          _id: studentId, // Associating the visa to be added by 
+        },
+        assignedBy: {
+          _id: assignedBy._id, // Associating the visa to be added by the employee
+          name: assignedBy.name
+        },
+        course: {
+          courseId: courseId,
+          courseName: courseDetails.name,
+          courseUniversity: courseDetails.university
+        },
+        country: courseDetails.country
+      }
+  
+      // Post the new visa with the retrieved course details
+      const response = await axios.post(`http://localhost:5000/api/v1/visas/add-visa`, visaData)
+  
       if (response.status === 201) {
-        console.log('status: ', response.status)
-        dispatch({ type: 'toggleElement', key: 'addVisa' })
+        console.log('Visa added successfully, status: ', response.status)
+        
+        // Update the visas state to include the newly added visa
         const addedVisa = response.data
         setVisas((prevVisas) => [...prevVisas, addedVisa.savedVisa])
+  
+        // Dispatch action to update any state in Redux if required
+        dispatch({ type: 'toggleElement', key: 'addVisa' })
       } else {
         console.error('Failed to add visa:', response.data)
         setError('Failed to add visa.')
@@ -134,6 +188,7 @@ const ViewStudent = () => {
       setError('Failed to add visa.')
     }
   }
+  
   const handleAddDiscussion = async (newDiscussion) => {
     try {
       const response = await axios.post(
@@ -200,6 +255,9 @@ const ViewStudent = () => {
                       onClick={() => setActiveTab('basic-info')}
                     >
                       Basic Info
+                      {
+                        console.log("visassssssss",visas)
+                      }
                     </CNavLink>
                   </CNavItem>
                   <CNavItem>

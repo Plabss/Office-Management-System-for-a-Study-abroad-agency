@@ -10,7 +10,7 @@ import {
   CListGroupItem,
   CButton,
   CFormSelect,
-  CFormLabel,
+  CAlert,
 } from '@coreui/react'
 import axios from 'axios'
 
@@ -24,11 +24,13 @@ const VisaDetails = () => {
 
   const dispatch = useDispatch()
 
-  // State for course details
+  // State for visa details and student progress
   const [visa, setVisa] = useState({})
   const [documents, setDocuments] = useState({ file1: null, file2: null, file3: null })
   const [selectedVisaAdmin, setSelectedVisaAdmin] = useState({})
   const [visaAdmins, setVisaAdmins] = useState([])
+  const [progress, setProgress] = useState('') // State to store the current progress
+
   const visaDocUpload = useSelector((state) => state.visaDocUpload)
   const assignVisaAdmin = useSelector((state) => state.assignVisaAdmin)
 
@@ -36,10 +38,8 @@ const VisaDetails = () => {
     const fetchVisaAdmins = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees')
-        // Ensure that response.data is an array
         if (Array.isArray(response.data)) {
           setVisaAdmins(response.data)
-          console.log('visa-admins selected for', response.data)
         } else {
           console.error('Unexpected data format:', response.data)
         }
@@ -54,22 +54,33 @@ const VisaDetails = () => {
           `http://localhost:5000/api/v1/visas/get-a-visa/${visaId}`,
         )
         const visaData = response.data
-        console.log('visaData', visaData)
         setVisa(visaData)
-        // Initialize document state based on courseData
+        // Initialize document state based on visaData
         setDocuments(visaData.documents || { file1: null, file2: null, file3: null })
       } catch (error) {
-        console.error('Error fetching course details:', error)
+        console.error('Error fetching visa details:', error)
+      }
+    }
+
+    const fetchStudentDetails = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/v1/students/get-a-student/${studentId}`
+        )
+        const studentData = response.data
+        setProgress(studentData?.progress || '') // Initialize progress state from student data
+      } catch (error) {
+        console.error('Error fetching student details:', error)
       }
     }
 
     fetchVisaAdmins()
     fetchVisaDetails()
-  }, [assignVisaAdmin,visaDocUpload])
+    fetchStudentDetails()
+  }, [assignVisaAdmin, visaDocUpload])
 
   const handleAssignVisaAdmin = async () => {
     if (selectedVisaAdmin) {
-      console.log('selectedVisaAdmin', selectedVisaAdmin)
       try {
         const res = await axios.post(
           `http://localhost:5000/api/v1/employees/assign-visa-admin/${studentId}/${visaId}`,
@@ -87,7 +98,7 @@ const VisaDetails = () => {
         toast.error('Error assigning visa admin.')
       }
     } else {
-      toast.error('Please select an visa admin before assigning.')
+      toast.error('Please select a visa admin before assigning.')
     }
   }
 
@@ -101,6 +112,25 @@ const VisaDetails = () => {
     setDocuments(updatedDocuments)
   }
 
+  const handleUpdateProgress = async (status) => {
+    if (window.confirm(`Are you sure you want to set the student's progress to "${status}"?`)) {
+      try {
+        const res = await axios.put(`http://localhost:5000/api/v1/students/update-progress/${studentId}`, {
+          progress: status,
+        })
+        if (res.status === 200) {
+          toast.success(`Student progress updated to ${status}.`)
+          setProgress(status) // Update local progress state
+          setShowProgressAlert(true) // Show the progress alert
+          dispatch({ type: 'toggleElement', key: 'visaDocUpload' }) // Optional: Update state if needed
+        }
+      } catch (error) {
+        console.error('Error updating student progress:', error)
+        toast.error('Error updating student progress.')
+      }
+    }
+  }
+
   return (
     <CContainer className="mt-4">
       <CRow>
@@ -108,7 +138,6 @@ const VisaDetails = () => {
           <CCard>
             <CCardHeader>
               <h2>Visa Details</h2>
-              {console.log('visa', visa)}
             </CCardHeader>
             <CCardBody>
               <CListGroup flush>
@@ -125,9 +154,6 @@ const VisaDetails = () => {
                   <strong>Applied:</strong> {visa?.status}
                 </CListGroupItem>
               </CListGroup>
-              {
-                console.log("iddddddddddd",visa?.visaAdmin)
-              }
               {/* Visa admin Selection */}
               {visa.visaAdmin?._id === null ? (
                 <div>
@@ -138,7 +164,7 @@ const VisaDetails = () => {
                     value={selectedVisaAdmin?._id || ''}
                     onChange={handleVisaAdminChange}
                   >
-                    <option value="">Select an Visa Admin</option>
+                    <option value="">Select a Visa Admin</option>
                     {Array.isArray(visaAdmins) &&
                       visaAdmins.map((visaAdmin) => (
                         <option key={visaAdmin._id} value={visaAdmin._id}>
@@ -152,14 +178,39 @@ const VisaDetails = () => {
                 </div>
               ) : (
                 <>
-                  <h4 style={{ color: 'blue', textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', textTransform: 'uppercase' }}> {visa?.visaAdmin?.name} is assigned as visa admin </h4>
-                  
-                  {console.log(visa.visaAdmin)}
+                  <h4 style={{ color: 'blue', textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem', textTransform: 'uppercase' }}>
+                    {visa?.visaAdmin?.name} is assigned as visa admin
+                  </h4>
+
                   <VisaDocuments
                     documents={documents}
                     onDocumentUpload={handleDocumentUpload}
                     visaId={visa._id}
                   />
+                </>
+              )}
+              {/* Buttons for Accepted and Rejected */}
+              <div className="d-flex justify-content-end mt-4">
+                <CButton color="success" className="mx-2" onClick={() => handleUpdateProgress('accepted')}>
+                  Accepted
+                </CButton>
+                <CButton color="danger" onClick={() => handleUpdateProgress('rejected')}>
+                  Rejected
+                </CButton>
+              </div>
+              {/* Display Current Progress with Color */}
+              {(
+                <>
+                  {progress === "accepted" && (
+                    <CAlert color="success" className="mt-4 text-center">
+                      Current Progress: <strong>Accepted</strong>
+                    </CAlert>
+                  )}
+                  {progress === "rejected" && (
+                    <CAlert color="danger" className="mt-4 text-center">
+                      Current Progress: <strong>Rejected</strong>
+                    </CAlert>
+                  )}
                 </>
               )}
             </CCardBody>

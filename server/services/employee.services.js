@@ -24,48 +24,70 @@ exports.getEmployeeById = async (id) => {
     
   }
 };
-exports.assignApplicant = async (courseId,studentId,applicantId,applicantName) => {
+exports.assignApplicant = async (courseId, studentId, applicantId, applicantName) => {
   try {
-    const course = await Course.findByIdAndUpdate(courseId,{
+    // Update the course with the assigned applicant details
+    const course = await Course.findByIdAndUpdate(courseId, {
       ['applicant.name']: applicantName,
       ['applicant._id']: applicantId,
     });
 
-
-    const student = await Student.findByIdAndUpdate(studentId,
-      { $addToSet: { "employees.asApplicant": applicantId} }
+    // Update the student by adding the applicant to the "employees.asApplicant" field
+    // and set the progress to "application processing"
+    const student = await Student.findByIdAndUpdate(
+      studentId,
+      {
+        $addToSet: { "employees.asApplicant": applicantId },
+        progress: "application processing"  // Update the progress field
+      },
+      { new: true } // Return the updated student document
     );
 
-    const employee = await Employee.findByIdAndUpdate(applicantId,
-      { $addToSet: { "students.asApplicant":  studentId} }
+    // Update the employee by adding the student to the "students.asApplicant" field
+    const employee = await Employee.findByIdAndUpdate(
+      applicantId,
+      { $addToSet: { "students.asApplicant": studentId } },
+      { new: true } // Return the updated employee document
     );
 
-    return {course:course, student:student, employee:employee}
+    return { course: course, student: student, employee: employee };
   } catch (error) {
-    throw new Error('Error fetching employees: ' + error.message);
+    throw new Error('Error assigning applicant: ' + error.message);
   }
 };
-exports.assignVisaAdmin = async (studentId,visaId,visaAdminId,visaAdminName) => {
+
+exports.assignVisaAdmin = async (studentId, visaId, visaAdminId, visaAdminName) => {
   try {
-    const visa = await Visa.findByIdAndUpdate(visaId,{
+    // Update the visa with the assigned visa admin details
+    const visa = await Visa.findByIdAndUpdate(visaId, {
       ['visaAdmin.name']: visaAdminName,
       ['visaAdmin._id']: visaAdminId,
     });
 
-
-    const student = await Student.findByIdAndUpdate(studentId,
-      { $addToSet: { "employees.asVisaAdmin": visaAdminId} }
+    // Update the student by adding the visa admin to the "employees.asVisaAdmin" field
+    // and set the progress to "visa processing"
+    const student = await Student.findByIdAndUpdate(
+      studentId,
+      {
+        $addToSet: { "employees.asVisaAdmin": visaAdminId },
+        progress: "visa processing"  // Update the progress field
+      },
+      { new: true } // Return the updated student document
     );
 
-    const employee = await Employee.findByIdAndUpdate(visaAdminId,
-      { $addToSet: { "students.asVisaAdmin":  studentId} }
+    // Update the employee by adding the student to the "students.asVisaAdmin" field
+    const employee = await Employee.findByIdAndUpdate(
+      visaAdminId,
+      { $addToSet: { "students.asVisaAdmin": studentId } },
+      { new: true } // Return the updated employee document
     );
 
-    return {visa:visa, student:student, employee:employee}
+    return { visa: visa, student: student, employee: employee };
   } catch (error) {
-    throw new Error('Error fetching employees: ' + error.message);
+    throw new Error('Error assigning visa admin: ' + error.message);
   }
 };
+
 exports.updateRole = async (employeeId, role, action) => {
   try {
     const employee = await Employee.findById(employeeId);

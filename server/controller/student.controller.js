@@ -216,3 +216,37 @@ exports.uploadDocument = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
+exports.updateStudentProgressController = async (req, res) => {
+  const { studentId } = req.params;
+  const { progress } = req.body;
+  try {
+    const student = await Student.findByIdAndUpdate(studentId, { progress }, { new: true });
+    res.status(200).json(student);
+  } catch (error) {
+    console.error('Error updating student progress:', error);
+    res.status(500).json({ error: 'Failed to update student progress.' });
+  }
+};
+
+
+// Controller to fetch all courses for a specific student
+exports.getStudentCoursesController = async (req, res) => {
+  const { studentId } = req.params // Get studentId from the route parameters
+
+  try {
+    // Find the student by ID and populate the courses array
+    const student = await Student.findById(studentId).populate('courses')
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' }) // Return 404 if student is not found
+    }
+
+    res.status(200).json(student.courses) // Return the student's courses
+  } catch (error) {
+    console.error('Error fetching student courses:', error)
+    res.status(500).json({ error: 'Failed to fetch student courses' }) // Return 500 if there's a server error
+  }
+}
+

@@ -9,7 +9,12 @@ const StudentProgress = ({ progress }) => {
     { key: "enrolled", label: "Enrolled", description: "Student has enrolled in the program." },
     { key: "application processing", label: "Application Processing", description: "Student's application is under review." },
     { key: "visa processing", label: "Visa Processing", description: "Visa application is being processed." },
-    { key: "accepted/rejected", label: "Accepted/Rejected", description: "Final decision on the student's application." }
+  ];
+
+  // Separate status for "Accepted" and "Rejected"
+  const finalStatus = [
+    { key: "accepted", label: "Accepted", description: "The student's application has been accepted." },
+    { key: "rejected", label: "Rejected", description: "The student's application has been rejected." },
   ];
 
   return (
@@ -29,6 +34,18 @@ const StudentProgress = ({ progress }) => {
                   <h6>{step.label}</h6>
                   <p>{step.description}</p>
                 </li>
+              ))}
+              {/* Conditionally show Accepted or Rejected status */}
+              {finalStatus.map((status) => (
+                progress.progress === status.key && (
+                  <li
+                    key={status.key}
+                    className={`timeline-item ${progress.progress === status.key ? "active" : ""}`}
+                  >
+                    <h6>{status.label}</h6>
+                    <p>{status.description}</p>
+                  </li>
+                )
               ))}
             </ul>
           </CCol>
@@ -51,5 +68,4 @@ const StudentProgress = ({ progress }) => {
   );
 };
 
-
-export default StudentProgress
+export default StudentProgress;

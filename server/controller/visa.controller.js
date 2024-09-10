@@ -9,19 +9,20 @@ exports.addVisaController = async (req, res) => {
     console.log("Adding visa and updating student");
 
     // Destructure course data from the request body
-    const { course, university, country, studentId, assignedBy } = req.body;
+    const { student, assignedBy, course } = req.body; // Also include course data
 
-    console.log("ohohooh",req.body);
+    console.log("Received data:", req.body);
 
     // Create a new visa instance
     const newVisa = new Visa({
-      country,
+      country: req.body.country,
       course: {
-        courseName: course,
-        courseUniversity: university,
+        courseId: course.courseId,
+        courseName: course.courseName,
+        courseUniversity: course.courseUniversity,
       },
       student: {
-        _id: studentId, // Reference to the student
+        _id: student._id, // Reference to the student
       },
       assignedBy: {
         name: assignedBy.name,
@@ -31,23 +32,33 @@ exports.addVisaController = async (req, res) => {
 
     console.log("newVisa", newVisa);
 
-    //     // Save the new course to the database
+    // Save the new visa to the database
     const savedVisa = await newVisa.save();
 
-        // Update the student's courses array with the new course ID
-    await Student.findByIdAndUpdate(studentId, {
-      $push: { visas: savedVisa._id },
-    });
+    // Update the student's visas array with the new visa ID
+    console.log("sttttttdId",student._id)
+    const updatedStudent = await Student.findByIdAndUpdate(
+      student._id,
+      {
+        $addToSet: { visas: savedVisa._id }, // Use $addToSet to prevent duplicate entries
+      },
+      { new: true } // Return the updated document
+    ).populate("visas");
 
-    // //     // Optionally, you can fetch the updated student data if needed
-    const updatedStudent = await Student.findById(studentId).populate("visas");
+    if (!updatedStudent) {
+      return res.status(404).json({ message: "Student not found" });
+    }
 
-    //     // Respond with the saved course and updated student data
+    console.log("Updated student", updatedStudent);
+
+    // Respond with the saved visa and updated student data
     res.status(201).json({ savedVisa, updatedStudent });
   } catch (error) {
-    res.status(500).json({ message: " aaaaaaa Failed to add course", error });
+    console.error("Error while adding visa and updating student:", error);
+    res.status(500).json({ message: "Failed to add visa", error: error.message });
   }
 };
+
 exports.getAVisaController = async (req, res) => {
   const { visaId } = req.params;
   console.log("bbbbbbbbbbbbbbbbbbbbbb", visaId);

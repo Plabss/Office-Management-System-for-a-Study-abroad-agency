@@ -1,5 +1,5 @@
 const express = require('express');
-const { addStudentController,getAllStudentsController,deleteDiscussionController,addDiscussionController,getAllStudentsByEmployeeIdController,getAStudentController, uploadDocument } = require('../../controller/student.controller');
+const { addStudentController,getAllStudentsController,deleteDiscussionController,addDiscussionController,getAllStudentsByEmployeeIdController,getAStudentController, uploadDocument, updateStudentProgressController, getStudentCoursesController } = require('../../controller/student.controller');
 const router = express.Router();
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); 
@@ -11,5 +11,7 @@ router.get('/get-a-student/:studentID', getAStudentController);
 router.post('/upload-document/:studentId', upload.single('file'), uploadDocument);
 router.post('/add-discussion/:studentId', addDiscussionController);
 router.delete('/delete-discussion/:studentId/:discussionId', deleteDiscussionController);
+router.put('/update-progress/:studentId', updateStudentProgressController);
+router.get('/get-student-courses/:studentId', getStudentCoursesController);
 
 module.exports = router;
