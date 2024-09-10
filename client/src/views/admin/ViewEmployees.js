@@ -14,7 +14,7 @@ import {
   CAvatar,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilChevronBottom, cilPeople } from '@coreui/icons';
+import { cilChevronBottom, cilPeople, cilUser } from '@coreui/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -64,7 +64,7 @@ const ViewEmployees = () => {
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell className="text-center bg-body-tertiary">
-                    <CIcon icon={cilPeople} />
+                    <CIcon icon={cilUser} />
                   </CTableHeaderCell>
                   <CTableHeaderCell className="text-center bg-body-tertiary">Name</CTableHeaderCell>
                   <CTableHeaderCell className="text-center bg-body-tertiary">Email</CTableHeaderCell>

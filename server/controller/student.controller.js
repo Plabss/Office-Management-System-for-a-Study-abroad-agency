@@ -38,6 +38,17 @@ exports.addStudentController = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.updateStudentController = async (req, res) => {
+  try {
+    const updatedStudent = await Student.findByIdAndUpdate(req.params.studentID, req.body, {
+      new: true,
+    });
+    res.status(200).json(updatedStudent);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update student info', error: error.message });
+  }
+};
 exports.addDiscussionController = async (req, res) => {
   try {
     console.log("disssssss", req.body);

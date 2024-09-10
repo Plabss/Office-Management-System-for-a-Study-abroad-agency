@@ -1,10 +1,11 @@
 const express = require('express');
-const { addStudentController,getAllStudentsController,deleteDiscussionController,addDiscussionController,getAllStudentsByEmployeeIdController,getAStudentController, uploadDocument, updateStudentProgressController, getStudentCoursesController } = require('../../controller/student.controller');
+const { addStudentController,getAllStudentsController,updateStudentController,deleteDiscussionController,addDiscussionController,getAllStudentsByEmployeeIdController,getAStudentController, uploadDocument, updateStudentProgressController, getStudentCoursesController } = require('../../controller/student.controller');
 const router = express.Router();
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); 
 
 router.post('/add-student', addStudentController);
+router.put('/update-student-basic-info/:studentID', updateStudentController);
 router.get('/get-all-students/:employeeID', getAllStudentsByEmployeeIdController);
 router.get('/get-all-students', getAllStudentsController);
 router.get('/get-a-student/:studentID', getAStudentController);

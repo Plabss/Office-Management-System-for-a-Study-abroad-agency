@@ -15,6 +15,7 @@ const initialState = {
   notificationClick:false,
   addDiscussion:false,
   updateRole:false,
+  updateStudentData:false,
 }
 
 const changeState = (state = initialState, { type, key, value, ...rest }) => {

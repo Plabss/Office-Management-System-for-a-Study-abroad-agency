@@ -121,7 +121,7 @@ const VisaDetails = () => {
         if (res.status === 200) {
           toast.success(`Student progress updated to ${status}.`)
           setProgress(status) // Update local progress state
-          setShowProgressAlert(true) // Show the progress alert
+          // setShowProgressAlert(true) // Show the progress alert
           dispatch({ type: 'toggleElement', key: 'visaDocUpload' }) // Optional: Update state if needed
         }
       } catch (error) {

@@ -50,6 +50,7 @@ const ViewStudent = () => {
   const addVisa = useSelector((state) => state.addVisa)
   const notificationClick = useSelector((state) => state.notificationClick)
   const addDiscussion = useSelector((state) => state.addDiscussion)
+  const updateStudentData = useSelector((state) => state.updateStudentData)
 
   useEffect(() => {
     const fetchStudentDetails = async () => {
@@ -90,7 +91,7 @@ const ViewStudent = () => {
     }
 
     fetchStudentDetails()
-  }, [studentId, addDiscussion, upload, addCourse, addVisa, notificationClick])
+  }, [studentId, addDiscussion, upload, addCourse, addVisa, notificationClick, updateStudentData])
 
   const handleAddCourse = async (newCourse) => {
     try {
@@ -113,70 +114,48 @@ const ViewStudent = () => {
       setError('Failed to add course.')
     }
   }
-  // const handleAddVisa = async (newVisa) => {
-  //   try {
-  //     const response = await axios.post(`http://localhost:5000/api/v1/visas/add-visa`, {
-  //       ...newVisa,
-  //       studentId: studentId, // Assuming the visa needs to be associated with the student
-  //       assignedBy: assignedBy, // Assuming the visa to be associated by the employee
-  //     })
-  //     if (response.status === 201) {
-  //       console.log('status: ', response.status)
-  //       dispatch({ type: 'toggleElement', key: 'addVisa' })
-  //       const addedVisa = response.data
-  //       setVisas((prevVisas) => [...prevVisas, addedVisa.savedVisa])
-  //     } else {
-  //       console.error('Failed to add visa:', response.data)
-  //       setError('Failed to add visa.')
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to add visa:', error)
-  //     setError('Failed to add visa.')
-  //   }
-  // }
 
   const handleAddVisa = async (courseId) => {
     try {
-      
-      
-      
-      const courseResponse = await axios.get(`http://localhost:5000/api/v1/courses/get-a-course/${courseId}`) // Replace with the actual endpoint for fetching course details
-  
+      const courseResponse = await axios.get(
+        `http://localhost:5000/api/v1/courses/get-a-course/${courseId}`,
+      ) // Replace with the actual endpoint for fetching course details
+
       if (courseResponse.status !== 200) {
         console.error('Failed to fetch course details:', courseResponse.data)
         setError('Failed to fetch course details.')
         return
       }
-  
+
       const courseDetails = courseResponse.data // Assuming course details are returned in the response
-  
+
       // Prepare the visa data with course details
       const visaData = {
         student: {
-          _id: studentId, // Associating the visa to be added by 
+          _id: studentId, // Associating the visa to be added by
         },
         assignedBy: {
           _id: assignedBy._id, // Associating the visa to be added by the employee
-          name: assignedBy.name
+          name: assignedBy.name,
         },
         course: {
           courseId: courseId,
           courseName: courseDetails.name,
-          courseUniversity: courseDetails.university
+          courseUniversity: courseDetails.university,
         },
-        country: courseDetails.country
+        country: courseDetails.country,
       }
-  
+
       // Post the new visa with the retrieved course details
       const response = await axios.post(`http://localhost:5000/api/v1/visas/add-visa`, visaData)
-  
+
       if (response.status === 201) {
         console.log('Visa added successfully, status: ', response.status)
-        
+
         // Update the visas state to include the newly added visa
         const addedVisa = response.data
         setVisas((prevVisas) => [...prevVisas, addedVisa.savedVisa])
-  
+
         // Dispatch action to update any state in Redux if required
         dispatch({ type: 'toggleElement', key: 'addVisa' })
       } else {
@@ -188,7 +167,7 @@ const ViewStudent = () => {
       setError('Failed to add visa.')
     }
   }
-  
+
   const handleAddDiscussion = async (newDiscussion) => {
     try {
       const response = await axios.post(
@@ -237,6 +216,28 @@ const ViewStudent = () => {
     return <div>Loading...</div>
   }
 
+  const handleSaveStudentInfo = async (updatedInfo) => {
+    console.log("updatedInfo", updatedInfo)
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/v1/students/update-student-basic-info/${studentId}`,
+        updatedInfo,
+      )
+      if (response.status === 200) {
+        console.log('Student info updated successfully')
+        setStudent(updatedInfo) // Update the student info state
+        setBasicInfo(updatedInfo)
+        dispatch({ type: 'toggleElement', key: 'updateStudentData' }) // Update basic info
+      } else {
+        console.error('Failed to update student info:', response.data)
+        setError('Failed to update student info.')
+      }
+    } catch (error) {
+      console.error('Failed to update student info:', error)
+      setError('Failed to update student info.')
+    }
+  }
+
   return (
     <CContainer fluid className="mt-4">
       {console.log('courses', courses)}
@@ -255,9 +256,7 @@ const ViewStudent = () => {
                       onClick={() => setActiveTab('basic-info')}
                     >
                       Basic Info
-                      {
-                        console.log("visassssssss",visas)
-                      }
+                      {console.log('visassssssss', visas)}
                     </CNavLink>
                   </CNavItem>
                   <CNavItem>
@@ -307,7 +306,11 @@ const ViewStudent = () => {
                 </CNav>
                 <CTabContent>
                   <CTabPane visible={activeTab === 'basic-info'}>
-                    <StudentInfo student={basicInfo} setStudent={setBasicInfo} />
+                    <StudentInfo
+                      student={basicInfo}
+                      setStudent={setBasicInfo}
+                      onSave={handleSaveStudentInfo} // Pass the save function
+                    />
                   </CTabPane>
                   <CTabPane visible={activeTab === 'progress'}>
                     <StudentProgress progress={progress} setProgress={setProgress} />
