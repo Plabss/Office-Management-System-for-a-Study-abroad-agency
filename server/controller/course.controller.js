@@ -92,3 +92,55 @@ exports.uploadADocumentController = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// Delete document from a course
+const getResourceType = (url) => {
+  const extension = url.split('.').pop().toLowerCase(); // Get the file extension
+
+  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg'].includes(extension)) {
+    return 'image';
+  } else if (['mp4', 'avi', 'mov', 'mkv', 'webm'].includes(extension)) {
+    return 'video';
+  } else {
+    return 'raw'; // For files like PDFs, docs, etc.
+  }
+};
+
+// Delete document from a course
+exports.deleteDocument = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { documentName } = req.body;
+
+    // Find the course
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Get the document URL to delete from Cloudinary
+    const documentUrl = course.documents[documentName];
+    if (documentUrl) {
+      // Determine the resource type from the URL
+      const resourceType = getResourceType(documentUrl);
+
+      // Extract the public ID from URL
+      const publicId = documentUrl.split('/').pop().split('.')[0];
+
+      // Delete from Cloudinary with correct resource type
+      await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+
+      // Remove from the database
+      course.documents[documentName] = null;
+      await course.save();
+
+      res.status(200).json({ message: 'Document deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'Document not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
