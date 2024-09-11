@@ -4,13 +4,12 @@ const {
   getAllStudents,
   getAStudent,
   uploadDocument,
+  addEmployeeToStudentService,
+  removeEmployeeFromStudentService,
 } = require("../services/student.service");
 const cloudinary = require("../config/cloudinary");
 const Notification = require("../model/Notification.model");
 const Student = require("../model/Student.model");
-
-const fs = require('fs');
-const path = require('path');
 
 exports.addStudentController = async (req, res) => {
   try {
@@ -120,51 +119,6 @@ exports.deleteDiscussionController = async (req, res) => {
     res.status(400).json({ status: 'fail', error: error.message });
   }
 };
-// exports.getAllStudentsByEmployeeIdController = async (req, res) => {
-//   const { employeeID } = req.params;
-//   const { name, startDate, endDate } = req.query;
-//   try {
-//     const students = await getAllStudentsByEmployeeID({employeeID, name, startDate, endDate});
-//     res.status(200).json(students);
-//   } catch (error) {
-//     console.error("Error fetching students:", error);
-//     res.status(500).json({ error: "Failed to fetch students" });
-//   }
-// };
-// exports.getAllStudentsController = async (req, res) => {
-//   try {
-//     const { name, startDate, endDate } = req.query;
-//     const students = await getAllStudents({ name, startDate, endDate });
-//     res.status(200).json(students);
-//   } catch (error) {
-//     console.error("Error fetching students:", error);
-//     res.status(500).json({ error: "Failed to fetch students" });
-//   }
-// };
-
-// exports.getAllStudentsByEmployeeIdController = async (req, res) => {
-//   const { employeeID } = req.params;
-//   const { name, startDate, endDate, country } = req.query; // Extract country from query
-//   try {
-//     const students = await getAllStudentsByEmployeeID({ employeeID, name, startDate, endDate, country });
-//     res.status(200).json(students);
-//   } catch (error) {
-//     console.error("Error fetching students:", error);
-//     res.status(500).json({ error: "Failed to fetch students" });
-//   }
-// };
-
-// exports.getAllStudentsController = async (req, res) => {
-//   try {
-//     const { name, startDate, endDate, country } = req.query; // Extract country from query
-//     const students = await getAllStudents({ name, startDate, endDate, country });
-//     res.status(200).json(students);
-//   } catch (error) {
-//     console.error("Error fetching students:", error);
-//     res.status(500).json({ error: "Failed to fetch students" });
-//   }
-// };
-
 
 exports.getAllStudentsByEmployeeIdController = async (req, res) => {
   const { employeeID } = req.params;
@@ -188,8 +142,6 @@ exports.getAllStudentsController = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch students" });
   }
 };
-
-
 
 exports.getAStudentController = async (req, res) => {
   const { studentID } = req.params;
@@ -230,45 +182,6 @@ exports.uploadDocument = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-// Delete a document for a student
-// exports.deleteDocumentController = async (req, res) => {
-//   try {
-//     const { studentId } = req.params;
-//     const { documentName } = req.body; // Expecting 'cv' or 'nid'
-
-//     // Find the student by ID
-//     const student = await Student.findById(studentId);
-//     if (!student) {
-//       return res.status(404).json({ message: "Student not found" });
-//     }
-
-//     // Get the document URL or path to delete
-//     const documentUrl = student.documents[documentName];
-//     if (!documentUrl) {
-//       return res.status(400).json({ message: "Document not found" });
-//     }
-
-//     // Remove the document file from the server (if stored locally)
-//     if (documentUrl.startsWith('/uploads/')) {
-//       const filePath = path.join(__dirname, '..', documentUrl);
-//       fs.unlink(filePath, (err) => {
-//         if (err) {
-//           console.error("Failed to delete file:", err);
-//         }
-//       });
-//     }
-
-//     // Update student document field to null
-//     student.documents[documentName] = null;
-//     await student.save();
-
-//     res.status(200).json({ message: "Document deleted successfully", student });
-//   } catch (error) {
-//     console.error("Error deleting document:", error);
-//     res.status(500).json({ message: "Failed to delete document", error });
-//   }
-// };
 
 exports.deleteDocumentController = async (req, res) => {
   try {
@@ -319,8 +232,6 @@ const extractPublicIdFromUrl = (url) => {
   return publicId;
 };
 
-
-
 exports.updateStudentProgressController = async (req, res) => {
   const { studentId } = req.params;
   const { progress } = req.body;
@@ -332,7 +243,6 @@ exports.updateStudentProgressController = async (req, res) => {
     res.status(500).json({ error: 'Failed to update student progress.' });
   }
 };
-
 
 // Controller to fetch all courses for a specific student
 exports.getStudentCoursesController = async (req, res) => {
@@ -352,4 +262,34 @@ exports.getStudentCoursesController = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch student courses' }) // Return 500 if there's a server error
   }
 }
+// Controller to add an employee to a student's employee list
+exports.addEmployeeToStudent = async (req, res) => {
+  const { studentId } = req.params
+  const { employeeId, role } = req.body;
+
+  console.log(req.body)
+
+  try {
+    const updatedStudent = await addEmployeeToStudentService(studentId, employeeId, role);
+    res.status(200).json({ message: 'Employee added successfully', updatedStudent });
+  } catch (error) {
+    console.error('Error adding employee:', error);
+    res.status(500).json({ error: 'Failed to add employee' });
+  }
+};
+
+// Controller to remove an employee from a student's employee list
+exports.removeEmployeeFromStudent = async (req, res) => {
+  const { studentId } = req.params
+  const { employeeId, role } = req.body;
+
+  try {
+    const updatedStudent = await removeEmployeeFromStudentService(studentId, employeeId, role);
+    res.status(200).json({ message: 'Employee removed successfully', updatedStudent });
+  } catch (error) {
+    console.error('Error removing employee:', error);
+    res.status(500).json({ error: 'Failed to remove employee' });
+  }
+};
+
 

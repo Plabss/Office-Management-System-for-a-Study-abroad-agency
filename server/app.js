@@ -7,7 +7,7 @@ const connectDB = require('./config/db');
 // Routes imports
 const employeeRoute = require('./routes/v1/employee.route');
 const authRoute = require('./routes/v1/auth.route');
-const studentRoute = require('./routes/v1/student.route');
+const studentRoute = require('./Routes/v1/student.route');
 const visitorRoute = require('./routes/v1/visitor.route');
 const courseRoute = require('./routes/v1/course.route');
 const visaRoute = require('./routes/v1/visa.route');
