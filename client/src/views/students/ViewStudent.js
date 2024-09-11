@@ -89,8 +89,15 @@ const ViewStudent = () => {
         setError('Failed to fetch student details.')
       }
     }
-
     fetchStudentDetails()
+
+    const fetchActiveTab = async () => {
+      const activeTab = (localStorage.getItem('activeTab'))
+      
+      if (activeTab === null) setActiveTab('basic-info')
+      else setActiveTab(activeTab)
+    }
+    fetchActiveTab()
   }, [studentId, addDiscussion, upload, addCourse, addVisa, notificationClick, updateStudentData])
 
   const handleAddCourse = async (newCourse) => {
@@ -217,7 +224,7 @@ const ViewStudent = () => {
   }
 
   const handleSaveStudentInfo = async (updatedInfo) => {
-    console.log("updatedInfo", updatedInfo)
+    console.log('updatedInfo', updatedInfo)
     try {
       const response = await axios.put(
         `http://localhost:5000/api/v1/students/update-student-basic-info/${studentId}`,
@@ -253,7 +260,10 @@ const ViewStudent = () => {
                   <CNavItem>
                     <CNavLink
                       active={activeTab === 'basic-info'}
-                      onClick={() => setActiveTab('basic-info')}
+                      onClick={() => {
+                        setActiveTab('basic-info')
+                        localStorage.setItem('activeTab', 'basic-info')
+                      }}
                     >
                       Basic Info
                       {console.log('visassssssss', visas)}
@@ -262,7 +272,10 @@ const ViewStudent = () => {
                   <CNavItem>
                     <CNavLink
                       active={activeTab === 'progress'}
-                      onClick={() => setActiveTab('progress')}
+                      onClick={() => {
+                        setActiveTab('progress')
+                        localStorage.setItem('activeTab', 'progress')
+                      }}
                     >
                       Progress
                     </CNavLink>
@@ -272,7 +285,10 @@ const ViewStudent = () => {
                       <CNavItem>
                         <CNavLink
                           active={activeTab === 'documents'}
-                          onClick={() => setActiveTab('documents')}
+                          onClick={() => {
+                            setActiveTab('documents')
+                            localStorage.setItem('activeTab', 'documents')
+                          }}
                         >
                           Documents
                         </CNavLink>
@@ -280,15 +296,22 @@ const ViewStudent = () => {
                       <CNavItem>
                         <CNavLink
                           active={activeTab === 'courses'}
-                          onClick={() => setActiveTab('courses')}
+                          onClick={() => {
+                            setActiveTab('courses')
+                            localStorage.setItem('activeTab', 'courses')
+                          }}
                         >
                           Courses
                         </CNavLink>
+                        {console.log('aaaaaaaaaaa', activeTab)}
                       </CNavItem>
                       <CNavItem>
                         <CNavLink
                           active={activeTab === 'visa'}
-                          onClick={() => setActiveTab('visa')}
+                          onClick={() => {
+                            setActiveTab('visa')
+                            localStorage.setItem('activeTab', 'visa')
+                          }}
                         >
                           Visa
                         </CNavLink>
@@ -296,7 +319,10 @@ const ViewStudent = () => {
                       <CNavItem>
                         <CNavLink
                           active={activeTab === 'discussions'}
-                          onClick={() => setActiveTab('discussions')}
+                          onClick={() => {
+                            setActiveTab('discussions')
+                            localStorage.setItem('activeTab', 'discussions')
+                          }}
                         >
                           Discussions
                         </CNavLink>

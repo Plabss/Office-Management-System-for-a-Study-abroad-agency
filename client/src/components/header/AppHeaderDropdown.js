@@ -28,6 +28,8 @@ const AppHeaderDropdown = () => {
   const handleLogout = () => {
     // Remove the role from localStorage
     localStorage.removeItem('role');
+    localStorage.removeItem('activeTab');
+    
 
     // Redirect to the login page
     navigate('/');
