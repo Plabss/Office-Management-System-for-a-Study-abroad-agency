@@ -195,6 +195,7 @@ const ViewVisitors = () => {
                   <CTableHeaderCell className="text-center bg-body-tertiary">Phone</CTableHeaderCell>
                   <CTableHeaderCell className="text-center bg-body-tertiary">Interested Countries</CTableHeaderCell>
                   <CTableHeaderCell className="text-center bg-body-tertiary">Intake</CTableHeaderCell>
+                  <CTableHeaderCell className="text-center bg-body-tertiary">Details</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
@@ -214,6 +215,9 @@ const ViewVisitors = () => {
                     </CTableDataCell>
                     <CTableDataCell className="text-center align-middle">
                       <div className="font-weight-bold">{item.interestedCountries}</div>
+                    </CTableDataCell>
+                    <CTableDataCell className="text-center align-middle">
+                      <div className="font-weight-bold">{item.targetedIntake}</div>
                     </CTableDataCell>
                     <CTableDataCell className="text-center align-middle">
                       <CIcon icon={cilChevronBottom} size="lg" onClick={() => {
