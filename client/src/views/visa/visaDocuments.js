@@ -13,9 +13,9 @@ import { useDispatch } from 'react-redux'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { CIcon } from '@coreui/icons-react'
-import { cilCloudDownload } from '@coreui/icons'
+import { cilCloudDownload, cilTrash } from '@coreui/icons'
 
-const VisaDocuments = ({ documents, onDocumentUpload, visaId }) => {
+const VisaDocuments = ({ documents, onDocumentUpload, onDeleteDocument, visaId }) => {
   const [uploading, setUploading] = useState({ file1: false, file2: false, file3: false })
   const dispatch = useDispatch()
 
@@ -104,13 +104,23 @@ const VisaDocuments = ({ documents, onDocumentUpload, visaId }) => {
             <CRow className="mt-2 align-items-center">
               <CCol md={8} className="d-flex align-items-center">
                 {documents[docType] && typeof documents[docType] === 'string' ? (
-                  <CButton
-                    color="info"
-                    size="sm"
-                    onClick={() => handleViewDocument(documents[docType])}
-                  >
-                    View Document
-                  </CButton>
+                  <>
+                    <CButton
+                      color="info"
+                      size="sm"
+                      onClick={() => handleViewDocument(documents[docType])}
+                    >
+                      View Document
+                    </CButton>
+                    <CButton
+                      color="danger"
+                      size="sm"
+                      className="mx-2"
+                      onClick={() => onDeleteDocument(docType)}
+                    >
+                      <CIcon icon={cilTrash} />
+                    </CButton>
+                  </>
                 ) : (
                   <>
                     <CFormInput

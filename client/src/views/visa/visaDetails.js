@@ -16,7 +16,7 @@ import axios from 'axios'
 
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
-import VisaDocuments from './visaDocuments'
+import VisaDocuments from './VisaDocuments'
 
 const VisaDetails = () => {
   const studentId = localStorage.getItem('studentId')
@@ -112,6 +112,36 @@ const VisaDetails = () => {
     setDocuments(updatedDocuments)
   }
 
+  const handleDeleteDocument = async (docType) => {
+    const documentUrl = documents[docType];
+    if (!documentUrl) return;
+
+    const extension = documentUrl.split('.').pop().toLowerCase();
+    const resourceType = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg'].includes(extension)
+      ? 'image'
+      : ['mp4', 'avi', 'mov', 'mkv', 'webm'].includes(extension)
+      ? 'video'
+      : 'raw';
+
+    if (window.confirm(`Are you sure you want to delete this document?`)) {
+      try {
+        const res = await axios.delete(`http://localhost:5000/api/v1/visas/delete-document/${visaId}`, {
+          data: { documentName: docType, resourceType }
+        });
+
+        if (res.status === 200) {
+          toast.success('Document deleted successfully.');
+          setDocuments((prevDocs) => ({ ...prevDocs, [docType]: null }));
+        } else {
+          toast.error('Error deleting document.');
+        }
+      } catch (error) {
+        console.error('Error deleting document:', error);
+        toast.error('Error deleting document.');
+      }
+    }
+  };
+
   const handleUpdateProgress = async (status) => {
     if (window.confirm(`Are you sure you want to set the student's progress to "${status}"?`)) {
       try {
@@ -185,6 +215,7 @@ const VisaDetails = () => {
                   <VisaDocuments
                     documents={documents}
                     onDocumentUpload={handleDocumentUpload}
+                    onDeleteDocument={handleDeleteDocument}  // Add this prop
                     visaId={visa._id}
                   />
                 </>
