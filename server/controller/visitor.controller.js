@@ -3,17 +3,26 @@ const Employee = require("../model/Employee.model");
 const Notification = require("../model/Notification.model");
 const Student = require("../model/Student.model");
 const Visitor = require("../model/Visitor.model");
-const { addVisitor, getAllVisitors, getAVisitorById } = require("../services/visitor.service");
+const {
+  addVisitor,
+  getAllVisitors,
+  getAVisitorById,
+} = require("../services/visitor.service");
+
+const bcrypt = require('bcryptjs');
 
 exports.addVisitorController = async (req, res) => {
   try {
     console.log("stu", req.body);
-    console.log("stu", req.files['nidOrBirthCertificate'][0].path);
-    const { name, email, phone, interestedCountries, targetedIntake } = req.body;
-    const nidOrBirthCertificateUpload = await cloudinary.uploader.upload(req.files['nidOrBirthCertificate'][0].path, {
-      folder: 'visitor/nidOrBirthCertificate',
-    });
-
+    console.log("stu", req.files["nidOrBirthCertificate"][0].path);
+    const { name, email, phone, interestedCountries, targetedIntake } =
+      req.body;
+    const nidOrBirthCertificateUpload = await cloudinary.uploader.upload(
+      req.files["nidOrBirthCertificate"][0].path,
+      {
+        folder: "visitor/nidOrBirthCertificate",
+      }
+    );
 
     const newVisitor = await addVisitor({
       name,
@@ -23,11 +32,10 @@ exports.addVisitorController = async (req, res) => {
       targetedIntake,
       nidOrBirthCertificate: nidOrBirthCertificateUpload.secure_url,
     });
-    
 
     res.status(200).json({
-      status: 'success',
-      message: 'Visitor Registration completed successfully',
+      status: "success",
+      message: "Visitor Registration completed successfully",
       data: newVisitor,
     });
   } catch (error) {
@@ -66,10 +74,10 @@ exports.getAllVisitorsController = async (req, res) => {
   try {
     // Extract query parameters from request
     const filters = {
-      name: req.query.name || '',
-      startDate: req.query.startDate || '',
-      endDate: req.query.endDate || '',
-      interestedCountry: req.query.interestedCountry || '', // Add interestedCountry filter
+      name: req.query.name || "",
+      startDate: req.query.startDate || "",
+      endDate: req.query.endDate || "",
+      interestedCountry: req.query.interestedCountry || "", // Add interestedCountry filter
     };
 
     // Fetch visitors with filters
@@ -80,10 +88,9 @@ exports.getAllVisitorsController = async (req, res) => {
   }
 };
 
-
 exports.getAVisitorController = async (req, res) => {
   try {
-    console.log("hitttttttttttttt")
+    console.log("hitttttttttttttt");
     const visitor = await getAVisitorById(req.params.visitorId);
     res.status(200).json(visitor);
   } catch (error) {
@@ -94,6 +101,7 @@ exports.getAVisitorController = async (req, res) => {
 exports.convertVisitorToStudent = async (req, res) => {
   const session = await Student.startSession(); // Start a session for transaction
   session.startTransaction(); // Start transaction
+
   try {
     const { visitorId } = req.params;
     const { parentPhone, dob, address, counselor } = req.body;
@@ -103,8 +111,18 @@ exports.convertVisitorToStudent = async (req, res) => {
     if (!visitor) {
       await session.abortTransaction();
       session.endSession();
-      return res.status(404).json({ message: 'Visitor not found' });
+      return res.status(404).json({ message: "Visitor not found" });
     }
+
+    // Generate a random six-digit password
+    const randomPassword = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    console.log("r", randomPassword);
+
+    // Hash the password before saving it to the database
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(randomPassword, salt);
 
     // Prepare student data for creation
     const studentData = {
@@ -117,6 +135,7 @@ exports.convertVisitorToStudent = async (req, res) => {
       employees: {
         asCounselor: [counselor], // Assign the selected counselor
       },
+      password: hashedPassword, // Save the hashed password
     };
 
     // Create a new student using the studentData
@@ -152,15 +171,19 @@ exports.convertVisitorToStudent = async (req, res) => {
     // Remove the visitor after converting to a student
     await Visitor.findByIdAndDelete(visitorId);
 
-    res.status(201).json({ message: 'Visitor converted to student successfully', student: newStudent });
+    // Send the generated password back to the client (this could be emailed instead)
+    res.status(201).json({
+      message: "Visitor converted to student successfully",
+      student: newStudent,
+      password: randomPassword, // Send the plain password only for demonstration purposes
+    });
   } catch (error) {
     // Only abort if the transaction has not been committed yet
     if (session.inTransaction()) {
       await session.abortTransaction();
     }
     session.endSession();
-    console.error('Error converting visitor to student:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error converting visitor to student:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
-

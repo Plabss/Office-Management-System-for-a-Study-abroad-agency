@@ -5,9 +5,9 @@ import { useDispatch } from 'react-redux';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { CIcon } from '@coreui/icons-react';
-import { cilCloudDownload } from '@coreui/icons';
+import { cilCloudDownload, cilTrash } from '@coreui/icons';
 
-const StudentDocuments = ({ documents, onDocumentUpload, courseId, courseName }) => {
+const CourseDocuments = ({ documents, onDocumentUpload, courseId, courseName }) => {
   const [uploading, setUploading] = useState({ file1: false, file2: false, file3: false });
   const dispatch = useDispatch();
 
@@ -38,6 +38,22 @@ const StudentDocuments = ({ documents, onDocumentUpload, courseId, courseName })
       console.error('Error uploading file:', error);
     } finally {
       setUploading({ ...uploading, [docType]: false });
+    }
+  };
+
+  const handleDelete = async (docType) => {
+    try {
+      const res = await axios.delete(`http://localhost:5000/api/v1/courses/delete-document/${courseId}`, {
+        data: { documentName: docType }, // Pass the document type to identify which document to delete
+      });
+
+      if (res.status === 200) {
+        // Update document state after deletion
+        onDocumentUpload({ ...documents, [docType]: null });
+        dispatch({ type: 'toggleElement', key: 'courseDocUpload' });
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
     }
   };
 
@@ -92,13 +108,23 @@ const StudentDocuments = ({ documents, onDocumentUpload, courseId, courseName })
             <CRow className="mt-2 align-items-center">
               <CCol md={8} className="d-flex align-items-center">
                 {documents[docType] && typeof documents[docType] === 'string' ? (
-                  <CButton
-                    color="info"
-                    size="sm"
-                    onClick={() => handleViewDocument(documents[docType])}
-                  >
-                    View Document
-                  </CButton>
+                  <>
+                    <CButton
+                      color="info"
+                      size="sm"
+                      onClick={() => handleViewDocument(documents[docType])}
+                    >
+                      View Document
+                    </CButton>
+                    <CButton
+                      color="danger"
+                      size="sm"
+                      className="mx-2"
+                      onClick={() => handleDelete(docType)}
+                    >
+                      <CIcon icon={cilTrash} />
+                    </CButton>
+                  </>
                 ) : (
                   <>
                     <CFormInput
@@ -126,4 +152,4 @@ const StudentDocuments = ({ documents, onDocumentUpload, courseId, courseName })
   );
 };
 
-export default StudentDocuments;
+export default CourseDocuments;

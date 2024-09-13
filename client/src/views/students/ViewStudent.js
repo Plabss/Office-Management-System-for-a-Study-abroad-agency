@@ -22,6 +22,7 @@ import StudentVisas from './StudentVisas'
 import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
 import StudentDiscussions from './StudentDiscussions'
+import StudentSettings from './StudentSettings'
 
 const ViewStudent = () => {
   const [activeTab, setActiveTab] = useState('basic-info')
@@ -327,6 +328,17 @@ const ViewStudent = () => {
                           Discussions
                         </CNavLink>
                       </CNavItem>
+                      <CNavItem>
+                        <CNavLink
+                          active={activeTab === 'settings'}
+                          onClick={() => {
+                            setActiveTab('settings')
+                            localStorage.setItem('activeTab', 'settings')
+                          }}
+                        >
+                          Settings
+                        </CNavLink>
+                      </CNavItem>
                     </>
                   ) : null}
                 </CNav>
@@ -362,6 +374,11 @@ const ViewStudent = () => {
                           onAddDiscussion={handleAddDiscussion}
                           onDeleteDiscussion={handleDeleteDiscussion}
                         ></StudentDiscussions>
+                      </CTabPane>
+                      <CTabPane visible={activeTab === 'settings'}>
+                        <StudentSettings
+                          student={student}
+                        ></StudentSettings>
                       </CTabPane>
                     </>
                   ) : null}

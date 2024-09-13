@@ -99,3 +99,38 @@ exports.uploadADocumentController = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+// Controller to delete a document from a visa
+exports.deleteVisaDocument = async (req, res) => {
+  try {
+    const { visaId } = req.params;
+    const { documentName, resourceType } = req.body;  // Expecting documentName and resourceType in the request body
+
+    // Find the visa by ID
+    const visa = await Visa.findById(visaId);
+    if (!visa) {
+      return res.status(404).json({ message: 'Visa not found' });
+    }
+
+    // Get the document URL to delete from Cloudinary
+    const documentUrl = visa.documents[documentName];
+    if (documentUrl) {
+      // Delete from Cloudinary
+      const publicId = documentUrl.split('/').pop().split('.')[0]; // Extract the public ID from the URL
+
+      await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+
+      // Remove from the database
+      visa.documents[documentName] = null;
+      await visa.save();
+
+      res.status(200).json({ message: 'Document deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'Document not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
