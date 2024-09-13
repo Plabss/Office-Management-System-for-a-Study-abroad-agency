@@ -1,13 +1,26 @@
 const Employee = require("../model/Employee.model");
 const Student = require("../model/Student.model");
 const cloudinary = require("../config/cloudinary");
+const bcrypt = require('bcryptjs')
 
 exports.createStudent = async (studentData) => {
   const session = await Student.startSession();
   session.startTransaction();
   try {
-    // Create the student
-    const newStudent = new Student(studentData);
+    // Generate a random six-digit password
+    const randomPassword = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log("r",randomPassword)
+
+    // Hash the password before saving it to the database
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+    // Create the student with the hashed password
+    const newStudent = new Student({
+      ...studentData,
+      password: hashedPassword,
+    });
+
     await newStudent.save({ session });
 
     // Update the employee document
@@ -18,11 +31,14 @@ exports.createStudent = async (studentData) => {
         { session }
       );
     }
-    console.log("Sssssssssssssss", newStudent);
+    console.log("New student created with password:", randomPassword); // For testing purposes
 
     await session.commitTransaction();
     session.endSession();
     console.log(newStudent);
+
+    // You can choose to send the password to the student via email or other secure means here
+    // For example: sendEmail(newStudent.email, randomPassword);
 
     return newStudent;
   } catch (error) {

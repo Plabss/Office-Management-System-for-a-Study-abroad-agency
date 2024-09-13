@@ -11,6 +11,9 @@ const cloudinary = require("../config/cloudinary");
 const Notification = require("../model/Notification.model");
 const Student = require("../model/Student.model");
 
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+
 exports.addStudentController = async (req, res) => {
   try {
     console.log("stu", req.body);
@@ -182,7 +185,50 @@ exports.uploadDocument = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+exports.uploadDocumentStudent = async (req, res) => {
+  try {
+    console.log("hittttttttttttttttttt"); // Debug log
+    const { studentId } = req.params;
+    const { documentName } = req.body; // 'cv' or 'nid'
+    console.log("xxxxxxxxxxxxxxxx", studentId); // Debug log
 
+    // Check if the authenticated student matches the studentId in the request
+    if (req.student._id !== studentId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    // Upload the file to Cloudinary
+    const fileUpload = await cloudinary.uploader.upload(req.file.path, {
+      folder: `students/${documentName}`,
+    });
+
+    // Determine which document field to update based on `documentName`
+    const updateField = {};
+    if (documentName === 'cv') {
+      updateField['documents.cv'] = fileUpload.secure_url;
+    } else if (documentName === 'nid') {
+      updateField['documents.nid'] = fileUpload.secure_url;
+    } else {
+      return res.status(400).json({ message: 'Invalid document type' });
+    }
+
+    // Update the student document with the new file URL
+    const student = await Student.findByIdAndUpdate(
+      studentId,
+      { $set: updateField },
+      { new: true }
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "Document upload completed successfully",
+      data: student,
+    });
+  } catch (error) {
+    console.error("Error uploading document:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 exports.deleteDocumentController = async (req, res) => {
   try {
     const { studentId } = req.params;
@@ -289,6 +335,93 @@ exports.removeEmployeeFromStudent = async (req, res) => {
   } catch (error) {
     console.error('Error removing employee:', error);
     res.status(500).json({ error: 'Failed to remove employee' });
+  }
+};
+
+exports.studentLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const student = await Student.findOne({ email });
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Check if the password is correct
+    const isPasswordValid = await bcrypt.compare(password, student.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ _id: student._id, email: student.email }, process.env.JWT_SECRET, {
+      expiresIn: '1h', // Token expires in 1 hour
+    });
+
+    // Return token and student info
+    res.json({ token, student });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+exports.getStudentDocuments = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    // Ensure the authenticated student matches the studentId in the request
+    if (req.student._id !== studentId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.status(200).json({ documents: student.documents });
+  } catch (error) {
+    console.error('Error fetching documents:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+// Delete a specific document for a student
+exports.deleteStudentDocument = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { documentName } = req.body;
+
+    // Ensure the authenticated student matches the studentId in the request
+    if (req.student._id !== studentId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    // Find the student
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Get the document URL to delete from Cloudinary
+    const documentUrl = student.documents[documentName];
+    if (documentUrl) {
+      // Delete from Cloudinary
+      const publicId = documentUrl.split('/').slice(-2).join('/').split('.')[0]; // Extract the public ID from URL
+      await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+
+      // Remove from the database
+      student.documents[documentName] = null;
+      await student.save();
+
+      res.status(200).json({ message: 'Document deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'Document not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 

@@ -18,7 +18,7 @@ const NotificationList = ({ notifications, markAsRead }) => {
   }
 
   return (
-    <CCard className="w-100 notification-card">
+    <CCard className=" notification-card" style={{"width":"500px"}}>
       <CCardHeader>
         <h5 className="m-0">Notifications</h5>
       </CCardHeader>
