@@ -50,21 +50,317 @@ exports.createStudent = async (studentData) => {
   }
 };
 
+// exports.getAllStudentsByEmployeeID = async ({
+//   employeeID,
+//   name,
+//   startDate,
+//   endDate,
+//   country,
+// }) => {
+//   try {
+//     const employee = await Employee.findById(employeeID)
+//       .populate({
+//         path: "students.asCounselor students.asApplicant students.asVisaAdmin",
+//         populate: {
+//           path: "courses", // Populate courses within each student
+//           model: "Course", // Ensure this is the correct model name
+//           select: "name country", // Select only the necessary fields from courses
+//         },
+//       })
+//       .exec();
+
+//     if (!employee) {
+//       throw new Error("Employee not found");
+//     }
+
+//     // Aggregate all student lists based on roles
+//     const allStudents = [
+//       ...employee.students.asCounselor,
+//       ...employee.students.asApplicant,
+//       ...employee.students.asVisaAdmin,
+//     ];
+
+//     // Apply filters to the aggregated students
+//     let filteredStudents = allStudents;
+
+//     // Filter by name if provided
+//     if (name) {
+//       const nameRegex = new RegExp(name, "i"); // Case-insensitive search
+//       filteredStudents = filteredStudents.filter((student) =>
+//         nameRegex.test(student.fullName)
+//       );
+//     }
+
+//     // Filter by date range if provided
+//     if (startDate && endDate) {
+//       const start = new Date(startDate);
+//       const end = new Date(endDate);
+//       filteredStudents = filteredStudents.filter(
+//         (student) =>
+//           new Date(student.dob) >= start && new Date(student.dob) <= end
+//       );
+//     } else if (startDate) {
+//       const start = new Date(startDate);
+//       filteredStudents = filteredStudents.filter(
+//         (student) => new Date(student.dob) >= start
+//       );
+//     } else if (endDate) {
+//       const end = new Date(endDate);
+//       filteredStudents = filteredStudents.filter(
+//         (student) => new Date(student.dob) <= end
+//       );
+//     }
+
+//     // Filter by country if provided
+//     if (country) {
+//       const countryRegex = new RegExp(country, "i"); // Case-insensitive search
+
+//       // Check if filteredStudents and student.courses are correctly initialized
+//       console.log("Initial Students:", filteredStudents);
+
+//       filteredStudents = filteredStudents.filter((student) => {
+//         console.log("Student:", student.fullName, "Courses:", student.courses); // Debug each student's courses
+
+//         if (!student.courses || student.courses.length === 0) {
+//           console.warn("No courses found for student:", student.fullName);
+//           return false;
+//         }
+
+//         // Filter students based on courses' country matching the regex
+//         const matches = student.courses.some((course) => {
+//           console.log(
+//             "Checking course:",
+//             course.name,
+//             "Country:",
+//             course.country
+//           ); // Debug each course's country
+//           return countryRegex.test(course.country);
+//         });
+
+//         return matches;
+//       });
+
+//       console.log("Filtered Students by Country:", filteredStudents); // Check the result after filtering
+//     }
+
+//     // Remove duplicates if any (in case a student appears in multiple roles)
+//     const uniqueStudents = Array.from(
+//       new Set(filteredStudents.map((s) => s._id.toString()))
+//     ).map((id) => filteredStudents.find((s) => s._id.toString() === id));
+
+//     return uniqueStudents;
+//   } catch (error) {
+//     console.error("Error in getStudentsByEmployee service:", error);
+//     throw error;
+//   }
+// };
+
+// exports.getAllStudents = async ({ name, startDate, endDate, country }) => {
+//   try {
+//     const filter = {};
+
+//     // Filter by name if provided
+//     if (name) {
+//       filter.fullName = new RegExp(name, "i"); // Case-insensitive search
+//     }
+
+//     // Filter by date range if provided
+//     if (startDate && endDate) {
+//       filter.dob = { $gte: new Date(startDate), $lte: new Date(endDate) };
+//     } else if (startDate) {
+//       filter.dob = { $gte: new Date(startDate) };
+//     } else if (endDate) {
+//       filter.dob = { $lte: new Date(endDate) };
+//     }
+
+//     // Find students with the given filters and populate their courses
+//     const students = await Student.find(filter).populate({
+//       path: "courses", // Populate courses field
+//       select: "name country", // Select only the necessary fields from courses
+//     });
+
+//     // Filter by country if provided
+//     if (country) {
+//       const countryRegex = new RegExp(country, "i"); // Case-insensitive search
+//       return students.filter((student) =>
+//         student.courses.some((course) => countryRegex.test(course.country))
+//       );
+//     }
+
+//     return students;
+//   } catch (error) {
+//     console.error("Error in getStudents service:", error);
+//     throw error;
+//   }
+// };
+
+
+// exports.getAllStudentsByEmployeeID = async ({
+//   employeeID,
+//   name,
+//   startDate,
+//   endDate,
+//   country,
+//   page = 1,  // Default page number
+//   limit = 2,  // Default limit
+// }) => {
+//   try {
+//     const employee = await Employee.findById(employeeID)
+//       .populate({
+//         path: "students.asCounselor students.asApplicant students.asVisaAdmin",
+//         populate: {
+//           path: "courses",
+//           model: "Course",
+//           select: "name country",
+//         },
+//       })
+//       .exec();
+
+//     if (!employee) {
+//       throw new Error("Employee not found");
+//     }
+
+//     // Aggregate all student lists based on roles
+//     const allStudents = [
+//       ...employee.students.asCounselor,
+//       ...employee.students.asApplicant,
+//       ...employee.students.asVisaAdmin,
+//     ];
+
+//     // Apply filters to the aggregated students
+//     let filteredStudents = allStudents;
+
+//     // Filter by name if provided
+//     if (name) {
+//       const nameRegex = new RegExp(name, "i");
+//       filteredStudents = filteredStudents.filter((student) =>
+//         nameRegex.test(student.fullName)
+//       );
+//     }
+
+//     // Filter by date range if provided
+//     if (startDate && endDate) {
+//       const start = new Date(startDate);
+//       const end = new Date(endDate);
+//       filteredStudents = filteredStudents.filter(
+//         (student) =>
+//           new Date(student.dob) >= start && new Date(student.dob) <= end
+//       );
+//     } else if (startDate) {
+//       const start = new Date(startDate);
+//       filteredStudents = filteredStudents.filter(
+//         (student) => new Date(student.dob) >= start
+//       );
+//     } else if (endDate) {
+//       const end = new Date(endDate);
+//       filteredStudents = filteredStudents.filter(
+//         (student) => new Date(student.dob) <= end
+//       );
+//     }
+
+//     // Filter by country if provided
+//     if (country) {
+//       const countryRegex = new RegExp(country, "i");
+//       filteredStudents = filteredStudents.filter((student) => {
+//         if (!student.courses || student.courses.length === 0) {
+//           return false;
+//         }
+//         return student.courses.some((course) => countryRegex.test(course.country));
+//       });
+//     }
+
+//     // Remove duplicates if any (in case a student appears in multiple roles)
+//     const uniqueStudents = Array.from(
+//       new Set(filteredStudents.map((s) => s._id.toString()))
+//     ).map((id) => filteredStudents.find((s) => s._id.toString() === id));
+
+//     // Pagination logic
+//     const totalStudents = uniqueStudents.length;  // Total number of unique students
+//     const totalPages = Math.ceil(totalStudents / limit);
+//     const paginatedStudents = uniqueStudents.slice((page - 1) * limit, page * limit);
+
+//     return {
+//       students: paginatedStudents,
+//       totalPages,
+//       currentPage: page,
+//     };
+//   } catch (error) {
+//     console.error("Error in getStudentsByEmployee service:", error);
+//     throw error;
+//   }
+// };
+// exports.getAllStudents = async ({ name, startDate, endDate, country, page = 1, limit = 2 }) => {
+//   try {
+//     const filter = {};
+
+//     // Filter by name if provided
+//     if (name) {
+//       filter.fullName = new RegExp(name, "i");
+//     }
+
+//     // Filter by date range if provided
+//     if (startDate && endDate) {
+//       filter.dob = { $gte: new Date(startDate), $lte: new Date(endDate) };
+//     } else if (startDate) {
+//       filter.dob = { $gte: new Date(startDate) };
+//     } else if (endDate) {
+//       filter.dob = { $lte: new Date(endDate) };
+//     }
+
+//     // Find students with the given filters and populate their courses
+//     const students = await Student.find(filter).populate({
+//       path: "courses",
+//       select: "name country",
+//     });
+
+//     // Filter by country if provided
+//     let filteredStudents = students;
+//     if (country) {
+//       const countryRegex = new RegExp(country, "i");
+//       filteredStudents = students.filter((student) =>
+//         student.courses.some((course) => countryRegex.test(course.country))
+//       );
+//     }
+
+//     // Pagination logic
+//     const totalStudents = filteredStudents.length;  // Total number of students after filtering
+//     const totalPages = Math.ceil(totalStudents / limit);
+//     const paginatedStudents = filteredStudents.slice((page - 1) * limit, page * limit);
+
+//     return {
+//       students: paginatedStudents,
+//       totalPages,
+//       currentPage: page,
+//     };
+//   } catch (error) {
+//     console.error("Error in getStudents service:", error);
+//     throw error;
+//   }
+// };
+
+// studentController.js
+
+// const Student = require('../models/Student');
+// const Employee = require('../models/Employee');
+
+// Service to get students by Employee ID with pagination and filtering
 exports.getAllStudentsByEmployeeID = async ({
   employeeID,
   name,
   startDate,
   endDate,
   country,
+  page = 1,  // Default page number
+  limit = 2,  // Default limit of items per page
 }) => {
   try {
     const employee = await Employee.findById(employeeID)
       .populate({
         path: "students.asCounselor students.asApplicant students.asVisaAdmin",
         populate: {
-          path: "courses", // Populate courses within each student
-          model: "Course", // Ensure this is the correct model name
-          select: "name country", // Select only the necessary fields from courses
+          path: "courses",
+          model: "Course",
+          select: "name country",
         },
       })
       .exec();
@@ -85,7 +381,7 @@ exports.getAllStudentsByEmployeeID = async ({
 
     // Filter by name if provided
     if (name) {
-      const nameRegex = new RegExp(name, "i"); // Case-insensitive search
+      const nameRegex = new RegExp(name, "i");
       filteredStudents = filteredStudents.filter((student) =>
         nameRegex.test(student.fullName)
       );
@@ -113,34 +409,13 @@ exports.getAllStudentsByEmployeeID = async ({
 
     // Filter by country if provided
     if (country) {
-      const countryRegex = new RegExp(country, "i"); // Case-insensitive search
-
-      // Check if filteredStudents and student.courses are correctly initialized
-      console.log("Initial Students:", filteredStudents);
-
+      const countryRegex = new RegExp(country, "i");
       filteredStudents = filteredStudents.filter((student) => {
-        console.log("Student:", student.fullName, "Courses:", student.courses); // Debug each student's courses
-
         if (!student.courses || student.courses.length === 0) {
-          console.warn("No courses found for student:", student.fullName);
           return false;
         }
-
-        // Filter students based on courses' country matching the regex
-        const matches = student.courses.some((course) => {
-          console.log(
-            "Checking course:",
-            course.name,
-            "Country:",
-            course.country
-          ); // Debug each course's country
-          return countryRegex.test(course.country);
-        });
-
-        return matches;
+        return student.courses.some((course) => countryRegex.test(course.country));
       });
-
-      console.log("Filtered Students by Country:", filteredStudents); // Check the result after filtering
     }
 
     // Remove duplicates if any (in case a student appears in multiple roles)
@@ -148,20 +423,30 @@ exports.getAllStudentsByEmployeeID = async ({
       new Set(filteredStudents.map((s) => s._id.toString()))
     ).map((id) => filteredStudents.find((s) => s._id.toString() === id));
 
-    return uniqueStudents;
+    // Pagination logic
+    const totalStudents = uniqueStudents.length;  // Total number of unique students
+    const totalPages = Math.ceil(totalStudents / limit);
+    const paginatedStudents = uniqueStudents.slice((page - 1) * limit, page * limit);
+
+    return {
+      students: paginatedStudents,
+      totalPages,
+      currentPage: page,
+    };
   } catch (error) {
     console.error("Error in getStudentsByEmployee service:", error);
     throw error;
   }
 };
 
-exports.getAllStudents = async ({ name, startDate, endDate, country }) => {
+// Service to get all students with pagination and filtering
+exports.getAllStudents = async ({ name, startDate, endDate, country, page = 1, limit = 2 }) => {
   try {
     const filter = {};
 
     // Filter by name if provided
     if (name) {
-      filter.fullName = new RegExp(name, "i"); // Case-insensitive search
+      filter.fullName = new RegExp(name, "i");
     }
 
     // Filter by date range if provided
@@ -175,19 +460,29 @@ exports.getAllStudents = async ({ name, startDate, endDate, country }) => {
 
     // Find students with the given filters and populate their courses
     const students = await Student.find(filter).populate({
-      path: "courses", // Populate courses field
-      select: "name country", // Select only the necessary fields from courses
+      path: "courses",
+      select: "name country",
     });
 
     // Filter by country if provided
+    let filteredStudents = students;
     if (country) {
-      const countryRegex = new RegExp(country, "i"); // Case-insensitive search
-      return students.filter((student) =>
+      const countryRegex = new RegExp(country, "i");
+      filteredStudents = students.filter((student) =>
         student.courses.some((course) => countryRegex.test(course.country))
       );
     }
 
-    return students;
+    // Pagination logic
+    const totalStudents = filteredStudents.length;  // Total number of students after filtering
+    const totalPages = Math.ceil(totalStudents / limit);
+    const paginatedStudents = filteredStudents.slice((page - 1) * limit, page * limit);
+
+    return {
+      students: paginatedStudents,
+      totalPages,
+      currentPage: page,
+    };
   } catch (error) {
     console.error("Error in getStudents service:", error);
     throw error;

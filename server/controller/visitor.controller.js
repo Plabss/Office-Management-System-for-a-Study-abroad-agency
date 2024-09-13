@@ -70,6 +70,24 @@ exports.addVisitorController = async (req, res) => {
 //   }
 // };
 
+// exports.getAllVisitorsController = async (req, res) => {
+//   try {
+//     // Extract query parameters from request
+//     const filters = {
+//       name: req.query.name || "",
+//       startDate: req.query.startDate || "",
+//       endDate: req.query.endDate || "",
+//       interestedCountry: req.query.interestedCountry || "", // Add interestedCountry filter
+//     };
+
+//     // Fetch visitors with filters
+//     const visitors = await getAllVisitors(filters);
+//     res.status(200).json(visitors);
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// };
+
 exports.getAllVisitorsController = async (req, res) => {
   try {
     // Extract query parameters from request
@@ -80,9 +98,12 @@ exports.getAllVisitorsController = async (req, res) => {
       interestedCountry: req.query.interestedCountry || "", // Add interestedCountry filter
     };
 
-    // Fetch visitors with filters
-    const visitors = await getAllVisitors(filters);
-    res.status(200).json(visitors);
+    const page = parseInt(req.query.page, 10) || 1; // Default page is 1
+    const limit = parseInt(req.query.limit, 10) || 2; // Default limit is 10 visitors per page
+
+    // Fetch visitors with filters and pagination
+    const visitorsData = await getAllVisitors(filters, page, limit);
+    res.status(200).json(visitorsData);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

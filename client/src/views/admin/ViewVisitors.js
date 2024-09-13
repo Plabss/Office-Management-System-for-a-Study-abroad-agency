@@ -15,6 +15,8 @@ import {
   CInputGroup,
   CInputGroupText,
   CFormInput,
+  CPagination,
+  CPaginationItem, // Import pagination components
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilChevronBottom, cilPeople, cilFilter, cilSync } from '@coreui/icons';
@@ -24,7 +26,7 @@ import Autosuggest from 'react-autosuggest';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import * as XLSX from 'xlsx'; // Import xlsx library
-import './ViewStudents.css'
+import './ViewStudents.css'; // Ensure you have the necessary CSS
 
 const ViewVisitors = () => {
   const navigate = useNavigate();
@@ -34,36 +36,42 @@ const ViewVisitors = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [interestedCountry, setInterestedCountry] = useState(''); // State for interested country filter
+  const [currentPage, setCurrentPage] = useState(1); // State for current page
+  const [totalPages, setTotalPages] = useState(1); // State for total pages
 
   useEffect(() => {
     fetchVisitors(); // Fetch all visitors initially
-  }, []);
+  }, [currentPage]); // Fetch visitors whenever the page changes
 
+  // Function to fetch visitors from backend with filters and pagination
   const fetchVisitors = async () => {
     const params = {
       name,
       startDate: startDate ? startDate.toISOString() : undefined,
       endDate: endDate ? endDate.toISOString() : undefined,
       interestedCountry,
+      page: currentPage, // Pass the current page to the server
+      limit: 2, // Set the number of visitors per page
     };
     try {
       const response = await axios.get('http://localhost:5000/api/v1/visitors/get-all-visitors', {
         params,
       });
-      const visitorList = response.data;
-      console.log('visitorList', visitorList);
-      setVisitors(visitorList);
+      const { visitors, totalPages } = response.data;
+      setVisitors(visitors);
+      setTotalPages(totalPages);
     } catch (error) {
       console.error('Error fetching visitor list:', error);
     }
   };
 
+  // Function to get suggestions for Autosuggest component
   const getSuggestions = async (value) => {
     try {
       const response = await axios.get('http://localhost:5000/api/v1/visitors/get-all-visitors', {
         params: { name: value },
       });
-      return response.data.map((visitor) => visitor.name);
+      return response.data?.visitors?.map((visitor) => visitor.name);
     } catch (error) {
       console.error('Error fetching visitor suggestions:', error);
       return [];
@@ -95,6 +103,7 @@ const ViewVisitors = () => {
   };
 
   const handleFilterClick = () => {
+    setCurrentPage(1); // Reset to the first page when applying filters
     fetchVisitors(); // Fetch visitors based on the current filter criteria
   };
 
@@ -105,6 +114,10 @@ const ViewVisitors = () => {
     XLSX.writeFile(workbook, 'visitors_list.xlsx'); // Write the workbook to a file
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page); // Update the current page state
+  };
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -112,6 +125,7 @@ const ViewVisitors = () => {
           <CCardHeader>
             <h4>Visitor List</h4>
             <CInputGroup className="mb-3 mt-3 d-flex justify-content-between align-items-center">
+              {/* Filter Inputs */}
               <div className="d-flex align-items-center position-relative" style={{ flex: 1 }}>
                 <CIcon icon={cilFilter} className="mx-2" />
                 <div style={{ position: 'relative', width: '100%' }}>
@@ -234,6 +248,31 @@ const ViewVisitors = () => {
             <CButton color="success" className="mt-3" onClick={exportToExcel}>
               Export to Excel
             </CButton>
+
+            {/* Pagination Controls */}
+            <CPagination align="center" className="mt-4">
+              <CPaginationItem
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                Previous
+              </CPaginationItem>
+              {[...Array(totalPages).keys()].map((_, index) => (
+                <CPaginationItem
+                  key={index + 1}
+                  active={index + 1 === currentPage}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </CPaginationItem>
+              ))}
+              <CPaginationItem
+                disabled={currentPage === totalPages}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                Next
+              </CPaginationItem>
+            </CPagination>
           </CCardBody>
         </CCard>
       </CCol>

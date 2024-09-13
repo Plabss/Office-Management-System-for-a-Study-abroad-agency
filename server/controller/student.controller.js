@@ -11,8 +11,8 @@ const cloudinary = require("../config/cloudinary");
 const Notification = require("../model/Notification.model");
 const Student = require("../model/Student.model");
 
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 exports.addStudentController = async (req, res) => {
   try {
@@ -46,12 +46,18 @@ exports.addStudentController = async (req, res) => {
 
 exports.updateStudentController = async (req, res) => {
   try {
-    const updatedStudent = await Student.findByIdAndUpdate(req.params.studentID, req.body, {
-      new: true,
-    });
+    const updatedStudent = await Student.findByIdAndUpdate(
+      req.params.studentID,
+      req.body,
+      {
+        new: true,
+      }
+    );
     res.status(200).json(updatedStudent);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to update student info', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to update student info", error: error.message });
   }
 };
 exports.addDiscussionController = async (req, res) => {
@@ -63,7 +69,9 @@ exports.addDiscussionController = async (req, res) => {
     // Find the student by ID
     const student = await Student.findById(studentId);
     if (!student) {
-      return res.status(404).json({ status: 'fail', message: 'Student not found' });
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Student not found" });
     }
 
     // Create the new discussion object
@@ -86,12 +94,14 @@ exports.addDiscussionController = async (req, res) => {
   }
 };
 exports.deleteDiscussionController = async (req, res) => {
-  console.log("hitttt")
+  console.log("hitttt");
   try {
     const { studentId, discussionId } = req.params;
     const student = await Student.findById(studentId);
     if (!student) {
-      return res.status(404).json({ status: 'fail', message: 'Student not found' });
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Student not found" });
     }
 
     // Find the discussion
@@ -101,8 +111,8 @@ exports.deleteDiscussionController = async (req, res) => {
 
     if (discussionIndex === -1) {
       return res.status(403).json({
-        status: 'fail',
-        message: 'You can only delete your own discussions.',
+        status: "fail",
+        message: "You can only delete your own discussions.",
       });
     }
 
@@ -114,20 +124,28 @@ exports.deleteDiscussionController = async (req, res) => {
 
     // Send a success response
     res.status(200).json({
-      status: 'success',
-      message: 'Discussion deleted successfully',
+      status: "success",
+      message: "Discussion deleted successfully",
     });
   } catch (error) {
     // Send an error response
-    res.status(400).json({ status: 'fail', error: error.message });
+    res.status(400).json({ status: "fail", error: error.message });
   }
 };
 
 exports.getAllStudentsByEmployeeIdController = async (req, res) => {
   const { employeeID } = req.params;
-  const { name, startDate, endDate, country } = req.query; // Extract country from query
+  const { name, startDate, endDate, country, page, limit } = req.query; // Extract country from query
   try {
-    const students = await getAllStudentsByEmployeeID({ employeeID, name, startDate, endDate, country });
+    const students = await getAllStudentsByEmployeeID({
+      employeeID,
+      name,
+      startDate,
+      endDate,
+      country,
+      page: parseInt(page, 10) || 1,
+      limit: parseInt(limit, 10) || 2,
+    });
     res.status(200).json(students);
   } catch (error) {
     console.error("Error fetching students:", error);
@@ -137,8 +155,15 @@ exports.getAllStudentsByEmployeeIdController = async (req, res) => {
 
 exports.getAllStudentsController = async (req, res) => {
   try {
-    const { name, startDate, endDate, country } = req.query; // Extract country from query
-    const students = await getAllStudents({ name, startDate, endDate, country });
+    const { name, startDate, endDate, country, page, limit } = req.query; // Extract country from query
+    const students = await getAllStudents({
+      name,
+      startDate,
+      endDate,
+      country,
+      page: parseInt(page, 10) || 1,
+      limit: parseInt(limit, 10) || 2,
+    });
     res.status(200).json(students);
   } catch (error) {
     console.error("Error fetching students:", error);
@@ -194,7 +219,7 @@ exports.uploadDocumentStudent = async (req, res) => {
 
     // Check if the authenticated student matches the studentId in the request
     if (req.student._id !== studentId) {
-      return res.status(403).json({ message: 'Unauthorized' });
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     // Upload the file to Cloudinary
@@ -204,12 +229,12 @@ exports.uploadDocumentStudent = async (req, res) => {
 
     // Determine which document field to update based on `documentName`
     const updateField = {};
-    if (documentName === 'cv') {
-      updateField['documents.cv'] = fileUpload.secure_url;
-    } else if (documentName === 'nid') {
-      updateField['documents.nid'] = fileUpload.secure_url;
+    if (documentName === "cv") {
+      updateField["documents.cv"] = fileUpload.secure_url;
+    } else if (documentName === "nid") {
+      updateField["documents.nid"] = fileUpload.secure_url;
     } else {
-      return res.status(400).json({ message: 'Invalid document type' });
+      return res.status(400).json({ message: "Invalid document type" });
     }
 
     // Update the student document with the new file URL
@@ -243,7 +268,9 @@ exports.deleteDocumentController = async (req, res) => {
     // Get the document URL from the student's documents
     const documentUrl = student.documents[documentName];
     if (!documentUrl) {
-      return res.status(400).json({ message: "Document not found or already deleted" });
+      return res
+        .status(400)
+        .json({ message: "Document not found or already deleted" });
     }
 
     // Extract the public_id from the document URL
@@ -253,7 +280,9 @@ exports.deleteDocumentController = async (req, res) => {
     await cloudinary.uploader.destroy(publicId, (error, result) => {
       if (error) {
         console.error("Failed to delete file from Cloudinary:", error);
-        return res.status(500).json({ message: "Failed to delete file from Cloudinary", error });
+        return res
+          .status(500)
+          .json({ message: "Failed to delete file from Cloudinary", error });
       }
     });
 
@@ -271,10 +300,13 @@ exports.deleteDocumentController = async (req, res) => {
 // Helper function to extract the public_id from Cloudinary URL
 const extractPublicIdFromUrl = (url) => {
   // Cloudinary URL format: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<public_id>.<format>
-  const urlParts = url.split('/');
-  const versionIndex = urlParts.findIndex((part) => part.startsWith('v'));
-  const publicIdWithExtension = urlParts.slice(versionIndex + 1).join('/'); // Join parts after version
-  const publicId = publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf('.')); // Remove the file extension
+  const urlParts = url.split("/");
+  const versionIndex = urlParts.findIndex((part) => part.startsWith("v"));
+  const publicIdWithExtension = urlParts.slice(versionIndex + 1).join("/"); // Join parts after version
+  const publicId = publicIdWithExtension.substring(
+    0,
+    publicIdWithExtension.lastIndexOf(".")
+  ); // Remove the file extension
   return publicId;
 };
 
@@ -282,59 +314,75 @@ exports.updateStudentProgressController = async (req, res) => {
   const { studentId } = req.params;
   const { progress } = req.body;
   try {
-    const student = await Student.findByIdAndUpdate(studentId, { progress }, { new: true });
+    const student = await Student.findByIdAndUpdate(
+      studentId,
+      { progress },
+      { new: true }
+    );
     res.status(200).json(student);
   } catch (error) {
-    console.error('Error updating student progress:', error);
-    res.status(500).json({ error: 'Failed to update student progress.' });
+    console.error("Error updating student progress:", error);
+    res.status(500).json({ error: "Failed to update student progress." });
   }
 };
 
 // Controller to fetch all courses for a specific student
 exports.getStudentCoursesController = async (req, res) => {
-  const { studentId } = req.params // Get studentId from the route parameters
+  const { studentId } = req.params; // Get studentId from the route parameters
 
   try {
     // Find the student by ID and populate the courses array
-    const student = await Student.findById(studentId).populate('courses')
+    const student = await Student.findById(studentId).populate("courses");
 
     if (!student) {
-      return res.status(404).json({ message: 'Student not found' }) // Return 404 if student is not found
+      return res.status(404).json({ message: "Student not found" }); // Return 404 if student is not found
     }
 
-    res.status(200).json(student.courses) // Return the student's courses
+    res.status(200).json(student.courses); // Return the student's courses
   } catch (error) {
-    console.error('Error fetching student courses:', error)
-    res.status(500).json({ error: 'Failed to fetch student courses' }) // Return 500 if there's a server error
+    console.error("Error fetching student courses:", error);
+    res.status(500).json({ error: "Failed to fetch student courses" }); // Return 500 if there's a server error
   }
-}
+};
 // Controller to add an employee to a student's employee list
 exports.addEmployeeToStudent = async (req, res) => {
-  const { studentId } = req.params
+  const { studentId } = req.params;
   const { employeeId, role } = req.body;
 
-  console.log(req.body)
+  console.log(req.body);
 
   try {
-    const updatedStudent = await addEmployeeToStudentService(studentId, employeeId, role);
-    res.status(200).json({ message: 'Employee added successfully', updatedStudent });
+    const updatedStudent = await addEmployeeToStudentService(
+      studentId,
+      employeeId,
+      role
+    );
+    res
+      .status(200)
+      .json({ message: "Employee added successfully", updatedStudent });
   } catch (error) {
-    console.error('Error adding employee:', error);
-    res.status(500).json({ error: 'Failed to add employee' });
+    console.error("Error adding employee:", error);
+    res.status(500).json({ error: "Failed to add employee" });
   }
 };
 
 // Controller to remove an employee from a student's employee list
 exports.removeEmployeeFromStudent = async (req, res) => {
-  const { studentId } = req.params
+  const { studentId } = req.params;
   const { employeeId, role } = req.body;
 
   try {
-    const updatedStudent = await removeEmployeeFromStudentService(studentId, employeeId, role);
-    res.status(200).json({ message: 'Employee removed successfully', updatedStudent });
+    const updatedStudent = await removeEmployeeFromStudentService(
+      studentId,
+      employeeId,
+      role
+    );
+    res
+      .status(200)
+      .json({ message: "Employee removed successfully", updatedStudent });
   } catch (error) {
-    console.error('Error removing employee:', error);
-    res.status(500).json({ error: 'Failed to remove employee' });
+    console.error("Error removing employee:", error);
+    res.status(500).json({ error: "Failed to remove employee" });
   }
 };
 
@@ -344,27 +392,30 @@ exports.studentLogin = async (req, res) => {
   try {
     const student = await Student.findOne({ email });
     if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
+      return res.status(404).json({ message: "Student not found" });
     }
 
     // Check if the password is correct
     const isPasswordValid = await bcrypt.compare(password, student.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     // Generate JWT token
-    const token = jwt.sign({ _id: student._id, email: student.email }, process.env.JWT_SECRET, {
-      expiresIn: '1h', // Token expires in 1 hour
-    });
+    const token = jwt.sign(
+      { _id: student._id, email: student.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h", // Token expires in 1 hour
+      }
+    );
 
     // Return token and student info
     res.json({ token, student });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 exports.getStudentDocuments = async (req, res) => {
   try {
@@ -372,18 +423,18 @@ exports.getStudentDocuments = async (req, res) => {
 
     // Ensure the authenticated student matches the studentId in the request
     if (req.student._id !== studentId) {
-      return res.status(403).json({ message: 'Unauthorized' });
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     const student = await Student.findById(studentId);
     if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
+      return res.status(404).json({ message: "Student not found" });
     }
 
     res.status(200).json({ documents: student.documents });
   } catch (error) {
-    console.error('Error fetching documents:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error("Error fetching documents:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -395,34 +446,32 @@ exports.deleteStudentDocument = async (req, res) => {
 
     // Ensure the authenticated student matches the studentId in the request
     if (req.student._id !== studentId) {
-      return res.status(403).json({ message: 'Unauthorized' });
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     // Find the student
     const student = await Student.findById(studentId);
     if (!student) {
-      return res.status(404).json({ message: 'Student not found' });
+      return res.status(404).json({ message: "Student not found" });
     }
 
     // Get the document URL to delete from Cloudinary
     const documentUrl = student.documents[documentName];
     if (documentUrl) {
       // Delete from Cloudinary
-      const publicId = documentUrl.split('/').slice(-2).join('/').split('.')[0]; // Extract the public ID from URL
-      await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
+      const publicId = documentUrl.split("/").slice(-2).join("/").split(".")[0]; // Extract the public ID from URL
+      await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
 
       // Remove from the database
       student.documents[documentName] = null;
       await student.save();
 
-      res.status(200).json({ message: 'Document deleted successfully' });
+      res.status(200).json({ message: "Document deleted successfully" });
     } else {
-      res.status(404).json({ message: 'Document not found' });
+      res.status(404).json({ message: "Document not found" });
     }
   } catch (error) {
-    console.error('Error deleting document:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error("Error deleting document:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-

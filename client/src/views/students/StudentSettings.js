@@ -24,7 +24,7 @@ const StudentSettings = ({ student }) => {
     // Fetch all employees to display in the dropdown
     const fetchEmployees = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees');
+        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees-without-pagination');
         setAvailableEmployees(response.data);
       } catch (error) {
         console.error('Failed to fetch employees:', error);
@@ -134,7 +134,7 @@ const StudentSettings = ({ student }) => {
             <CCol md={4}>
               <CFormSelect onChange={(e) => setSelectedEmployee(e.target.value)}>
                 <option value="">Select Employee</option>
-                {availableEmployees.map((employee) => (
+                {availableEmployees?.map((employee) => (
                   <option key={employee._id} value={employee._id}>
                     {employee.name}
                   </option>

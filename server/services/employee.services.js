@@ -8,10 +8,33 @@ exports.addEmployee = async (employeeData) => {
   const newEmployee = new Employee(employeeData);
   return await newEmployee.save();
 };
-exports.getAllEmployees = async () => {
+exports.getAllEmployeesWithoutPagination = async () => {
   try {
     const employees = await Employee.find(); // Fetch all employees
     return employees;
+  } catch (error) {
+    throw new Error('Error fetching employees: ' + error.message);
+  }
+};
+exports.getAllEmployees = async (page, limit) => {
+  try {
+    const pageNumber = parseInt(page, 10) || 1; // Convert to integer
+    const limitNumber = parseInt(limit, 10) || 2; // Convert to integer
+
+    // Calculate skip for pagination
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Fetch employees with pagination
+    const employees = await Employee.find().skip(skip).limit(limitNumber);
+    
+    // Get the total count for pagination
+    const totalEmployees = await Employee.countDocuments();
+
+    return {
+      employees,
+      totalPages: Math.ceil(totalEmployees / limitNumber),
+      currentPage: pageNumber,
+    };
   } catch (error) {
     throw new Error('Error fetching employees: ' + error.message);
   }
@@ -21,9 +44,50 @@ exports.getEmployeeById = async (id) => {
     const employee = await Employee.findById(id).populate('students.asCounselor students.asApplicant students.asVisaAdmin');
     return employee;
   } catch (error) {
-    
   }
 };
+
+// Backend Service: Modify getEmployeeById to support pagination
+// Adjust your service to handle pagination for each type of student list
+
+// exports.getEmployeeById = async (id, { page = 1, limit = 2 } = {}) => {
+//   try {
+//     // Fetch employee data with populated students for each role
+//     const employee = await Employee.findById(id)
+//       .populate({
+//         path: 'students.asCounselor',
+//         options: { skip: (page - 1) * limit, limit: limit }, // Pagination for counselor students
+//       })
+//       .populate({
+//         path: 'students.asApplicant',
+//         options: { skip: (page - 1) * limit, limit: limit }, // Pagination for applicant students
+//       })
+//       .populate({
+//         path: 'students.asVisaAdmin',
+//         options: { skip: (page - 1) * limit, limit: limit }, // Pagination for visa admin students
+//       });
+
+//     // Count total students for each role (if needed to return total pages)
+//     const totalCounselor = await Employee.countDocuments({ _id: id, 'students.asCounselor': { $exists: true } });
+//     const totalApplicant = await Employee.countDocuments({ _id: id, 'students.asApplicant': { $exists: true } });
+//     const totalVisaAdmin = await Employee.countDocuments({ _id: id, 'students.asVisaAdmin': { $exists: true } });
+
+//     return {
+//       employee,
+//       totalPages: {
+//         counseling: Math.ceil(totalCounselor / limit),
+//         applicant: Math.ceil(totalApplicant / limit),
+//         visaAdmin: Math.ceil(totalVisaAdmin / limit),
+//       },
+//     };
+//   } catch (error) {
+//     throw new Error('Error fetching employee by ID: ' + error.message);
+//   }
+// };
+
+
+
+
 exports.assignApplicant = async (courseId, studentId, applicantId, applicantName) => {
   try {
     // Update the course with the assigned applicant details

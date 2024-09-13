@@ -1,7 +1,7 @@
 const cloudinary = require('../config/cloudinary');
 const Notification = require('../model/Notification.model');
 const Student = require('../model/Student.model');
-const { addEmployee,getAllEmployees,updateRole,assignApplicant,assignVisaAdmin, getEmployeeById } = require('../services/employee.services');
+const { addEmployee,getAllEmployees,updateRole,assignApplicant,assignVisaAdmin, getEmployeeById, getAllEmployeesWithoutPagination } = require('../services/employee.services');
 
 exports.addEmployeeController = async (req, res) => {
   try {
@@ -35,15 +35,25 @@ exports.addEmployeeController = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-exports.getAllEmployeesController = async (req, res) => {
+exports.getAllEmployeesWithoutPaginationController = async (req, res) => {
   try {
-    const employees = await getAllEmployees();
+    const employees = await getAllEmployeesWithoutPagination();
     res.status(200).json(employees);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
+
+exports.getAllEmployeesController = async (req, res) => {
+  try {
+    const { page = 1, limit = 2 } = req.query; // Default to 1st page with 2 employees per page
+    const employeesData = await getAllEmployees(page, limit);
+    res.status(200).json(employeesData);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 exports.getAEmployeeController = async (req, res) => {
   try {
     const employee = await getEmployeeById(req.params.id);
@@ -55,6 +65,20 @@ exports.getAEmployeeController = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// exports.getAEmployeeController = async (req, res) => {
+//   const { page = 1, limit = 2 } = req.query; // Get pagination parameters from query
+
+//   try {
+//     const { employee, totalPages } = await getEmployeeById(req.params.id, { page, limit });
+//     if (!employee) {
+//       return res.status(404).json({ message: 'Employee not found' });
+//     }
+//     res.status(200).json({ employee, totalPages }); // Return paginated results with total pages
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 
 exports.assignApplicantController = async (req, res) => {

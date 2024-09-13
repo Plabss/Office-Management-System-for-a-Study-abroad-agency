@@ -12,45 +12,41 @@ import {
   CTableHeaderCell,
   CTableRow,
   CAvatar,
+  CPagination,
+  CPaginationItem, // Import pagination components
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilChevronBottom, cilPeople, cilUser } from '@coreui/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const ViewEmployees = () => {
   const navigate = useNavigate();
 
-  const [employees, setEmployees] = useState([
-    {
-      name: 'Fake',
-      email: 'fake@gmail.com',
-      phone: '09182763',
-      avatar: '',
-      role: ['counselor'],
-      cv: 'abul_cv.pdf',
-      nid: '1234567890',
-      _id: '1',
-    },
-    // more employees fetched from an API
-  ]);
+  const [employees, setEmployees] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); // State for current page
+  const [totalPages, setTotalPages] = useState(1); // State for total pages
 
   useEffect(() => {
-    const fetchAllEmployees = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/api/v1/employees/get-all-employees`,
-        )
-        const employeeList = response.data
-        console.log("employeeList",employeeList)
-        setEmployees(employeeList)
-      } catch (error) {
-        console.error('Error fetching course details:', error)
-      }
-    }
+    fetchAllEmployees(currentPage); // Fetch employees when the component mounts and when page changes
+  }, [currentPage]); // Add currentPage as a dependency
 
-    fetchAllEmployees();
-  }, []);
+  const fetchAllEmployees = async (page) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/v1/employees/get-all-employees`, {
+        params: { page, limit: 2 }, // Send page and limit for pagination
+      });
+      const { employees, totalPages } = response.data;
+      setEmployees(employees);
+      setTotalPages(totalPages);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    }
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page); // Update current page state
+  };
 
   return (
     <CRow>
@@ -101,6 +97,31 @@ const ViewEmployees = () => {
                 ))}
               </CTableBody>
             </CTable>
+
+            {/* Pagination Controls */}
+            <CPagination align="center" className="mt-4">
+              <CPaginationItem
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                Previous
+              </CPaginationItem>
+              {[...Array(totalPages).keys()].map((_, index) => (
+                <CPaginationItem
+                  key={index + 1}
+                  active={index + 1 === currentPage}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </CPaginationItem>
+              ))}
+              <CPaginationItem
+                disabled={currentPage === totalPages}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                Next
+              </CPaginationItem>
+            </CPagination>
           </CCardBody>
         </CCard>
       </CCol>

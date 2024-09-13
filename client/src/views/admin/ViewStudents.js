@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import {
   CCard,
   CCardBody,
@@ -15,126 +15,137 @@ import {
   CInputGroupText,
   CInputGroup,
   CFormInput,
-} from '@coreui/react'
-import axios from 'axios'
-import TableSection from '../students/TableSection'
-import CIcon from '@coreui/icons-react'
-import { cilFilter, cilPeople, cilSync } from '@coreui/icons'
-import Autosuggest from 'react-autosuggest'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
-import { useSelector } from 'react-redux'
-import './ViewStudents.css'
+  CPagination,
+  CPaginationItem,
+} from '@coreui/react';
+import axios from 'axios';
+import TableSection from '../students/TableSection';
+import CIcon from '@coreui/icons-react';
+import { cilFilter, cilPeople, cilSync } from '@coreui/icons';
+import Autosuggest from 'react-autosuggest';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useSelector } from 'react-redux';
+import './ViewStudents.css';
 
 const ViewStudents = () => {
-  const [activeTab, setActiveTab] = useState('all-students')
-  const [students, setStudents] = useState([])
-  const [employeeId, setEmployeeId] = useState(null)
-  const [employeeRole, setEmployeeRole] = useState('')
-  const [name, setName] = useState('')
-  const [country, setCountry] = useState('') // Country filter state
-
-  const [isDarkMode, setIsDarkMode] = useState(false)
-  const storedTheme = useSelector((state) => state.theme)
-  const [suggestions, setSuggestions] = useState([])
-
-  const [startDate, setStartDate] = useState(null)
-  const [endDate, setEndDate] = useState(null)
+  const [activeTab, setActiveTab] = useState('all-students');
+  const [students, setStudents] = useState([]);
+  const [employeeId, setEmployeeId] = useState(null);
+  const [employeeRole, setEmployeeRole] = useState('');
+  const [name, setName] = useState('');
+  const [country, setCountry] = useState(''); // Country filter state
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const storedTheme = useSelector((state) => state.theme);
+  const [suggestions, setSuggestions] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1); // Pagination: Current Page
+  const [totalPages, setTotalPages] = useState(1);   // Pagination: Total Pages
 
   useEffect(() => {
-    setIsDarkMode(storedTheme === 'dark')
+    setIsDarkMode(storedTheme === 'dark');
 
     // Fetch employee data from localStorage
-    const employee = JSON.parse(localStorage.getItem('employee'))
+    const employee = JSON.parse(localStorage.getItem('employee'));
     if (employee) {
-      setEmployeeId(employee._id)
-      setEmployeeRole(employee.role[0]) // Assuming role is an array and we are interested in the first role
+      setEmployeeId(employee._id);
+      setEmployeeRole(employee.role[0]); // Assuming role is an array and we are interested in the first role
     }
-  }, [storedTheme])
+  }, [storedTheme]);
 
-  const fetchStudents = async () => {
+  const fetchStudents = async (page = 1) => {
     const params = {
       name,
       startDate: startDate ? startDate.toISOString() : undefined,
       endDate: endDate ? endDate.toISOString() : undefined,
       country, // Include country in params
-    }
+      page,  // Pagination: Current page
+      limit: 2,  // Pagination: Items per page
+    };
     try {
-      let response
+      let response;
       if (employeeRole === 'receptionist' || employeeRole === 'super-admin') {
-        console.log('Fetching all students') // Debugging log
         response = await axios.get(`http://localhost:5000/api/v1/students/get-all-students`, {
           params,
-        })
+        });
       } else if (employeeId) {
-        console.log('Fetching students with employeeID:', employeeId) // Debugging log
         response = await axios.get(
           `http://localhost:5000/api/v1/students/get-all-students/${employeeId}`,
           { params },
-        )
+        );
       } else {
-        console.log('No valid employee ID or role to fetch students') // Debugging log
-        return
+        return;
       }
-      setStudents(response.data)
+
+      // Update state with fetched data
+      setStudents(response.data.students || []);
+      setTotalPages(response.data.totalPages || 1);  // Set total pages from response
+      setCurrentPage(response.data.currentPage || 1);  // Set current page from response
     } catch (error) {
-      console.error('Error fetching students:', error)
+      console.error('Error fetching students:', error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchStudents()
-  }, [employeeId, employeeRole]) // Run this effect whenever employeeId or employeeRole changes
+    fetchStudents(currentPage);  // Fetch students on component mount and on page change
+  }, [employeeId, employeeRole, currentPage]);  // Update whenever employeeId, role, or page changes
 
   const getSuggestions = async (value) => {
     try {
       const response = await axios.get('http://localhost:5000/api/v1/students/get-all-students', {
         params: { name: value },
-      })
-      return response.data.map((student) => student.fullName)
+      });
+      console.log(response.data);
+      return response?.data?.students?.map((student) => student.fullName);
     } catch (error) {
-      console.error('Error fetching student suggestions:', error)
-      return []
+      console.error('Error fetching student suggestions:', error);
+      return [];
     }
-  }
+  };
 
   const onSuggestionsFetchRequested = async ({ value }) => {
-    const suggestions = await getSuggestions(value)
-    setSuggestions(suggestions)
-  }
+    const suggestions = await getSuggestions(value);
+    setSuggestions(suggestions);
+  };
 
   const onSuggestionsClearRequested = () => {
-    setSuggestions([])
-  }
+    setSuggestions([]);
+  };
 
   const onSuggestionSelected = (event, { suggestionValue }) => {
-    setName(suggestionValue)
-  }
+    setName(suggestionValue);
+  };
 
   const onChange = (event, { newValue }) => {
-    setName(newValue)
-  }
+    setName(newValue);
+  };
 
   const inputProps = {
     placeholder: 'Search by name',
     value: name,
     onChange,
     className: 'form-control rounded-pill',
-  }
+  };
 
   const handleFilterClick = () => {
-    fetchStudents() // Fetch students based on the current filter criteria
-  }
+    fetchStudents(); // Fetch students based on the current filter criteria
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);  // Set the new current page
+    fetchStudents(page);  // Fetch students for the new page
+  };
 
   const getUniqueStudents = (filteredStudents) => {
-    const studentMap = new Map()
+    const studentMap = new Map();
     filteredStudents.forEach((student) => {
       if (!studentMap.has(student._id)) {
-        studentMap.set(student._id, student)
+        studentMap.set(student._id, student);
       }
-    })
-    return Array.from(studentMap.values())
-  }
+    });
+    return Array.from(studentMap.values());
+  };
 
   return (
     <CContainer fluid className="mt-4">
@@ -215,11 +226,11 @@ const ViewStudents = () => {
                   variant={isDarkMode ? 'outline-light' : 'outline'}
                   className="rounded-pill ml-3"
                   onClick={() => {
-                    setName('')
-                    setStartDate(null)
-                    setEndDate(null)
-                    setCountry('')
-                    fetchStudents() // Reset filters and fetch all students
+                    setName('');
+                    setStartDate(null);
+                    setEndDate(null);
+                    setCountry('');
+                    fetchStudents(); // Reset filters and fetch all students
                   }}
                 >
                   <CIcon icon={cilSync} className="mr-2" />
@@ -309,12 +320,37 @@ const ViewStudents = () => {
                   </>
                 ) : null}
               </CTabContent>
+
+              {/* Pagination */}
+              <CPagination align="center" className="mt-4">
+                <CPaginationItem
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  Previous
+                </CPaginationItem>
+                {[...Array(totalPages).keys()].map((_, index) => (
+                  <CPaginationItem
+                    key={index + 1}
+                    active={index + 1 === currentPage}
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </CPaginationItem>
+                ))}
+                <CPaginationItem
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  Next
+                </CPaginationItem>
+              </CPagination>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
     </CContainer>
-  )
-}
+  );
+};
 
-export default ViewStudents
+export default ViewStudents;
