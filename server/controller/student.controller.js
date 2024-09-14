@@ -396,7 +396,7 @@ exports.studentLogin = async (req, res) => {
     }
 
     // Check if the password is correct
-    const isPasswordValid = await bcrypt.compare(password, student.password);
+    const isPasswordValid = (password === student.password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid credentials" });
     }

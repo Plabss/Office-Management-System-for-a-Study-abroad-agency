@@ -4,8 +4,8 @@ import { CListGroup, CListGroupItem, CButton, CRow, CCol, CFormInput, CSpinner }
 import { useDispatch } from 'react-redux';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver'; // file-saver is used to save the zip file on the client side
-import CIcon from '@coreui/icons-react'; // Make sure you have this installed or replace with your icon library
-import { cilCloudDownload, cilTrash } from '@coreui/icons'; // Import the delete icon
+import CIcon from '@coreui/icons-react'; // Make sure you have this installed or replace it with your icon library
+import { cilCloudDownload, cilTrash, cilClipboard } from '@coreui/icons'; // Import the clipboard icon
 
 const StudentDocuments = ({ documents, onDocumentUpload, studentName }) => {
   const [uploading, setUploading] = useState({ cv: false, nid: false });
@@ -92,6 +92,13 @@ const StudentDocuments = ({ documents, onDocumentUpload, studentName }) => {
     });
   };
 
+  const handleGenerateAndCopyLink = () => {
+    const link = `http://localhost:3000/student-upload-document/${studentId}`;
+    navigator.clipboard.writeText(link)
+      .then(() => alert('Link copied to clipboard!'))
+      .catch(err => console.error('Error copying link:', err));
+  };
+
   return (
     <div>
       <CButton
@@ -100,6 +107,14 @@ const StudentDocuments = ({ documents, onDocumentUpload, studentName }) => {
         onClick={handleDownloadAll}
       >
         <CIcon icon={cilCloudDownload} /> Download All
+      </CButton>
+
+      <CButton
+        color="primary"
+        className="float-end mx-2"
+        onClick={handleGenerateAndCopyLink}
+      >
+        <CIcon icon={cilClipboard} /> Generate and Copy Link
       </CButton>
 
       <CListGroup flush>

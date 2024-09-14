@@ -141,9 +141,9 @@ exports.convertVisitorToStudent = async (req, res) => {
     ).toString();
     console.log("r", randomPassword);
 
-    // Hash the password before saving it to the database
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(randomPassword, salt);
+    // // Hash the password before saving it to the database
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(randomPassword, salt);
 
     // Prepare student data for creation
     const studentData = {
@@ -156,7 +156,7 @@ exports.convertVisitorToStudent = async (req, res) => {
       employees: {
         asCounselor: [counselor], // Assign the selected counselor
       },
-      password: hashedPassword, // Save the hashed password
+      password: randomPassword, // Save the hashed password
     };
 
     // Create a new student using the studentData

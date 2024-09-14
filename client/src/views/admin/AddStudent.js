@@ -33,7 +33,7 @@ const AddStudent = () => {
   useEffect(() => {
     const fetchCounselors = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees')
+        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees-without-pagination')
         // Ensure that response.data is an array
         if (Array.isArray(response.data)) {
           setCounselors(response.data)

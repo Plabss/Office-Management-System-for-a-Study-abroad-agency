@@ -11,14 +11,14 @@ exports.createStudent = async (studentData) => {
     const randomPassword = Math.floor(100000 + Math.random() * 900000).toString();
     console.log("r",randomPassword)
 
-    // Hash the password before saving it to the database
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(randomPassword, salt);
+    // // Hash the password before saving it to the database
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(randomPassword, salt);
 
     // Create the student with the hashed password
     const newStudent = new Student({
       ...studentData,
-      password: hashedPassword,
+      password: randomPassword,
     });
 
     await newStudent.save({ session });
