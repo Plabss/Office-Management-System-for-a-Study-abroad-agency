@@ -47,7 +47,7 @@ const courseSchema = new mongoose.Schema(
       file2: { type: String, default: null },
       file3: { type: String, default: null },
     },
-    visaAdmin:{
+    visaAdmin: {
       name: { type: String, required: false },
       _id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -62,6 +62,15 @@ const courseSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "Pending",
+    },
+    // New fields added here
+    b2bAgentName: {
+      type: String,
+      default: "",
+    },
+    applicationLink: {
+      type: String,
+      default: "",
     },
   },
   {

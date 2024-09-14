@@ -144,3 +144,30 @@ exports.deleteDocument = async (req, res) => {
   }
 };
 
+exports.updateCourseDetailsController = async (req, res) => {
+  const { courseId } = req.params; // Get courseId from URL params
+  const { b2bAgentName, applicationLink } = req.body; // Get b2bAgentName and applicationLink from request body
+
+  try {
+    // Find the course by ID and update the b2bAgentName and applicationLink fields
+    const updatedCourse = await Course.findByIdAndUpdate(
+      courseId,
+      { 
+        b2bAgentName: b2bAgentName,
+        applicationLink: applicationLink,
+        status: "Application done!(Waiting for response)"
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedCourse) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.status(200).json({ message: 'Course details updated successfully', course: updatedCourse });
+  } catch (error) {
+    console.error('Error updating course details:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+

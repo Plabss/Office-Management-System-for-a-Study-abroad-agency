@@ -37,7 +37,7 @@ const VisaDetails = () => {
   useEffect(() => {
     const fetchVisaAdmins = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees')
+        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees-without-pagination')
         if (Array.isArray(response.data)) {
           setVisaAdmins(response.data)
         } else {
