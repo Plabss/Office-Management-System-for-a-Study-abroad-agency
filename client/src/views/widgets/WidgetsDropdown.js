@@ -1,584 +1,151 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-
-import {
-  CRow,
-  CCol,
-  CDropdown,
-  CDropdownMenu,
-  CDropdownItem,
-  CDropdownToggle,
-  CWidgetStatsA,
-} from '@coreui/react'
-import { getStyle } from '@coreui/utils'
-import { CChartBar, CChartLine } from '@coreui/react-chartjs'
-import CIcon from '@coreui/icons-react'
-import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
+import { CRow, CCol } from '@coreui/react'
+import { Link } from 'react-router-dom'
 
 const WidgetsDropdown = (props) => {
-  const widgetChartRef1 = useRef(null)
-  const widgetChartRef2 = useRef(null)
+  const widgetData = [
+    {
+      title: 'Follow Up',
+      count: props.FollowUpStudents.length,
+      color: 'bg-info',
+      // link: '/view-students-list',
+      // state: { students: props.enrolledStudents, title: 'Enrolled Students' }
+    },
+    {
+      title: 'Enrolled Students',
+      count: props.enrolledStudents.length,
+      color: 'bg-primary',
+      link: '/view-students-list',
+      state: { students: props.enrolledStudents, title: 'Enrolled Students' },
+    },
+    {
+      title: 'Application Processing',
+      count: props.ApplicationProcessingStudents.length,
+      color: 'bg-secondary',
+      link: '/view-students-list',
+      state: { students: props.ApplicationProcessingStudents, title: 'Application Processing Students' },
+    },
+    {
+      title: 'Visa Processing',
+      count: props.VisaProcessingStudents.length,
+      color: 'bg-warning',
+      link: '/view-students-list',
+      state: { students: props.VisaProcessingStudents, title: 'Visa Processing Students' },
+    },
+    {
+      title: 'Success',
+      count: props.AcceptedStudents.length,
+      color: 'bg-success',
+      link: '/view-students-list',
+      state: { students: props.AcceptedStudents, title: 'Accepted Students' },
+    },
+    {
+      title: 'Rejected',
+      count: props.RejectedStudents.length,
+      color: 'bg-danger',
+      link: '/view-students-list',
+      state: { students: props.RejectedStudents, title: 'Rejected Students' },
+    },
+  ]
+
+  const [firstRole,setFirstRole] = useState("")
 
   useEffect(() => {
-    document.documentElement.addEventListener('ColorSchemeChange', () => {
-      if (widgetChartRef1.current) {
-        setTimeout(() => {
-          widgetChartRef1.current.data.datasets[0].pointBackgroundColor = getStyle('--cui-primary')
-          widgetChartRef1.current.update()
-        })
-      }
-
-      if (widgetChartRef2.current) {
-        setTimeout(() => {
-          widgetChartRef2.current.data.datasets[0].pointBackgroundColor = getStyle('--cui-info')
-          widgetChartRef2.current.update()
-        })
-      }
-    })
-  }, [widgetChartRef1, widgetChartRef2])
+    // Fetch employee data from localStorage
+    const employee = JSON.parse(localStorage.getItem('employee'));
+    if (employee) {
+      setFirstRole(employee.role[0]); // Assuming role is an array and we are interested in the first role
+    }
+  }, []);
 
   return (
     <CRow className={props.className} xs={{ gutter: 4 }}>
-      <CCol sm={6} xl={4} xxl={4}>
-        <CWidgetStatsA
-          color="primary"
-          value={
-            <>
-              26K{' '}
-              <span className="fs-6 fw-normal">
-                (-12.4% <CIcon icon={cilArrowBottom} />)
-              </span>
-            </>
-          }
-          title="Users"
-          // action={
-          //   <CDropdown alignment="end">
-          //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-          //       <CIcon icon={cilOptions} />
-          //     </CDropdownToggle>
-          //     <CDropdownMenu>
-          //       <CDropdownItem>Action</CDropdownItem>
-          //       <CDropdownItem>Another action</CDropdownItem>
-          //       <CDropdownItem>Something else here...</CDropdownItem>
-          //       <CDropdownItem disabled>Disabled action</CDropdownItem>
-          //     </CDropdownMenu>
-          //   </CDropdown>
-          // }
-          chart={
-            <CChartLine
-              ref={widgetChartRef1}
-              className="mt-3 mx-3"
-              style={{ height: '70px' }}
-              // data={{
-              //   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-              //   datasets: [
-              //     {
-              //       label: 'My First dataset',
-              //       backgroundColor: 'transparent',
-              //       borderColor: 'rgba(255,255,255,.55)',
-              //       pointBackgroundColor: getStyle('--cui-primary'),
-              //       data: [65, 59, 84, 84, 51, 55, 40],
-              //     },
-              //   ],
-              // }}
-              // options={{
-              //   plugins: {
-              //     legend: {
-              //       display: false,
-              //     },
-              //   },
-              //   maintainAspectRatio: false,
-              //   scales: {
-              //     x: {
-              //       border: {
-              //         display: false,
-              //       },
-              //       grid: {
-              //         display: false,
-              //         drawBorder: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //     y: {
-              //       min: 30,
-              //       max: 89,
-              //       display: false,
-              //       grid: {
-              //         display: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //   },
-              //   elements: {
-              //     line: {
-              //       borderWidth: 1,
-              //       tension: 0.4,
-              //     },
-              //     point: {
-              //       radius: 4,
-              //       hitRadius: 10,
-              //       hoverRadius: 4,
-              //     },
-              //   },
-              // }}
-            />
-          }
-        />
-      </CCol>
-      <CCol sm={6} xl={4} xxl={4}>
-        <CWidgetStatsA
-          color="info"
-          value={
-            <>
-              $6.200{' '}
-              <span className="fs-6 fw-normal">
-                (40.9% <CIcon icon={cilArrowTop} />)
-              </span>
-            </>
-          }
-          title="Income"
-          // action={
-          //   <CDropdown alignment="end">
-          //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-          //       <CIcon icon={cilOptions} />
-          //     </CDropdownToggle>
-          //     <CDropdownMenu>
-          //       <CDropdownItem>Action</CDropdownItem>
-          //       <CDropdownItem>Another action</CDropdownItem>
-          //       <CDropdownItem>Something else here...</CDropdownItem>
-          //       <CDropdownItem disabled>Disabled action</CDropdownItem>
-          //     </CDropdownMenu>
-          //   </CDropdown>
-          // }
-          chart={
-            <CChartLine
-              ref={widgetChartRef2}
-              className="mt-3 mx-3"
-              style={{ height: '70px' }}
-              // data={{
-              //   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-              //   datasets: [
-              //     {
-              //       label: 'My First dataset',
-              //       backgroundColor: 'transparent',
-              //       borderColor: 'rgba(255,255,255,.55)',
-              //       pointBackgroundColor: getStyle('--cui-info'),
-              //       data: [1, 18, 9, 17, 34, 22, 11],
-              //     },
-              //   ],
-              // }}
-              // options={{
-              //   plugins: {
-              //     legend: {
-              //       display: false,
-              //     },
-              //   },
-              //   maintainAspectRatio: false,
-              //   scales: {
-              //     x: {
-              //       border: {
-              //         display: false,
-              //       },
-              //       grid: {
-              //         display: false,
-              //         drawBorder: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //     y: {
-              //       min: -9,
-              //       max: 39,
-              //       display: false,
-              //       grid: {
-              //         display: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //   },
-              //   elements: {
-              //     line: {
-              //       borderWidth: 1,
-              //     },
-              //     point: {
-              //       radius: 4,
-              //       hitRadius: 10,
-              //       hoverRadius: 4,
-              //     },
-              //   },
-              // }}
-            />
-          }
-        />
-      </CCol>
-      <CCol sm={6} xl={4} xxl={4}>
-        <CWidgetStatsA
-          color="warning"
-          value={
-            <>
-              2.49%{' '}
-              <span className="fs-6 fw-normal">
-                (84.7% <CIcon icon={cilArrowTop} />)
-              </span>
-            </>
-          }
-          title="Conversion Rate"
-          // action={
-          //   <CDropdown alignment="end">
-          //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-          //       <CIcon icon={cilOptions} />
-          //     </CDropdownToggle>
-          //     <CDropdownMenu>
-          //       <CDropdownItem>Action</CDropdownItem>
-          //       <CDropdownItem>Another action</CDropdownItem>
-          //       <CDropdownItem>Something else here...</CDropdownItem>
-          //       <CDropdownItem disabled>Disabled action</CDropdownItem>
-          //     </CDropdownMenu>
-          //   </CDropdown>
-          // }
-          chart={
-            <CChartLine
-              className="mt-3"
-              style={{ height: '70px' }}
-              // data={{
-              //   labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-              //   datasets: [
-              //     {
-              //       label: 'My First dataset',
-              //       backgroundColor: 'rgba(255,255,255,.2)',
-              //       borderColor: 'rgba(255,255,255,.55)',
-              //       data: [78, 81, 80, 45, 34, 12, 40],
-              //       fill: true,
-              //     },
-              //   ],
-              // }}
-              // options={{
-              //   plugins: {
-              //     legend: {
-              //       display: false,
-              //     },
-              //   },
-              //   maintainAspectRatio: false,
-              //   scales: {
-              //     x: {
-              //       display: false,
-              //     },
-              //     y: {
-              //       display: false,
-              //     },
-              //   },
-              //   elements: {
-              //     line: {
-              //       borderWidth: 2,
-              //       tension: 0.4,
-              //     },
-              //     point: {
-              //       radius: 0,
-              //       hitRadius: 10,
-              //       hoverRadius: 4,
-              //     },
-              //   },
-              // }}
-            />
-          }
-        />
-      </CCol>
-      <CCol sm={6} xl={4} xxl={4}>
-        <CWidgetStatsA
-          color="secondary"
-          value={
-            <>
-              44K{' '}
-              <span className="fs-6 fw-normal">
-                (-23.6% <CIcon icon={cilArrowBottom} />)
-              </span>
-            </>
-          }
-          title="Sessions"
-          // action={
-          //   <CDropdown alignment="end">
-          //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-          //       <CIcon icon={cilOptions} />
-          //     </CDropdownToggle>
-          //     <CDropdownMenu>
-          //       <CDropdownItem>Action</CDropdownItem>
-          //       <CDropdownItem>Another action</CDropdownItem>
-          //       <CDropdownItem>Something else here...</CDropdownItem>
-          //       <CDropdownItem disabled>Disabled action</CDropdownItem>
-          //     </CDropdownMenu>
-          //   </CDropdown>
-          // }
-          chart={
-            <CChartBar
-              className="mt-3 mx-3"
-              style={{ height: '70px' }}
-              // data={{
-              //   labels: [
-              //     'January',
-              //     'February',
-              //     'March',
-              //     'April',
-              //     'May',
-              //     'June',
-              //     'July',
-              //     'August',
-              //     'September',
-              //     'October',
-              //     'November',
-              //     'December',
-              //     'January',
-              //     'February',
-              //     'March',
-              //     'April',
-              //   ],
-              //   datasets: [
-              //     {
-              //       label: 'My First dataset',
-              //       backgroundColor: 'rgba(255,255,255,.2)',
-              //       borderColor: 'rgba(255,255,255,.55)',
-              //       data: [78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84, 67, 82],
-              //       barPercentage: 0.6,
-              //     },
-              //   ],
-              // }}
-              // options={{
-              //   maintainAspectRatio: false,
-              //   plugins: {
-              //     legend: {
-              //       display: false,
-              //     },
-              //   },
-              //   scales: {
-              //     x: {
-              //       grid: {
-              //         display: false,
-              //         drawTicks: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //     y: {
-              //       border: {
-              //         display: false,
-              //       },
-              //       grid: {
-              //         display: false,
-              //         drawBorder: false,
-              //         drawTicks: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //   },
-              // }}
-            />
-          }
-        />
-      </CCol>
-      <CCol sm={6} xl={4} xxl={4}>
-        <CWidgetStatsA
-          color="success"
-          value={
-            <>
-              44K{' '}
-              <span className="fs-6 fw-normal">
-                (-23.6% <CIcon icon={cilArrowBottom} />)
-              </span>
-            </>
-          }
-          title="Sessions"
-          // action={
-          //   <CDropdown alignment="end">
-          //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-          //       <CIcon icon={cilOptions} />
-          //     </CDropdownToggle>
-          //     <CDropdownMenu>
-          //       <CDropdownItem>Action</CDropdownItem>
-          //       <CDropdownItem>Another action</CDropdownItem>
-          //       <CDropdownItem>Something else here...</CDropdownItem>
-          //       <CDropdownItem disabled>Disabled action</CDropdownItem>
-          //     </CDropdownMenu>
-          //   </CDropdown>
-          // }
-          chart={
-            <CChartBar
-              className="mt-3 mx-3"
-              style={{ height: '70px' }}
-              // data={{
-              //   labels: [
-              //     'January',
-              //     'February',
-              //     'March',
-              //     'April',
-              //     'May',
-              //     'June',
-              //     'July',
-              //     'August',
-              //     'September',
-              //     'October',
-              //     'November',
-              //     'December',
-              //     'January',
-              //     'February',
-              //     'March',
-              //     'April',
-              //   ],
-              //   datasets: [
-              //     {
-              //       label: 'My First dataset',
-              //       backgroundColor: 'rgba(255,255,255,.2)',
-              //       borderColor: 'rgba(255,255,255,.55)',
-              //       data: [78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84, 67, 82],
-              //       barPercentage: 0.6,
-              //     },
-              //   ],
-              // }}
-              // options={{
-              //   maintainAspectRatio: false,
-              //   plugins: {
-              //     legend: {
-              //       display: false,
-              //     },
-              //   },
-              //   scales: {
-              //     x: {
-              //       grid: {
-              //         display: false,
-              //         drawTicks: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //     y: {
-              //       border: {
-              //         display: false,
-              //       },
-              //       grid: {
-              //         display: false,
-              //         drawBorder: false,
-              //         drawTicks: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //   },
-              // }}
-            />
-          }
-        />
-      </CCol>
-      <CCol sm={6} xl={4} xxl={4}>
-        <CWidgetStatsA
-          color="danger"
-          value={
-            <>
-              44K{' '}
-              <span className="fs-6 fw-normal">
-                (-23.6% <CIcon icon={cilArrowBottom} />)
-              </span>
-            </>
-          }
-          title="Sessions"
-          // action={
-          //   <CDropdown alignment="end">
-          //     <CDropdownToggle color="transparent" caret={false} className="text-white p-0">
-          //       <CIcon icon={cilOptions} />
-          //     </CDropdownToggle>
-          //     <CDropdownMenu>
-          //       <CDropdownItem>Action</CDropdownItem>
-          //       <CDropdownItem>Another action</CDropdownItem>
-          //       <CDropdownItem>Something else here...</CDropdownItem>
-          //       <CDropdownItem disabled>Disabled action</CDropdownItem>
-          //     </CDropdownMenu>
-          //   </CDropdown>
-          // }
-          chart={
-            <CChartBar
-              className="mt-3 mx-3"
-              style={{ height: '70px' }}
-              // data={{
-              //   labels: [
-              //     'January',
-              //     'February',
-              //     'March',
-              //     'April',
-              //     'May',
-              //     'June',
-              //     'July',
-              //     'August',
-              //     'September',
-              //     'October',
-              //     'November',
-              //     'December',
-              //     'January',
-              //     'February',
-              //     'March',
-              //     'April',
-              //   ],
-              //   datasets: [
-              //     {
-              //       label: 'My First dataset',
-              //       backgroundColor: 'rgba(255,255,255,.2)',
-              //       borderColor: 'rgba(255,255,255,.55)',
-              //       data: [78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84, 67, 82],
-              //       barPercentage: 0.6,
-              //     },
-              //   ],
-              // }}
-              // options={{
-              //   maintainAspectRatio: false,
-              //   plugins: {
-              //     legend: {
-              //       display: false,
-              //     },
-              //   },
-              //   scales: {
-              //     x: {
-              //       grid: {
-              //         display: false,
-              //         drawTicks: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //     y: {
-              //       border: {
-              //         display: false,
-              //       },
-              //       grid: {
-              //         display: false,
-              //         drawBorder: false,
-              //         drawTicks: false,
-              //       },
-              //       ticks: {
-              //         display: false,
-              //       },
-              //     },
-              //   },
-              // }}
-            />
-          }
-        />
-      </CCol>
+      {widgetData.map((widget, index) => (
+        (widget.title==='Follow Up')?(
+          <>
+            
+            <CCol sm={12} xl={3} xxl={4} key={index}>
+            <Link to={`/${firstRole}-view-visitors`} className="widget-link">
+            <div className={`widget-card ${widget.color} text-white`}>
+              <div className="widget-card-body">
+                <h3 className="widget-title" style={{"textDecorationColor":"white"}}>{widget.title}</h3>
+                <h3 className="widget-count">{widget.count}</h3>
+              </div>
+            </div>
+          </Link>
+        </CCol>
+          </>
+        ):(
+          <CCol sm={12} xl={3} xxl={4} key={index}>
+          <Link to={widget.link} state={widget.state} className="widget-link">
+            <div className={`widget-card ${widget.color} text-white`}>
+              <div className="widget-card-body">
+                <h3 className="widget-title" style={{"textDecorationColor":"white"}}>{widget.title}</h3>
+                <h3 className="widget-count">{widget.count}</h3>
+              </div>
+            </div>
+          </Link>
+        </CCol>
+        )
+
+        
+      ))}
     </CRow>
   )
 }
 
 WidgetsDropdown.propTypes = {
   className: PropTypes.string,
-  withCharts: PropTypes.bool,
+  allStudents: PropTypes.array.isRequired,
+  enrolledStudents: PropTypes.array.isRequired,
+  FollowUpStudents: PropTypes.array.isRequired,
+  ApplicationProcessingStudents: PropTypes.array.isRequired,
+  VisaProcessingStudents: PropTypes.array.isRequired,
+  SuccessStudents: PropTypes.array.isRequired,
 }
 
 export default WidgetsDropdown
+
+// Add some custom CSS
+const styles = `
+.widget-card {
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+.widget-card:hover {
+  transform: translateY(-5px);
+}
+.widget-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+}
+.widget-title {
+  font-size: 24px; /* Larger text for the title */
+  margin-bottom: 5px;
+  color: white;
+  text-decoration: none; /* Ensure no underline */
+}
+.widget-count {
+  font-size: 40px; /* Smaller size for the number */
+  font-weight: bold;
+  color: white;
+}
+.widget-link {
+  text-decoration: none; /* Remove underline from the entire link */
+  color: inherit; /* Inherit color from parent */
+}
+.widget-link:hover .widget-title {
+  text-decoration: none; /* Ensure title remains without underline on hover */
+}
+`
+
+// Adding the styles to the document
+const styleSheet = document.createElement("style")
+styleSheet.type = "text/css"
+styleSheet.innerText = styles
+document.head.appendChild(styleSheet)

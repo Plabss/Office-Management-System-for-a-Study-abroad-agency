@@ -108,6 +108,14 @@ exports.getAllVisitorsController = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+exports.getAllVisitorsWithoutPaginationController = async (req, res) => {
+  try {
+    const visitorsData = await Visitor.find({});
+    res.status(200).json(visitorsData);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
 exports.getAVisitorController = async (req, res) => {
   try {

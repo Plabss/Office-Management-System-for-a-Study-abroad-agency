@@ -1,52 +1,62 @@
-import React from 'react'
-
-import {
-  CAvatar,
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CCol,
-  CProgress,
-  CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import {
-  cibCcAmex,
-  cibCcApplePay,
-  cibCcMastercard,
-  cibCcPaypal,
-  cibCcStripe,
-  cibCcVisa,
-  cifBr,
-  cifEs,
-  cifFr,
-  cifIn,
-  cifPl,
-  cifUs,
-  cilPeople,
-} from '@coreui/icons'
-
-import avatar1 from 'src/assets/images/avatars/1.jpg'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
-import avatar3 from 'src/assets/images/avatars/3.jpg'
-import avatar4 from 'src/assets/images/avatars/4.jpg'
-import avatar5 from 'src/assets/images/avatars/5.jpg'
-import avatar6 from 'src/assets/images/avatars/6.jpg'
-
+import React, { useEffect, useState } from 'react'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import ViewVisitors from './ViewVisitors'
 import ViewStudents from './ViewStudents'
+import axios from 'axios'
 
 const Dashboard = () => {
+  const [enrolledStudents, setEnrolledStudents] = useState([])
+  const [visitors, setVisitors] = useState([])
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/v1/students/get-all-students-without-pagination')
+        // Ensure that response.data is an array
+        if (Array.isArray(response.data)) {
+          setEnrolledStudents(response.data);
+        } else {
+          console.error('Unexpected data format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    };
+    fetchStudents();
+    const fetchVisitors = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/v1/visitors/get-all-visitors-without-pagination')
+        // Ensure that response.data is an array
+        if (Array.isArray(response.data)) {
+          setVisitors(response.data);
+        } else {
+          console.error('Unexpected data format:', response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    };
+    fetchVisitors();
+  }, [])
+
+  const ApplicationProcessingStudents = enrolledStudents.filter(
+    (student) => student.progress === 'application processing',
+  )
+  const VisaProcessingStudents = enrolledStudents.filter((student) => student.progress === 'visa processing')
+  const AcceptedStudents = enrolledStudents.filter((student) => student.progress === 'accepted')
+  const RejectedStudents = enrolledStudents.filter((student) => student.progress === 'rejected')
   return (
     <>
-      <WidgetsDropdown className="mb-4" />
+      {/* <WidgetsDropdown className="mb-4" /> */}
+      <WidgetsDropdown
+        FollowUpStudents={visitors}
+        enrolledStudents={enrolledStudents}
+        ApplicationProcessingStudents={ApplicationProcessingStudents}
+        VisaProcessingStudents={VisaProcessingStudents}
+        AcceptedStudents={AcceptedStudents}
+        RejectedStudents={RejectedStudents}
+        className="mb-4"
+      />
       {/* <CRow>
         <CCol xs>
           <CCard className="mb-4">
