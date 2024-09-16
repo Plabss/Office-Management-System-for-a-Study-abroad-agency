@@ -11,14 +11,20 @@ const NotificationList = ({ notifications, markAsRead }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const handleRowClick = (studentId) => {
-    localStorage.setItem('studentId', studentId)
-    dispatch({ type: 'toggleElement', key: 'notificationClick' })
-    navigate(`/view-student`)
+  const handleRowClick = (visitorId,studentId,task) => {
+    if (task === 'follow up') {
+      localStorage.setItem('visitorId', visitorId)
+      dispatch({ type: 'toggleElement', key: 'notificationClick' })
+      navigate(`/view-visitor`)
+    } else {
+      localStorage.setItem('studentId', studentId)
+      dispatch({ type: 'toggleElement', key: 'notificationClick' })
+      navigate(`/view-student`)
+    }
   }
 
   return (
-    <CCard className=" notification-card" style={{"width":"500px"}}>
+    <CCard className=" notification-card" style={{ width: '500px' }}>
       <CCardHeader>
         <h5 className="m-0">Notifications</h5>
       </CCardHeader>
@@ -26,11 +32,11 @@ const NotificationList = ({ notifications, markAsRead }) => {
         {notifications.length === 0 ? (
           <p className="text-center text-muted">No notifications</p>
         ) : (
-          notifications.map(notification => (
+          notifications.map((notification) => (
             <div
               key={notification._id}
               className={`d-flex justify-content-between align-items-center p-2 mb-2 rounded notification-item ${notification.isRead ? 'bg-light' : 'bg-warning-light'}`}
-              onClick={() => handleRowClick(notification.studentId)}
+              onClick={() => handleRowClick(notification.visitorId,notification.studentId, notification.for)}
             >
               <CCardText className="m-0 notification-text">{notification.message}</CCardText>
               {!notification.isRead && (

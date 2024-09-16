@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   CCard,
   CCardBody,
@@ -17,31 +17,31 @@ import {
   CFormInput,
   CPagination,
   CPaginationItem, // Import pagination components
-} from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilChevronBottom, cilPeople, cilFilter, cilSync } from '@coreui/icons';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Autosuggest from 'react-autosuggest';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import * as XLSX from 'xlsx'; // Import xlsx library
-import './ViewStudents.css'; // Ensure you have the necessary CSS
+} from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilChevronBottom, cilPeople, cilFilter, cilSync } from '@coreui/icons'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import Autosuggest from 'react-autosuggest'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import * as XLSX from 'xlsx' // Import xlsx library
+import './ViewStudents.css' // Ensure you have the necessary CSS
 
 const ViewVisitors = () => {
-  const navigate = useNavigate();
-  const [visitors, setVisitors] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
-  const [name, setName] = useState('');
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [interestedCountry, setInterestedCountry] = useState(''); // State for interested country filter
-  const [currentPage, setCurrentPage] = useState(1); // State for current page
-  const [totalPages, setTotalPages] = useState(1); // State for total pages
+  const navigate = useNavigate()
+  const [visitors, setVisitors] = useState([])
+  const [suggestions, setSuggestions] = useState([])
+  const [name, setName] = useState('')
+  const [startDate, setStartDate] = useState(null)
+  const [endDate, setEndDate] = useState(null)
+  const [interestedCountry, setInterestedCountry] = useState('') // State for interested country filter
+  const [currentPage, setCurrentPage] = useState(1) // State for current page
+  const [totalPages, setTotalPages] = useState(1) // State for total pages
 
   useEffect(() => {
-    fetchVisitors(); // Fetch all visitors initially
-  }, [currentPage]); // Fetch visitors whenever the page changes
+    fetchVisitors() // Fetch all visitors initially
+  }, [currentPage]) // Fetch visitors whenever the page changes
 
   // Function to fetch visitors from backend with filters and pagination
   const fetchVisitors = async () => {
@@ -52,71 +52,74 @@ const ViewVisitors = () => {
       interestedCountry,
       page: currentPage, // Pass the current page to the server
       limit: 2, // Set the number of visitors per page
-    };
+    }
     try {
       const response = await axios.get('http://localhost:5000/api/v1/visitors/get-all-visitors', {
         params,
-      });
-      const { visitors, totalPages } = response.data;
-      setVisitors(visitors);
-      setTotalPages(totalPages);
+      })
+      const { visitors, totalPages } = response.data
+      setVisitors(visitors)
+      setTotalPages(totalPages)
     } catch (error) {
-      console.error('Error fetching visitor list:', error);
+      console.error('Error fetching visitor list:', error)
     }
-  };
+  }
 
   // Function to get suggestions for Autosuggest component
   const getSuggestions = async (value) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/v1/visitors/get-all-visitors', {
-        params: { name: value },
-      });
-      return response.data?.visitors?.map((visitor) => visitor.name);
+      const response = await axios.get(
+        'http://localhost:5000/api/v1/visitors/get-all-visitors',
+        {
+          params: { name: value },
+        },
+      )
+      return response.data?.visitors?.map((visitor) => visitor.name) || []
     } catch (error) {
-      console.error('Error fetching visitor suggestions:', error);
-      return [];
+      console.error('Error fetching visitor suggestions:', error)
+      return []
     }
-  };
+  }
 
   const onSuggestionsFetchRequested = async ({ value }) => {
-    const suggestions = await getSuggestions(value);
-    setSuggestions(suggestions);
-  };
+    const suggestions = await getSuggestions(value)
+    setSuggestions(suggestions)
+  }
 
   const onSuggestionsClearRequested = () => {
-    setSuggestions([]);
-  };
+    setSuggestions([])
+  }
 
   const onSuggestionSelected = (event, { suggestionValue }) => {
-    setName(suggestionValue);
-  };
+    setName(suggestionValue)
+  }
 
   const onChange = (event, { newValue }) => {
-    setName(newValue);
-  };
+    setName(newValue)
+  }
 
   const inputProps = {
     placeholder: 'Search by name',
     value: name,
     onChange,
     className: 'form-control rounded-pill',
-  };
+  }
 
   const handleFilterClick = () => {
-    setCurrentPage(1); // Reset to the first page when applying filters
-    fetchVisitors(); // Fetch visitors based on the current filter criteria
-  };
+    setCurrentPage(1) // Reset to the first page when applying filters
+    fetchVisitors() // Fetch visitors based on the current filter criteria
+  }
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(visitors); // Convert JSON data to a worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Visitors'); // Append worksheet to workbook
-    XLSX.writeFile(workbook, 'visitors_list.xlsx'); // Write the workbook to a file
-  };
+    const worksheet = XLSX.utils.json_to_sheet(visitors) // Convert JSON data to a worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Visitors') // Append worksheet to workbook
+    XLSX.writeFile(workbook, 'visitors_list.xlsx') // Write the workbook to a file
+  }
 
   const handlePageChange = (page) => {
-    setCurrentPage(page); // Update the current page state
-  };
+    setCurrentPage(page) // Update the current page state
+  }
 
   return (
     <CRow>
@@ -130,7 +133,7 @@ const ViewVisitors = () => {
                 <CIcon icon={cilFilter} className="mx-2" />
                 <div style={{ position: 'relative', width: '100%' }}>
                   <Autosuggest
-                    suggestions={suggestions}
+                    suggestions={suggestions || []}
                     onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                     onSuggestionsClearRequested={onSuggestionsClearRequested}
                     onSuggestionSelected={onSuggestionSelected}
@@ -175,7 +178,12 @@ const ViewVisitors = () => {
                 onChange={(e) => setInterestedCountry(e.target.value)}
               />
 
-              <CButton color="info" variant="outline" className="rounded-pill ml-3" onClick={handleFilterClick}>
+              <CButton
+                color="info"
+                variant="outline"
+                className="rounded-pill ml-3"
+                onClick={handleFilterClick}
+              >
                 <CIcon icon={cilFilter} className="mr-2" />
                 Apply Filters
               </CButton>
@@ -185,11 +193,11 @@ const ViewVisitors = () => {
                 variant="outline"
                 className="rounded-pill ml-3"
                 onClick={() => {
-                  setName('');
-                  setStartDate(null);
-                  setEndDate(null);
-                  setInterestedCountry('');
-                  fetchVisitors(); // Reset filters and fetch all visitors
+                  setName('')
+                  setStartDate(null)
+                  setEndDate(null)
+                  setInterestedCountry('')
+                  fetchVisitors() // Reset filters and fetch all visitors
                 }}
               >
                 <CIcon icon={cilSync} className="mr-2" />
@@ -205,15 +213,25 @@ const ViewVisitors = () => {
                     <CIcon icon={cilPeople} />
                   </CTableHeaderCell>
                   <CTableHeaderCell className="text-center bg-body-tertiary">Name</CTableHeaderCell>
-                  <CTableHeaderCell className="text-center bg-body-tertiary">Email</CTableHeaderCell>
-                  <CTableHeaderCell className="text-center bg-body-tertiary">Phone</CTableHeaderCell>
-                  <CTableHeaderCell className="text-center bg-body-tertiary">Interested Countries</CTableHeaderCell>
-                  <CTableHeaderCell className="text-center bg-body-tertiary">Intake</CTableHeaderCell>
-                  <CTableHeaderCell className="text-center bg-body-tertiary">Details</CTableHeaderCell>
+                  <CTableHeaderCell className="text-center bg-body-tertiary">
+                    Email
+                  </CTableHeaderCell>
+                  <CTableHeaderCell className="text-center bg-body-tertiary">
+                    Phone
+                  </CTableHeaderCell>
+                  <CTableHeaderCell className="text-center bg-body-tertiary">
+                    Interested Countries
+                  </CTableHeaderCell>
+                  <CTableHeaderCell className="text-center bg-body-tertiary">
+                    Intake
+                  </CTableHeaderCell>
+                  <CTableHeaderCell className="text-center bg-body-tertiary">
+                    Details
+                  </CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {visitors.map((item, index) => (
+                {visitors?.map((item, index) => (
                   <CTableRow key={index}>
                     <CTableDataCell className="text-center align-middle">
                       <CIcon icon={cilPeople} />
@@ -234,10 +252,14 @@ const ViewVisitors = () => {
                       <div className="font-weight-bold">{item.targetedIntake}</div>
                     </CTableDataCell>
                     <CTableDataCell className="text-center align-middle">
-                      <CIcon icon={cilChevronBottom} size="lg" onClick={() => {
-                        navigate('/view-visitor');
-                        localStorage.setItem('visitorId', item._id);
-                      }} />
+                      <CIcon
+                        icon={cilChevronBottom}
+                        size="lg"
+                        onClick={() => {
+                          navigate('/view-visitor')
+                          localStorage.setItem('visitorId', item._id)
+                        }}
+                      />
                     </CTableDataCell>
                   </CTableRow>
                 ))}
@@ -277,7 +299,7 @@ const ViewVisitors = () => {
         </CCard>
       </CCol>
     </CRow>
-  );
-};
+  )
+}
 
-export default ViewVisitors;
+export default ViewVisitors

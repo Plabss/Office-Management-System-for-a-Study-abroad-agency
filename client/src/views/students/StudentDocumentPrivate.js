@@ -153,7 +153,7 @@ const StudentDocumentPrivate = () => {
   }
 
   return (
-    <CCard>
+    <CCard style={{"padding":"3rem"}}>
       <CCardHeader>
         <h2>Upload Your Documents</h2>
         <CButton color="secondary" className="float-end" onClick={handleDownloadAll}>

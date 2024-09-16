@@ -12,7 +12,8 @@ const employeeSchema = new mongoose.Schema({
     asCounselor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
     asApplicant: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
     asVisaAdmin: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
-  }
+  },
+  visitors:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Visitor' }]
 }, {
   timestamps: true,
 });

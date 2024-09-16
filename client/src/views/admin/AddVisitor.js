@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CButton,
   CCard,
@@ -11,6 +11,7 @@ import {
   CFormLabel,
   CRow,
   CSpinner,
+  CFormSelect,
 } from '@coreui/react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -26,7 +27,23 @@ const AddVisitor = () => {
 
   const [file, setFile] = useState(null); // Separate state for the file
   const [loading, setLoading] = useState(false);
+  const [employees, setEmployees] = useState([]); // State for employee list
+  const [selectedEmployee, setSelectedEmployee] = useState(''); // State for selected employee
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch employees list
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees-without-pagination');
+        setEmployees(response.data);
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
 
   // Handle input change for both text inputs and file inputs
   const handleChange = (e) => {
@@ -41,6 +58,10 @@ const AddVisitor = () => {
     }
   };
 
+  const handleEmployeeChange = (e) => {
+    setSelectedEmployee(e.target.value);
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +73,7 @@ const AddVisitor = () => {
     data.append('phone', formData.phone);
     data.append('interestedCountries', formData.interestedCountries);
     data.append('targetedIntake', formData.targetedIntake);
+    data.append('employeeId', selectedEmployee); // Include selected employee ID
     if (file) {
       data.append('nidOrBirthCertificate', file);
     }
@@ -154,6 +176,24 @@ const AddVisitor = () => {
                       onChange={handleChange}
                       required
                     />
+                  </CCol>
+                </CRow>
+                <CRow className="mb-3">
+                  <CCol md={12}>
+                    <CFormLabel htmlFor="employee">Assign Employee</CFormLabel>
+                    <CFormSelect
+                      id="employee"
+                      value={selectedEmployee}
+                      onChange={handleEmployeeChange}
+                      required
+                    >
+                      <option value="">Select an Employee</option>
+                      {employees.map((employee) => (
+                        <option key={employee._id} value={employee._id}>
+                          {employee.name}
+                        </option>
+                      ))}
+                    </CFormSelect>
                   </CCol>
                 </CRow>
                 <CButton type="submit" color="primary" disabled={loading}>

@@ -13,6 +13,7 @@ import { AppSidebarNav } from './AppSidebarNav'
 
 import { logo } from 'src/assets/brand/logo'
 import { sygnet } from 'src/assets/brand/sygnet'
+import pixelCode from '../assets/brand/pixelCode.png'
 
 // sidebar nav config
 import navigation from '../navigations/_nav'
@@ -22,13 +23,12 @@ import ApplicantNavigation from '../navigations/_applicantNav'
 import VisaAdminNavigation from '../navigations/_visaAdminNav'
 import { useDispatch, useSelector } from 'react-redux'
 
-
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
   // const role = 'counselor';
-  const role = JSON.parse(localStorage.getItem('employee')).role[0];
+  const role = JSON.parse(localStorage.getItem('employee')).role[0]
   return (
     <CSidebar
       className="border-end"
@@ -41,9 +41,20 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarHeader className="border-bottom">
-        <CSidebarBrand to="/">
-          <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
-          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
+        <CSidebarBrand to="/" style={{"text-decoration":"none"}}>
+          <div style={{"display":"flex","alignItems":"center"}}>
+          <img
+            src={pixelCode}
+            alt=""
+            style={{
+              height: '70px',
+              width: '60px',
+              borderRadius: '15px',
+              padding: '10px 0px 10px 0px',
+            }}
+          />
+          <h5 style={{"margin-left":"0.5rem"}}>Pixel Code</h5>
+          </div>
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
@@ -51,18 +62,20 @@ const AppSidebar = () => {
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>
-      {
-        console.log("role",role)
-      }
-      
-      {
-        role === 'super-admin' ? <AppSidebarNav items={navigation} /> :
-        role === 'counselor' ? <AppSidebarNav items={CounselorNavigation} /> :
-        role === 'applicant' ? <AppSidebarNav items={ApplicantNavigation} /> :
-        role === 'visa-admin' ? <AppSidebarNav items={VisaAdminNavigation} /> :
-        role === 'receptionist' ? <AppSidebarNav items={ReceptionistNavigation} /> : null
-      }
-      
+      {console.log('role', role)}
+
+      {role === 'super-admin' ? (
+        <AppSidebarNav items={navigation} />
+      ) : role === 'counselor' ? (
+        <AppSidebarNav items={CounselorNavigation} />
+      ) : role === 'applicant' ? (
+        <AppSidebarNav items={ApplicantNavigation} />
+      ) : role === 'visa-admin' ? (
+        <AppSidebarNav items={VisaAdminNavigation} />
+      ) : role === 'receptionist' ? (
+        <AppSidebarNav items={ReceptionistNavigation} />
+      ) : null}
+
       {/* <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}

@@ -7,41 +7,48 @@ const {
   addVisitor,
   getAllVisitors,
   getAVisitorById,
+  assignVisitorToEmployee,
+  addEmployeeToVisitorService,
+  removeEmployeeFromVisitorService
 } = require("../services/visitor.service");
 
 const bcrypt = require('bcryptjs');
 
-exports.addVisitorController = async (req, res) => {
-  try {
-    console.log("stu", req.body);
-    console.log("stu", req.files["nidOrBirthCertificate"][0].path);
-    const { name, email, phone, interestedCountries, targetedIntake } =
-      req.body;
-    const nidOrBirthCertificateUpload = await cloudinary.uploader.upload(
-      req.files["nidOrBirthCertificate"][0].path,
-      {
-        folder: "visitor/nidOrBirthCertificate",
-      }
-    );
+// exports.addVisitorController = async (req, res) => {
+//   try {
+//     console.log("stu", req.body);
+//     console.log("stu", req.files["nidOrBirthCertificate"][0].path);
+//     const { name, email, phone, interestedCountries, targetedIntake, employeeId } =
+//       req.body;
+//     const nidOrBirthCertificateUpload = await cloudinary.uploader.upload(
+//       req.files["nidOrBirthCertificate"][0].path,
+//       {
+//         folder: "visitor/nidOrBirthCertificate",
+//       }
+//     );
 
-    const newVisitor = await addVisitor({
-      name,
-      email,
-      phone,
-      interestedCountries,
-      targetedIntake,
-      nidOrBirthCertificate: nidOrBirthCertificateUpload.secure_url,
-    });
+//     const newVisitor = await addVisitor({
+//       name,
+//       email,
+//       phone,
+//       interestedCountries,
+//       targetedIntake,
+//       employeeId,
+//       nidOrBirthCertificate: nidOrBirthCertificateUpload.secure_url,
+//     });
 
-    res.status(200).json({
-      status: "success",
-      message: "Visitor Registration completed successfully",
-      data: newVisitor,
-    });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+//     res.status(200).json({
+//       status: "success",
+//       message: "Visitor Registration completed successfully",
+//       data: newVisitor,
+//     });
+
+//     res.status(400).json({ ok:'success' });
+
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// };
 
 // exports.getAllVisitorsController = async (req, res) => {
 //   try {
@@ -87,6 +94,61 @@ exports.addVisitorController = async (req, res) => {
 //     res.status(400).json({ error: error.message });
 //   }
 // };
+
+exports.addVisitorController = async (req, res) => {
+  try {
+    const { name, email, phone, interestedCountries, targetedIntake, employeeId } = req.body;
+    
+    // Upload NID/Birth Certificate
+    let nidOrBirthCertificateUpload = null;
+    if (req.files && req.files["nidOrBirthCertificate"]) {
+      nidOrBirthCertificateUpload = await cloudinary.uploader.upload(
+        req.files["nidOrBirthCertificate"][0].path,
+        {
+          folder: "visitor/nidOrBirthCertificate",
+        }
+      );
+    }
+
+    // Add new visitor
+    const newVisitor = await addVisitor({
+      name,
+      email,
+      phone,
+      interestedCountries,
+      targetedIntake,
+      nidOrBirthCertificate: nidOrBirthCertificateUpload ? nidOrBirthCertificateUpload.secure_url : null,
+    });
+
+    // If employeeId is provided, assign visitor to employee
+    if (employeeId) {
+      await assignVisitorToEmployee(newVisitor._id, employeeId);
+    }
+
+    if (newVisitor && employeeId) {
+      const notification = new Notification({
+        message: `A new student has been assigned to you for follow up: ${newVisitor.name}`,
+        employeeId: employeeId,
+        visitorId: newVisitor._id,
+        for: "follow up",
+      });
+      await notification.save();
+
+      const io = req.app.get("socketio");
+      io.emit("notification", notification);
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Visitor Registration completed successfully",
+      data: newVisitor,
+    });
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 
 exports.getAllVisitorsController = async (req, res) => {
   try {
@@ -214,5 +276,119 @@ exports.convertVisitorToStudent = async (req, res) => {
     session.endSession();
     console.error("Error converting visitor to student:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
+exports.addEmployeeToVisitor = async (req, res) => {
+  const { visitorId } = req.params;
+  const { employeeId } = req.body;
+
+  console.log(req.body);
+
+  try {
+    const updatedVisitor = await addEmployeeToVisitorService(
+      visitorId,
+      employeeId,
+    );
+    res
+      .status(200)
+      .json({ message: "Employee added successfully", updatedVisitor });
+  } catch (error) {
+    console.error("Error adding employee:", error);
+    res.status(500).json({ error: "Failed to add employee" });
+  }
+};
+
+exports.removeEmployeeFromVisitor = async (req, res) => {
+  const { visitorId } = req.params;
+  const { employeeId } = req.body;
+
+  try {
+    const updatedVisitor = await removeEmployeeFromVisitorService(
+      visitorId,
+      employeeId,
+    );
+    res
+      .status(200)
+      .json({ message: "Employee removed successfully", updatedVisitor });
+  } catch (error) {
+    console.error("Error removing employee:", error);
+    res.status(500).json({ error: "Failed to remove employee" });
+  }
+};
+
+
+exports.addDiscussionController = async (req, res) => {
+  try {
+    console.log("disssssss", req.body);
+    const { visitorId } = req.params; // Get the studentId from request parameters
+    const { message, assignedBy } = req.body; // Extract message and assignedBy from the request body
+
+    // Find the student by ID
+    const visitor = await Visitor.findById(visitorId);
+    if (!visitor) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Visitor not found" });
+    }
+
+    // Create the new discussion object
+    const newDiscussion = {
+      employee_name: assignedBy.name,
+      message: message,
+    };
+
+    // Add the new discussion to the student's discussions array
+    visitor.discussions.push(newDiscussion);
+
+    // Save the updated student document
+    await visitor.save();
+    res.status(201).json({
+      status: "success",
+      data: newDiscussion,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+exports.deleteDiscussionController = async (req, res) => {
+  console.log("hitttt");
+  try {
+    const { visitorId, discussionId } = req.params;
+    const visitor = await Visitor.findById(visitorId);
+    if (!visitor) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Visitor not found" });
+    }
+
+    // Find the discussion
+    const discussionIndex = visitor.discussions.findIndex(
+      (discussion) => discussion._id.toString() === discussionId
+    );
+
+    if (discussionIndex === -1) {
+      return res.status(403).json({
+        status: "fail",
+        message: "You can only delete your own discussions.",
+      });
+    }
+
+    // Remove the discussion from the array
+    visitor.discussions.splice(discussionIndex, 1);
+
+    // Save the updated student document
+    await visitor.save();
+
+    // Send a success response
+    res.status(200).json({
+      status: "success",
+      message: "Discussion deleted successfully",
+    });
+  } catch (error) {
+    // Send an error response
+    res.status(400).json({ status: "fail", error: error.message });
   }
 };

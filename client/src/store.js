@@ -1,7 +1,7 @@
 import { legacy_createStore as createStore } from 'redux'
 
 const initialState = {
-  sidebarShow: true,
+  sidebarShow: false,
   theme: 'light',
   role: '',
   upload: false,
@@ -17,6 +17,7 @@ const initialState = {
   updateRole:false,
   updateStudentData:false,
   courseDetailsUpdated:false,
+  updateVisitorData:false,
 }
 
 const changeState = (state = initialState, { type, key, value, ...rest }) => {
