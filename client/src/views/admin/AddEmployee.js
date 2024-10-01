@@ -14,6 +14,7 @@ import {
   CRow,
   CSpinner,
 } from '@coreui/react'
+import { useNavigate } from 'react-router-dom'
 
 const AddEmployee = () => {
   const [employee, setEmployee] = useState({
@@ -24,12 +25,14 @@ const AddEmployee = () => {
     role: '',
     cv: null,
     nid: null,
+    img: null,
   })
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value, files } = e.target
-    if (name === 'cv' || name === 'nid') {
+    if (name === 'cv' || name === 'nid' || name === 'img') {
       setEmployee((prevState) => ({
         ...prevState,
         [name]: files[0],
@@ -54,6 +57,7 @@ const AddEmployee = () => {
     formData.append('role', employee.role)
     formData.append('cv', employee.cv)
     formData.append('nid', employee.nid)
+    formData.append('img', employee.img)
 
     try {
       // Replace with your API endpoint
@@ -68,7 +72,11 @@ const AddEmployee = () => {
       )
 
       console.log('Employee data submitted:', response.data)
-      // handle success (e.g., navigate to another page or show a success message)
+      const employee = localStorage.getItem('employee')
+      console.log('aaaaaaaaa',employee)
+      const firstRole = JSON.parse(employee).role[0]; // Use the first role for redirection
+      navigate(`/${firstRole}-view-employees`);
+
     } catch (error) {
       console.error('Error submitting employee data:', error)
       // handle error (e.g., show an error message)
@@ -159,13 +167,17 @@ const AddEmployee = () => {
                   </CCol>
                 </CRow>
                 <CRow className="mb-3">
-                  <CCol md={6}>
+                  <CCol md={4}>
                     <CFormLabel htmlFor="cv">CV/Resume</CFormLabel>
                     <CFormInput type="file" id="cv" name="cv" onChange={handleChange} required />
                   </CCol>
-                  <CCol md={6}>
+                  <CCol md={4}>
                     <CFormLabel htmlFor="nid">NID</CFormLabel>
                     <CFormInput type="file" id="nid" name="nid" onChange={handleChange} required />
+                  </CCol>
+                  <CCol md={4}>
+                    <CFormLabel htmlFor="img">Image</CFormLabel>
+                    <CFormInput type="file" id="img" name="img" onChange={handleChange} required />
                   </CCol>
                 </CRow>
                 <CButton type="submit" color="primary" disabled={loading}>

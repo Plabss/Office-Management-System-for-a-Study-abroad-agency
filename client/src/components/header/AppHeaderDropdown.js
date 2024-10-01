@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CAvatar,
   CBadge,
@@ -24,6 +24,22 @@ import { useDispatch } from 'react-redux'
 const AppHeaderDropdown = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const [employee, setEmployee] = useState(null);
+
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      try {
+        const Employee = localStorage.getItem('employee');
+        setEmployee(JSON.parse(Employee));
+        console.log("employee, " + Employee);
+      } catch (error) {
+        
+      }
+    }
+
+    fetchEmployee()
+  }, [])
   
   const handleLogout = () => {
     // Remove the role from localStorage
@@ -47,7 +63,7 @@ const AppHeaderDropdown = () => {
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
-        <CAvatar src={avatar8} size="md" />
+        <CAvatar src={employee?.img} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-body-secondary fw-semibold mb-2">Account</CDropdownHeader>

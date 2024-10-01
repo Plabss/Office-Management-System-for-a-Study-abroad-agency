@@ -8,12 +8,15 @@ const employeeSchema = new mongoose.Schema({
   role: [{ type: String, required: true }],  
   cv: { type: String, required: true }, 
   nid: { type: String, required: true },  
+  img: { type: String, required: true },  
   students: {
     asCounselor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
     asApplicant: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
     asVisaAdmin: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
   },
-  visitors:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Visitor' }]
+  visitors:[{ type: mongoose.Schema.Types.ObjectId, ref: 'Visitor' }],
+  disabled:{ type: Boolean, default: false },
+
 }, {
   timestamps: true,
 });

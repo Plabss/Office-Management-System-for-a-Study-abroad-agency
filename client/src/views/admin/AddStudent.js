@@ -33,18 +33,22 @@ const AddStudent = () => {
   useEffect(() => {
     const fetchCounselors = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees-without-pagination')
-        // Ensure that response.data is an array
+        const response = await axios.get('http://localhost:5000/api/v1/employees/get-all-employees-without-pagination');
+    
         if (Array.isArray(response.data)) {
-          setCounselors(response.data)
+          // Filter out employees who are not disabled and have the role 'counselor'
+          const activeCounselors = response.data.filter((employee) => 
+            !employee.disabled && employee.role.includes('counselor')
+          );
+          setCounselors(activeCounselors);
         } else {
-          console.error('Unexpected data format:', response.data)
+          console.error('Unexpected data format:', response.data);
         }
       } catch (error) {
-        console.error('Error fetching counselors:', error)
+        console.error('Error fetching counselors:', error);
         // Handle error
       }
-    }
+    };
 
     fetchCounselors()
   }, [])

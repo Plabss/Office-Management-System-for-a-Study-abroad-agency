@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CTable, CTableBody, CTableHead, CTableHeaderCell, CTableRow, CTableDataCell, CPagination, CPaginationItem } from '@coreui/react'
+import { CTable, CTableBody, CTableHead, CTableHeaderCell, CTableRow, CTableDataCell, CPagination, CPaginationItem, CCard } from '@coreui/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import CIcon from '@coreui/icons-react';
 import { cilDescription } from '@coreui/icons';
@@ -30,7 +30,7 @@ const StudentsList = () => {
   }
 
   return (
-    <>
+    <CCard className="shadow-sm" style={{"padding":"1rem"}}>
       <h2>{title}</h2>
       <CTable hover>
         <CTableHead>
@@ -86,7 +86,7 @@ const StudentsList = () => {
           Next
         </CPaginationItem>
       </CPagination>
-    </>
+    </CCard>
   )
 }
 

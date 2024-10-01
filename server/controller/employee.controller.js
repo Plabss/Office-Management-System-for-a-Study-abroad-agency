@@ -1,4 +1,5 @@
 const cloudinary = require('../config/cloudinary');
+const Employee = require('../model/Employee.model');
 const Notification = require('../model/Notification.model');
 const Student = require('../model/Student.model');
 const { addEmployee,getAllEmployees,updateRole,assignApplicant,assignVisaAdmin, getEmployeeById, getAllEmployeesWithoutPagination } = require('../services/employee.services');
@@ -15,6 +16,9 @@ exports.addEmployeeController = async (req, res) => {
     const nidUpload = await cloudinary.uploader.upload(req.files['nid'][0].path, {
       folder: 'employees/nid',
     });
+    const imgUpload = await cloudinary.uploader.upload(req.files['img'][0].path, {
+      folder: 'employees/img',
+    });
 
     const newEmployee = await addEmployee({
       name,
@@ -24,6 +28,7 @@ exports.addEmployeeController = async (req, res) => {
       role,
       cv: cvUpload.secure_url,
       nid: nidUpload.secure_url,
+      img: imgUpload.secure_url,
     });
 
     res.status(200).json({
@@ -141,5 +146,25 @@ exports.updateRoleController = async (req, res) => {
     res.status(200).json({ message: 'Role updated successfully', data: update });
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+exports.disableEmployeeController = async (req, res) => {
+  const { employeeId } = req.params;
+  const { disabled } = req.body; // Get the disabled status from the request body
+
+  try {
+    const employee = await Employee.findByIdAndUpdate(
+      employeeId,
+      { disabled: disabled }, // Update the disabled field
+      { new: true }
+    );
+
+    if (!employee) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    res.status(200).json({ message: `Employee has been ${disabled ? 'disabled' : 'enabled'}`, employee });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
   }
 };

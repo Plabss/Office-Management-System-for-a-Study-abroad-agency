@@ -73,7 +73,7 @@ const ViewEmployees = () => {
                 {employees.map((item, index) => (
                   <CTableRow key={index}>
                     <CTableDataCell className="text-center align-middle">
-                      <CAvatar size="md" src={item.avatar || '/default-avatar.png'} />
+                      <CAvatar size="md" src={item.img || '/default-avatar.png'} />
                     </CTableDataCell>
                     <CTableDataCell className="text-center align-middle">
                       <div className="font-weight-bold">{item.name}</div>

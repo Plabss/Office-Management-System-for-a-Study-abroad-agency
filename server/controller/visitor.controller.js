@@ -292,6 +292,19 @@ exports.addEmployeeToVisitor = async (req, res) => {
       visitorId,
       employeeId,
     );
+
+    if (updatedVisitor && employeeId) {
+      const notification = new Notification({
+        message: `A new student has been assigned to you for follow up: ${updatedVisitor.name}`,
+        employeeId: employeeId,
+        visitorId: updatedVisitor._id,
+        for: "follow up",
+      });
+      await notification.save();
+
+      const io = req.app.get("socketio");
+      io.emit("notification", notification);
+    }
     res
       .status(200)
       .json({ message: "Employee added successfully", updatedVisitor });

@@ -1,6 +1,6 @@
-import { element } from 'prop-types'
 import React from 'react'
 
+// Lazy-loaded components
 const Dashboard = React.lazy(() => import('./views/admin/Dashboard'))
 const AddEmployee = React.lazy(() => import('./views/admin/AddEmployee'))
 const AddVisitor = React.lazy(() => import('./views/admin/AddVisitor'))
@@ -9,7 +9,6 @@ const ViewStudents = React.lazy(() => import('./views/admin/ViewStudents'))
 const ViewEmployees = React.lazy(() => import('./views/admin/ViewEmployees'))
 const ViewVisitors = React.lazy(() => import('./views/admin/ViewVisitors'))
 
-
 const ViewStudent = React.lazy(() => import('./views/students/ViewStudent'))
 const CourseDetails = React.lazy(() => import('./views/course/CourseDetails'))
 const VisaDetails = React.lazy(() => import('./views/visa/visaDetails'))
@@ -17,9 +16,6 @@ const ViewEmployee = React.lazy(() => import('./views/employee/ViewEmployee'))
 const ViewVisitor = React.lazy(() => import('./views/visitor/ViewVisitor'))
 const StudentsList = React.lazy(() => import('./views/students/StudentsList'))
 
-
-
-// const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -45,7 +41,7 @@ const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
 const ButtonGroups = React.lazy(() => import('./views/buttons/button-groups/ButtonGroups'))
 const Dropdowns = React.lazy(() => import('./views/buttons/dropdowns/Dropdowns'))
 
-//Forms
+// Forms
 const ChecksRadios = React.lazy(() => import('./views/forms/checks-radios/ChecksRadios'))
 const FloatingLabels = React.lazy(() => import('./views/forms/floating-labels/FloatingLabels'))
 const FormControl = React.lazy(() => import('./views/forms/form-control/FormControl'))
@@ -72,8 +68,8 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
-  // { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  //super-admin
+  
+  // Super-admin routes
   { path: '/super-admin-dashboard', name: 'Admin Dashboard', element: Dashboard },
   { path: '/super-admin-add-visitor', name: 'Admin Add Visitor', element: AddVisitor },
   { path: '/super-admin-view-visitors', name: 'Admin View Visitors', element: ViewVisitors },
@@ -81,36 +77,36 @@ const routes = [
   { path: '/super-admin-view-students', name: 'Admin View Students', element: ViewStudents },
   { path: '/super-admin-add-employee', name: 'Admin Add Employee', element: AddEmployee },
   { path: '/super-admin-view-employees', name: 'Admin View Employees', element: ViewEmployees },
-  
-  //counselor 
+
+  // Counselor routes
   { path: '/counselor-dashboard', name: 'Counselor Dashboard', element: Dashboard },
   { path: '/counselor-add-visitor', name: 'Counselor Add Visitor', element: AddVisitor },
   { path: '/counselor-view-visitors', name: 'Counselor View Visitors', element: ViewVisitors },
   { path: '/counselor-add-student', name: 'Counselor Add Student', element: AddStudent },
   { path: '/counselor-view-students', name: 'Counselor View Students', element: ViewStudents },
 
-  //applicant
+  // Applicant routes
   { path: '/applicant-dashboard', name: 'Applicant Dashboard', element: Dashboard },
   { path: '/applicant-add-visitor', name: 'Applicant Add Visitor', element: AddVisitor },
   { path: '/applicant-view-visitors', name: 'Applicant View Visitors', element: ViewVisitors },
   { path: '/applicant-add-student', name: 'Applicant Add Student', element: AddStudent },
   { path: '/applicant-view-students', name: 'Applicant View Students', element: ViewStudents },
-
-  //visa-admin
+  
+  // Visa-admin routes
   { path: '/visa-admin-dashboard', name: 'Visa Admin Dashboard', element: Dashboard },
   { path: '/visa-admin-add-visitor', name: 'Visa Admin Add Visitor', element: AddVisitor },
   { path: '/visa-admin-view-visitors', name: 'Visa Admin View Visitors', element: ViewVisitors },
   { path: '/visa-admin-add-student', name: 'Visa Admin Add Student', element: AddStudent },
   { path: '/visa-admin-view-students', name: 'Visa Admin View Students', element: ViewStudents },
-  
-  //receptionist
+
+  // Receptionist routes
   { path: '/receptionist-dashboard', name: 'Receptionist Dashboard', element: Dashboard },
   { path: '/receptionist-add-visitor', name: 'Receptionist Add Visitor', element: AddVisitor },
   { path: '/receptionist-view-visitors', name: 'Receptionist View Visitors', element: ViewVisitors },
   { path: '/receptionist-add-student', name: 'Receptionist Add Student', element: AddStudent },
   { path: '/receptionist-view-students', name: 'Receptionist View Students', element: ViewStudents },
-  
-  //common elements
+
+  // Common routes
   { path: '/view-student', name: 'View-Student', element: ViewStudent },
   { path: '/enrolled-course', name: 'Course-Details', element: CourseDetails },
   { path: '/applied-visa', name: 'Visa-Details', element: VisaDetails },
@@ -118,11 +114,12 @@ const routes = [
   { path: '/view-visitor', name: 'View-Visitor', element: ViewVisitor },
   { path: '/view-students-list', name: 'View-Students-List', element: StudentsList },
 
-
-  //
+  // Theme
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
+
+  // Base components
   { path: '/base', name: 'Base', element: Cards, exact: true },
   { path: '/base/accordion', name: 'Accordion', element: Accordion },
   { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
@@ -139,11 +136,17 @@ const routes = [
   { path: '/base/tabs', name: 'Tabs', element: Tabs },
   { path: '/base/tables', name: 'Tables', element: Tables },
   { path: '/base/tooltips', name: 'Tooltips', element: Tooltips },
+
+  // Buttons
   { path: '/buttons', name: 'Buttons', element: Buttons, exact: true },
   { path: '/buttons/buttons', name: 'Buttons', element: Buttons },
   { path: '/buttons/dropdowns', name: 'Dropdowns', element: Dropdowns },
   { path: '/buttons/button-groups', name: 'Button Groups', element: ButtonGroups },
+
+  // Charts
   { path: '/charts', name: 'Charts', element: Charts },
+
+  // Forms
   { path: '/forms', name: 'Forms', element: FormControl, exact: true },
   { path: '/forms/form-control', name: 'Form Control', element: FormControl },
   { path: '/forms/select', name: 'Select', element: Select },
@@ -153,15 +156,21 @@ const routes = [
   { path: '/forms/floating-labels', name: 'Floating Labels', element: FloatingLabels },
   { path: '/forms/layout', name: 'Layout', element: Layout },
   { path: '/forms/validation', name: 'Validation', element: Validation },
+
+  // Icons
   { path: '/icons', exact: true, name: 'Icons', element: CoreUIIcons },
   { path: '/icons/coreui-icons', name: 'CoreUI Icons', element: CoreUIIcons },
   { path: '/icons/flags', name: 'Flags', element: Flags },
   { path: '/icons/brands', name: 'Brands', element: Brands },
+
+  // Notifications
   { path: '/notifications', name: 'Notifications', element: Alerts, exact: true },
   { path: '/notifications/alerts', name: 'Alerts', element: Alerts },
   { path: '/notifications/badges', name: 'Badges', element: Badges },
   { path: '/notifications/modals', name: 'Modals', element: Modals },
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
+
+  // Widgets
   { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
 

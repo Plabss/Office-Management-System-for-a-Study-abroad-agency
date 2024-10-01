@@ -19,15 +19,12 @@ import CIcon from '@coreui/icons-react'
 import { cilInfo } from '@coreui/icons'
 
 const StudentCourses = ({ courses, onAddCourse }) => {
-  
   const navigate = useNavigate()
   const [newCourse, setNewCourse] = useState({
     name: '',
     level: '',
     university: '',
     country: '',
-    status: '',
-    notes: '',
   })
 
   const [addingCourse, setAddingCourse] = useState(false)
@@ -50,8 +47,6 @@ const StudentCourses = ({ courses, onAddCourse }) => {
         level: '',
         university: '',
         country: '',
-        status: '',
-        notes: '',
       })
     } catch (error) {
       console.error('Failed to add course:', error)
@@ -93,79 +88,55 @@ const StudentCourses = ({ courses, onAddCourse }) => {
       </CTable>
 
       <CForm className="mt-4" onSubmit={handleAddCourse}>
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel htmlFor="name">Course Name</CFormLabel>
-          <CFormInput
-            type="text"
-            id="name"
-            name="name"
-            value={newCourse.name}
-            onChange={handleInputChange}
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel htmlFor="level">Level</CFormLabel>
-          <CFormInput
-            type="text"
-            id="level"
-            name="level"
-            value={newCourse.level}
-            onChange={handleInputChange}
-          />
-        </CCol>
-      </CRow>
+        <CRow className="mb-3">
+          <CCol md={6}>
+            <CFormLabel htmlFor="name">Course Name</CFormLabel>
+            <CFormInput
+              type="text"
+              id="name"
+              name="name"
+              value={newCourse.name}
+              onChange={handleInputChange}
+            />
+          </CCol>
+          <CCol md={6}>
+            <CFormLabel htmlFor="level">Level</CFormLabel>
+            <CFormInput
+              type="text"
+              id="level"
+              name="level"
+              value={newCourse.level}
+              onChange={handleInputChange}
+            />
+          </CCol>
+        </CRow>
 
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel htmlFor="university">University</CFormLabel>
-          <CFormInput
-            type="text"
-            id="university"
-            name="university"
-            value={newCourse.university}
-            onChange={handleInputChange}
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel htmlFor="country">Country</CFormLabel>
-          <CFormInput
-            type="text"
-            id="country"
-            name="country"
-            value={newCourse.country}
-            onChange={handleInputChange}
-          />
-        </CCol>
-      </CRow>
-
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel htmlFor="applied">Applied</CFormLabel>
-          <CFormInput
-            type="text"
-            id="applied"
-            name="applied"
-            value={newCourse.applied}
-            onChange={handleInputChange}
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel htmlFor="details">Details</CFormLabel>
-          <CFormInput
-            type="text"
-            id="details"
-            name="details"
-            value={newCourse.details}
-            onChange={handleInputChange}
-          />
-        </CCol>
-      </CRow>
-
-      <CButton type="submit" color="primary" className="mt-2" disabled={addingCourse}>
-        {addingCourse ? <CSpinner size="sm" /> : 'Add Course'}
-      </CButton>
-    </CForm>
+        <CRow className="mb-3">
+          <CCol md={6}>
+            <CFormLabel htmlFor="university">University</CFormLabel>
+            <CFormInput
+              type="text"
+              id="university"
+              name="university"
+              value={newCourse.university}
+              onChange={handleInputChange}
+            />
+          </CCol>
+          <CCol md={6}>
+            <CFormLabel htmlFor="country">Country</CFormLabel>
+            <CFormInput
+              type="text"
+              id="country"
+              name="country"
+              value={newCourse.country}
+              onChange={handleInputChange}
+            />
+          </CCol>
+        </CRow>
+        <CButton type="submit" color="primary" className="mt-2" disabled={addingCourse}>
+          {addingCourse ? <CSpinner size="sm" /> : 'Add Course'}
+        </CButton>
+      </CForm>
     </>
   )
 }
